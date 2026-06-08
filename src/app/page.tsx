@@ -420,11 +420,19 @@ function PerfumeCard({
   perfume: Perfume;
   index: number;
 }) {
+  const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+
   const orderWhatsApp = (size: string, price: string) => {
     const message = `Bonjour, je souhaite commander le parfum ${perfume.name} (${size}) chez IK Scents.`;
     const url = `https://wa.me/212606684390?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   };
+
+  // Resolve image URL: if it's an old /uploads/ path, convert to /api/uploads/
+  const imageUrl = perfume.image.startsWith("/uploads/")
+    ? `/api${perfume.image}`
+    : perfume.image;
 
   return (
     <motion.div
@@ -435,11 +443,29 @@ function PerfumeCard({
     >
       {/* Image */}
       <div className="relative aspect-[3/4] overflow-hidden bg-luxury-dark">
-        <img
-          src={perfume.image}
-          alt={perfume.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-        />
+        {!imgError ? (
+          <img
+            src={imageUrl}
+            alt={perfume.name}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            onLoad={() => setImgLoaded(true)}
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-luxury-dark">
+            <Diamond className="w-12 h-12 text-gold/20 mb-2" />
+            <span className="text-white/20 text-sm font-light">{perfume.name}</span>
+          </div>
+        )}
+        {!imgLoaded && !imgError && (
+          <div className="absolute inset-0 flex items-center justify-center bg-luxury-dark">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full"
+            />
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
         {/* Hover overlay with order buttons */}
@@ -1166,7 +1192,7 @@ function AdminPanel({
                       onChange={(e) =>
                         setFormData({ ...formData, image: e.target.value })
                       }
-                      placeholder="/uploads/image.png"
+                      placeholder="/api/uploads/image.png"
                       required
                       className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50 flex-1"
                     />
@@ -1270,7 +1296,7 @@ function AdminPanel({
               {formData.image && (
                 <div className="mt-2">
                   <img
-                    src={formData.image}
+                    src={formData.image.startsWith("/uploads/") ? `/api${formData.image}` : formData.image}
                     alt="Preview"
                     className="w-32 h-32 object-cover border border-gold/20"
                   />
@@ -1311,7 +1337,7 @@ function AdminPanel({
                   className="flex items-center gap-3 p-3 bg-luxury-dark/50 border border-luxury-border hover:border-gold/20 transition-colors rounded-lg"
                 >
                   <img
-                    src={perfume.image}
+                    src={perfume.image.startsWith("/uploads/") ? `/api${perfume.image}` : perfume.image}
                     alt={perfume.name}
                     className="w-12 h-12 object-cover rounded"
                   />

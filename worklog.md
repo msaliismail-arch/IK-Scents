@@ -38,3 +38,27 @@ Stage Summary:
 - Luxury design with gold/black/white theme, animations, glass effects
 - All API endpoints working correctly
 - Site renders correctly when server is running (verified via curl and agent-browser)
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Fix product image display issue - images not showing for clients after admin insertion
+
+Work Log:
+- Diagnosed that Next.js 16 with Turbopack doesn't reliably serve dynamically added files from `/public/uploads/`
+- Created new API route `/api/uploads/[filename]/route.ts` to serve uploaded images via API endpoint
+- Updated `/api/upload/route.ts` to return URLs with `/api/uploads/` prefix instead of `/uploads/`
+- Updated existing database records from `/uploads/` to `/api/uploads/` format (4 perfumes updated)
+- Added image URL resolution in PerfumeCard component (`/uploads/` → `/api/uploads/` backwards compatibility)
+- Added image loading states (spinner) and error fallback (Diamond icon placeholder) in PerfumeCard
+- Updated admin panel image preview and perfume list thumbnails to resolve URLs correctly
+- Updated image input placeholder from `/uploads/image.png` to `/api/uploads/image.png`
+- Verified API route works: `GET /api/uploads/sauvage.png` returns 200 with valid image data (50607 bytes)
+- Lint check passed with no errors
+
+Stage Summary:
+- Product images now served via `/api/uploads/[filename]` API route instead of static file serving
+- Backwards compatible: old `/uploads/` URLs automatically converted to `/api/uploads/` in frontend
+- New uploads automatically use `/api/uploads/` URL format
+- Added loading spinner and error fallback for images
+- All 4 sample perfumes updated in database with new URL format
