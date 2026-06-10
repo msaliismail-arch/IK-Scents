@@ -1004,7 +1004,7 @@ function AdminPanel({
     try {
       const res = await fetch("/api/perfumes?all=true");
       const data = await res.json();
-      setPerfumes(data);
+      setPerfumes(Array.isArray(data) ? data : []); // <-- CORRECTION APPLIQUÉE ICI
     } catch (error) {
       console.error("Error fetching perfumes:", error);
     } finally {
@@ -1431,7 +1431,7 @@ export default function Home() {
     try {
       const res = await fetch("/api/perfumes");
       const data = await res.json();
-      setPerfumes(data);
+      setPerfumes(Array.isArray(data) ? data : []); // <-- CORRECTION APPLIQUÉE ICI
     } catch (error) {
       console.error("Error fetching perfumes:", error);
     } finally {
