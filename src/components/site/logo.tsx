@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { BRAND } from "@/lib/site";
 
+const SOURCES = ["/logo.svg", "/logo.png"];
+
 export function Logo({
   size = 42,
   showText = true,
@@ -10,7 +12,8 @@ export function Logo({
   size?: number;
   showText?: boolean;
 }) {
-  const [err, setErr] = useState(false);
+  const [idx, setIdx] = useState(0);
+  const failed = idx >= SOURCES.length;
 
   return (
     <div className="flex items-center gap-3">
@@ -18,13 +21,13 @@ export function Logo({
         className="rounded-full overflow-hidden bg-neutral-900 flex items-center justify-center border border-gold-soft shadow-sm shrink-0"
         style={{ width: size, height: size }}
       >
-        {!err ? (
+        {!failed ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src="/logo.svg"
+            src={SOURCES[idx]}
             alt={BRAND}
             className="w-full h-full object-contain p-1"
-            onError={() => setErr(true)}
+            onError={() => setIdx((i) => i + 1)}
           />
         ) : (
           <span
