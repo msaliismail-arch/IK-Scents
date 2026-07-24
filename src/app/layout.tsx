@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Montserrat, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import AuthProvider from "@/components/auth/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
-const inter = Inter({
-  variable: "--font-inter",
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -47,7 +49,7 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${playfair.variable} antialiased bg-background text-foreground`}
+        className={`${montserrat.variable} ${cormorant.variable} font-sans antialiased bg-background text-foreground`}
       >
         <ThemeProvider
           attribute="class"

@@ -62,6 +62,22 @@ function AnimatedSection({
   );
 }
 
+// Uses a real product photo if present (public/hero-bottle.png), else SVG.
+function HeroProduct() {
+  const [useImg, setUseImg] = useState(true);
+  return useImg ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/hero-bottle.png"
+      alt={`Flacon ${BRAND}`}
+      onError={() => setUseImg(false)}
+      className="w-[320px] max-w-full object-contain drop-shadow-2xl"
+    />
+  ) : (
+    <PerfumeBottle width={320} />
+  );
+}
+
 // ==========================================
 // HERO — product left, text right (mockup)
 // ==========================================
@@ -94,7 +110,7 @@ function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, delay: 0.3 }}
-            className="text-5xl sm:text-6xl lg:text-7xl font-serif font-bold leading-[0.98] mb-6 text-foreground uppercase tracking-tight"
+            className="text-4xl sm:text-5xl lg:text-6xl font-serif font-semibold leading-[1.08] mb-5 text-foreground uppercase tracking-[0.01em]"
           >
             Découvrez
             <br />
@@ -174,7 +190,7 @@ function ExperienceSection() {
   ];
 
   return (
-    <section id="experience" className="relative py-24 sm:py-28 bg-background overflow-hidden">
+    <section id="experience" className="relative py-20 sm:py-24 bg-surface-alt border-y border-border overflow-hidden">
       <FloralSpray className="absolute top-6 left-2 w-28 h-24 text-[#9a8266] opacity-25 -scale-x-100 hidden md:block" />
       <FloralSpray className="absolute bottom-6 right-2 w-28 h-24 text-[#9a8266] opacity-25 hidden md:block" />
 
@@ -481,6 +497,51 @@ function ContactSection() {
 }
 
 // ==========================================
+// SHOWCASE (bas de page — mockup)
+// ==========================================
+function ShowcaseSection() {
+  return (
+    <section className="relative py-20 sm:py-24 bg-card border-t border-border overflow-hidden">
+      <LeafBranch className="absolute top-8 left-6 w-16 h-40 text-[#9a8266] opacity-15 pointer-events-none hidden md:block" />
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <AnimatedSection className="grid grid-cols-1 md:grid-cols-3 gap-10 items-center justify-items-center">
+          <div className="flex flex-col items-center text-center">
+            <PerfumeBottle width={150} />
+            <p className="mt-4 text-xs tracking-[0.15em] uppercase text-muted-foreground">
+              Formats 10ml / 20ml
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center text-center">
+            <div className="w-40 h-40 rounded-lg bg-[#1a1a1a] flex items-center justify-center shadow-xl border border-[#2a2a2a]">
+              <span className="font-serif text-6xl text-[#c9a96e] leading-none">A</span>
+            </div>
+            <p className="mt-4 text-xs tracking-[0.15em] uppercase text-muted-foreground">
+              Coffret {BRAND}
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center text-center">
+            <div className="w-44 h-40 rounded-lg bg-surface-alt border border-border flex items-center justify-center rotate-[-4deg] shadow-md">
+              <span className="font-serif text-xl text-foreground italic leading-tight">
+                Votre
+                <br />
+                Voyage
+                <br />
+                Olfactif
+              </span>
+            </div>
+            <p className="mt-4 text-xs tracking-[0.15em] uppercase text-muted-foreground">
+              Carte parfumée
+            </p>
+          </div>
+        </AnimatedSection>
+      </div>
+    </section>
+  );
+}
+
+// ==========================================
 // HOME
 // ==========================================
 export default function Home() {
@@ -510,6 +571,7 @@ export default function Home() {
         <CollectionSection perfumes={perfumes} />
         <AboutSection />
         <ContactSection />
+        <ShowcaseSection />
       </main>
       <Footer />
     </div>

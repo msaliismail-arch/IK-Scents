@@ -6,8 +6,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-montserrat);
+  --font-serif: var(--font-cormorant);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -97,33 +97,33 @@
 
 :root,
 .dark {
-  --background: oklch(0.965 0.008 85);
-  --foreground: oklch(0.22 0.006 60);
-  --card: oklch(0.995 0.004 85);
-  --card-foreground: oklch(0.22 0.006 60);
-  --popover: oklch(0.995 0.004 85);
-  --popover-foreground: oklch(0.22 0.006 60);
-  --primary: oklch(0.24 0.004 60);
-  --primary-foreground: oklch(0.98 0.004 85);
-  --secondary: oklch(0.93 0.008 82);
-  --secondary-foreground: oklch(0.24 0.004 60);
-  --muted: oklch(0.93 0.008 82);
-  --muted-foreground: oklch(0.50 0.012 68);
-  --accent: oklch(0.62 0.03 70);
-  --accent-foreground: oklch(0.98 0.004 85);
-  --border: oklch(0.88 0.01 82);
-  --input: oklch(0.88 0.01 82);
-  --ring: oklch(0.62 0.03 70);
+  --background: #faf8f5;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #1a1a1a;
+  --primary-foreground: #faf8f5;
+  --secondary: #f4efe9;
+  --secondary-foreground: #1a1a1a;
+  --muted: #f4efe9;
+  --muted-foreground: #666666;
+  --accent: #8a7a63;
+  --accent-foreground: #faf8f5;
+  --border: #eae5df;
+  --input: #eae5df;
+  --ring: #8a7a63;
 
-  /* Editorial brand tokens (crème / noir / taupe) */
-  --surface-alt: #efeae0;
-  --gold: #9a8266;
-  --gold-strong: #7d6a4f;
-  --gold-soft: #efe9dd;
-  --gold-border: #e3ddd0;
-  --hero-from: #f6f2ea;
-  --hero-via: #f2ede3;
-  --hero-to: #ece6da;
+  /* Editorial brand tokens (from provided mockup CSS) */
+  --surface-alt: #fcfbf9;
+  --gold: #8a7a63;
+  --gold-strong: #5c5344;
+  --gold-soft: #f4efe9;
+  --gold-border: #e3dbd0;
+  --hero-from: #faf8f5;
+  --hero-via: #faf8f5;
+  --hero-to: #f6f2ea;
 }
 
 @layer base {
@@ -291,11 +291,11 @@
   );
 }
 .btn-gold {
-  background: #1a1712;
-  color: #f6f2ea;
+  background: #1a1a1a;
+  color: #ffffff;
 }
 .btn-gold:hover {
-  background: #333026;
+  background: #333333;
 }
 
 /* Designed background for inner pages */
