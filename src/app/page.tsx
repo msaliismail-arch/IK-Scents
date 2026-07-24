@@ -65,7 +65,7 @@ function AnimatedSection({
 }
 
 // ==========================================
-// HERO (light, premium, 3D bottle + parallax)
+// HERO
 // ==========================================
 function HeroSection() {
   const mx = useMotionValue(0);
@@ -93,9 +93,8 @@ function HeroSection() {
       id="hero"
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-b from-[#fbf9f5] via-white to-[#faf6ee]"
+      className="relative min-h-screen flex items-center overflow-hidden hero-bg"
     >
-      {/* Decorative gold orbs */}
       <motion.div
         style={{ x: glowX, y: glowY }}
         className="absolute -top-20 -right-20 w-[28rem] h-[28rem] rounded-full bg-[radial-gradient(circle,rgba(201,169,110,0.18),transparent_65%)]"
@@ -105,7 +104,6 @@ function HeroSection() {
         className="absolute -bottom-24 -left-24 w-[26rem] h-[26rem] rounded-full bg-[radial-gradient(circle,rgba(201,169,110,0.12),transparent_65%)]"
       />
 
-      {/* Floating particles */}
       <div className="absolute inset-0 pointer-events-none">
         {[...Array(6)].map((_, i) => (
           <motion.div
@@ -124,16 +122,15 @@ function HeroSection() {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-28 pb-16 grid md:grid-cols-2 gap-10 items-center">
-        {/* Text */}
         <div className="text-center md:text-left order-2 md:order-1">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#e2d3ae] bg-[#faf4e8] mb-6">
-              <Sparkles className="w-4 h-4 text-[#a88a4e]" />
-              <span className="text-[#a88a4e] text-xs tracking-[0.25em] uppercase font-light">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gold-soft bg-gold-soft mb-6">
+              <Sparkles className="w-4 h-4 text-gold" />
+              <span className="text-gold text-xs tracking-[0.25em] uppercase font-light">
                 Authenticité Garantie · 100% Original
               </span>
             </div>
@@ -147,7 +144,7 @@ function HeroSection() {
           >
             <span className="gold-shimmer">{BRAND}</span>
             <br />
-            <span className="text-neutral-800 font-light">Parfums Originaux</span>
+            <span className="text-foreground font-light">Parfums Originaux</span>
           </motion.h1>
 
           <motion.div
@@ -161,7 +158,7 @@ function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="text-neutral-500 text-lg max-w-lg mx-auto md:mx-0 mb-10 font-light leading-relaxed"
+            className="text-muted-foreground text-lg max-w-lg mx-auto md:mx-0 mb-10 font-light leading-relaxed"
           >
             Des fragrances puissantes et authentiques, livrées partout au Maroc.
             Paiement à la livraison.
@@ -175,20 +172,19 @@ function HeroSection() {
           >
             <Link
               href="/#collection"
-              className="px-8 py-4 bg-gradient-to-r from-[#997640] via-[#b8935a] to-[#d4b478] text-white font-semibold tracking-wider uppercase text-sm hover:shadow-xl hover:shadow-[#c9a96e]/30 transition-all duration-300"
+              className="btn-gold px-8 py-4 font-semibold tracking-wider uppercase text-sm hover:shadow-xl hover:shadow-[#c9a96e]/30 transition-all duration-300"
             >
               Explorer la Collection
             </Link>
             <Link
               href="/#about"
-              className="px-8 py-4 border border-neutral-300 text-neutral-700 font-light tracking-wider uppercase text-sm hover:border-[#c9a96e] hover:text-[#a88a4e] transition-all duration-300"
+              className="px-8 py-4 border border-border text-muted-foreground font-light tracking-wider uppercase text-sm hover:border-gold-soft hover:text-gold transition-all duration-300"
             >
               Notre Histoire
             </Link>
           </motion.div>
         </div>
 
-        {/* 3D bottle */}
         <motion.div
           initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -211,14 +207,14 @@ function HeroSection() {
         transition={{ delay: 1.6, duration: 1 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
       >
-        <span className="text-neutral-400 text-[10px] tracking-[0.3em] uppercase">
+        <span className="text-muted-foreground text-[10px] tracking-[0.3em] uppercase">
           Découvrir
         </span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >
-          <ChevronDown className="w-5 h-5 text-[#c9a96e]" />
+          <ChevronDown className="w-5 h-5 text-gold" />
         </motion.div>
       </motion.a>
     </section>
@@ -226,7 +222,7 @@ function HeroSection() {
 }
 
 // ==========================================
-// PERFUME CARD (3D tilt on hover, links to order page)
+// PERFUME CARD (3D tilt)
 // ==========================================
 function PerfumeCard({ perfume }: { perfume: Perfume }) {
   const [imgError, setImgError] = useState(false);
@@ -258,9 +254,9 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
       style={{ rotateX: srx, rotateY: sry, transformPerspective: 900 }}
       whileHover={{ y: -6 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group relative bg-white border border-neutral-200 hover:border-[#dcc9a0] hover:shadow-xl hover:shadow-neutral-200/60 transition-shadow duration-500 overflow-hidden flex flex-col rounded-lg"
+      className="group relative bg-card border border-border hover:border-gold-soft hover:shadow-xl transition-shadow duration-500 overflow-hidden flex flex-col rounded-lg"
     >
-      <div className="relative aspect-[3/4] overflow-hidden bg-[#f5f1ea]">
+      <div className="relative aspect-[3/4] overflow-hidden bg-muted">
         {!imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -271,16 +267,16 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center">
-            <Diamond className="w-12 h-12 text-[#c9a96e]/30 mb-2" />
-            <span className="text-neutral-400 text-sm font-light">
+            <Diamond className="w-12 h-12 text-gold/30 mb-2" />
+            <span className="text-muted-foreground text-sm font-light">
               {perfume.name}
             </span>
           </div>
         )}
         <div className="absolute top-3 left-3">
-          <div className="flex items-center gap-1 px-2 py-1 bg-white/90 border border-[#e2d3ae] rounded-sm">
-            <Star className="w-3 h-3 text-[#a88a4e]" />
-            <span className="text-[10px] text-[#a88a4e] tracking-wider uppercase">
+          <div className="flex items-center gap-1 px-2 py-1 bg-background/90 border border-gold-soft rounded-sm">
+            <Star className="w-3 h-3 text-gold" />
+            <span className="text-[10px] text-gold tracking-wider uppercase">
               Original
             </span>
           </div>
@@ -288,10 +284,10 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
       </div>
 
       <div className="p-5 flex flex-col flex-1">
-        <h3 className="font-serif text-lg text-neutral-900 group-hover:text-[#a88a4e] transition-colors duration-300 mb-2">
+        <h3 className="font-serif text-lg text-foreground group-hover:text-gold transition-colors duration-300 mb-2">
           {perfume.name}
         </h3>
-        <p className="text-neutral-500 text-sm font-light leading-relaxed mb-4 line-clamp-2">
+        <p className="text-muted-foreground text-sm font-light leading-relaxed mb-4 line-clamp-2">
           {perfume.description}
         </p>
 
@@ -300,10 +296,10 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
             <Link
               key={i}
               href={`/commander/${perfume.id}?taille=${encodeURIComponent(s.label)}`}
-              className="px-3 py-1.5 border border-[#e2d3ae] text-xs text-neutral-700 hover:bg-[#faf4e8] hover:border-[#c9a96e] transition-all duration-300 rounded-sm"
+              className="px-3 py-1.5 border border-gold-soft text-xs text-muted-foreground hover:bg-gold-soft hover:text-gold transition-all duration-300 rounded-sm"
             >
-              <span className="text-[#a88a4e] font-medium">{s.label}</span>
-              <span className="text-neutral-400"> · </span>
+              <span className="text-gold font-medium">{s.label}</span>
+              <span className="text-muted-foreground"> · </span>
               <span>{s.price} MAD</span>
             </Link>
           ))}
@@ -312,7 +308,7 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
         <div className="mt-auto">
           <Link
             href={`/commander/${perfume.id}`}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#997640] via-[#b8935a] to-[#d4b478] text-white text-xs font-semibold tracking-wider uppercase hover:shadow-lg hover:shadow-[#c9a96e]/30 transition-all duration-300 rounded-sm"
+            className="btn-gold w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold tracking-wider uppercase hover:shadow-lg hover:shadow-[#c9a96e]/30 transition-all duration-300 rounded-sm"
           >
             <ShoppingBag className="w-4 h-4" />
             Commander
@@ -328,17 +324,17 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
 // ==========================================
 function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
   return (
-    <section id="collection" className="relative py-24 sm:py-32 bg-white">
+    <section id="collection" className="relative py-24 sm:py-32 bg-surface">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="text-center mb-16">
-          <span className="text-[#a88a4e]/70 text-xs tracking-[0.4em] uppercase font-light">
+          <span className="text-gold/70 text-xs tracking-[0.4em] uppercase font-light">
             Notre Collection
           </span>
-          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-neutral-900 mt-3 mb-4">
+          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mt-3 mb-4">
             Fragrances d&apos;<span className="gold-text">Exception</span>
           </h2>
           <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#c9a96e] to-transparent mx-auto mb-6" />
-          <p className="text-neutral-500 max-w-xl mx-auto font-light leading-relaxed">
+          <p className="text-muted-foreground max-w-xl mx-auto font-light leading-relaxed">
             Des parfums originaux, puissants et longue tenue. Choisissez votre
             taille, commandez en ligne, payez à la livraison.
           </p>
@@ -346,11 +342,11 @@ function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
 
         {perfumes.length === 0 ? (
           <AnimatedSection className="text-center py-20">
-            <Package className="w-16 h-16 text-neutral-200 mx-auto mb-4" />
-            <p className="text-neutral-400 text-lg font-light">
+            <Package className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-muted-foreground text-lg font-light">
               Aucun parfum disponible pour le moment
             </p>
-            <p className="text-neutral-300 text-sm mt-2">
+            <p className="text-muted-foreground/60 text-sm mt-2">
               Nouvelles fragrances bientôt disponibles
             </p>
           </AnimatedSection>
@@ -395,17 +391,17 @@ function AboutSection() {
   ];
 
   return (
-    <section id="about" className="relative py-24 sm:py-32 bg-[#faf8f4]">
+    <section id="about" className="relative py-24 sm:py-32 bg-surface-alt">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="text-center mb-16">
-          <span className="text-[#a88a4e]/70 text-xs tracking-[0.4em] uppercase font-light">
+          <span className="text-gold/70 text-xs tracking-[0.4em] uppercase font-light">
             À Propos
           </span>
-          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-neutral-900 mt-3 mb-4">
+          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mt-3 mb-4">
             L&apos;Art du <span className="gold-text">Parfum</span>
           </h2>
           <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#c9a96e] to-transparent mx-auto mb-6" />
-          <p className="text-neutral-500 max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
             Chez {BRAND}, nous croyons que chaque personne mérite de porter une
             fragrance d&apos;exception, authentique et à un prix juste. Notre
             mission : rendre le parfum original accessible à tous au Maroc.
@@ -424,15 +420,15 @@ function AboutSection() {
               key={i}
               variants={fadeInUp}
               whileHover={{ y: -5 }}
-              className="bg-white border border-neutral-200 p-8 text-center group hover:border-[#dcc9a0] hover:shadow-lg transition-all duration-500 rounded-lg"
+              className="bg-card border border-border p-8 text-center group hover:border-gold-soft hover:shadow-lg transition-all duration-500 rounded-lg"
             >
-              <div className="w-14 h-14 mx-auto mb-6 rounded-full border border-[#e2d3ae] bg-[#faf4e8] flex items-center justify-center text-[#a88a4e] group-hover:bg-[#f3e7cf] transition-all duration-300">
+              <div className="w-14 h-14 mx-auto mb-6 rounded-full border border-gold-soft bg-gold-soft flex items-center justify-center text-gold transition-all duration-300">
                 {feature.icon}
               </div>
-              <h3 className="font-serif text-xl text-neutral-900 mb-3 group-hover:text-[#a88a4e] transition-colors duration-300">
+              <h3 className="font-serif text-xl text-foreground mb-3 group-hover:text-gold transition-colors duration-300">
                 {feature.title}
               </h3>
-              <p className="text-neutral-500 font-light leading-relaxed text-sm">
+              <p className="text-muted-foreground font-light leading-relaxed text-sm">
                 {feature.desc}
               </p>
             </motion.div>
@@ -447,11 +443,11 @@ function AboutSection() {
               { value: "COD", label: "Paiement livraison" },
               { value: "7j/7", label: "Support" },
             ].map((stat, i) => (
-              <div key={i} className="text-center py-6 border-t border-[#e2d3ae]/60">
+              <div key={i} className="text-center py-6 border-t border-gold-soft">
                 <div className="text-3xl sm:text-4xl font-serif font-bold gold-text mb-2">
                   {stat.value}
                 </div>
-                <div className="text-neutral-500 text-sm tracking-wider uppercase font-light">
+                <div className="text-muted-foreground text-sm tracking-wider uppercase font-light">
                   {stat.label}
                 </div>
               </div>
@@ -468,17 +464,17 @@ function AboutSection() {
 // ==========================================
 function ContactSection() {
   return (
-    <section id="contact" className="relative py-24 sm:py-32 bg-white">
+    <section id="contact" className="relative py-24 sm:py-32 bg-surface">
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <AnimatedSection>
-          <span className="text-[#a88a4e]/70 text-xs tracking-[0.4em] uppercase font-light">
+          <span className="text-gold/70 text-xs tracking-[0.4em] uppercase font-light">
             Commander
           </span>
-          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-neutral-900 mt-3 mb-4">
+          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mt-3 mb-4">
             Votre Parfum Vous <span className="gold-text">Attend</span>
           </h2>
           <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#c9a96e] to-transparent mx-auto mb-6" />
-          <p className="text-neutral-500 max-w-xl mx-auto font-light leading-relaxed mb-10">
+          <p className="text-muted-foreground max-w-xl mx-auto font-light leading-relaxed mb-10">
             Parcourez la collection, choisissez votre taille et commandez
             directement sur le site. Paiement à la livraison, partout au Maroc.
           </p>
@@ -488,7 +484,7 @@ function ContactSection() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/#collection"
-              className="px-8 py-4 bg-gradient-to-r from-[#997640] via-[#b8935a] to-[#d4b478] text-white font-semibold tracking-wider uppercase text-sm hover:shadow-lg hover:shadow-[#c9a96e]/30 transition-all duration-300 flex items-center gap-2"
+              className="btn-gold px-8 py-4 font-semibold tracking-wider uppercase text-sm hover:shadow-lg hover:shadow-[#c9a96e]/30 transition-all duration-300 flex items-center gap-2"
             >
               <ShoppingBag className="w-5 h-5" />
               Voir la Collection
@@ -497,7 +493,7 @@ function ContactSection() {
               href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-4 border border-[#dcc9a0] text-[#a88a4e] font-light tracking-wider uppercase text-sm hover:border-[#c9a96e] hover:bg-[#faf4e8] transition-all duration-300 flex items-center gap-2"
+              className="px-8 py-4 border border-gold-soft text-gold font-light tracking-wider uppercase text-sm hover:bg-gold-soft transition-all duration-300 flex items-center gap-2"
             >
               <Instagram className="w-4 h-4" />
               @assill.parfums
@@ -531,7 +527,7 @@ export default function Home() {
   }, [fetchPerfumes]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-1">
         <HeroSection />

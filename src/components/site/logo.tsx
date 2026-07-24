@@ -15,7 +15,7 @@ export function Logo({
   return (
     <div className="flex items-center gap-3">
       <div
-        className="rounded-full overflow-hidden bg-neutral-900 flex items-center justify-center border border-[#e6dcc6] shadow-sm shrink-0"
+        className="rounded-full overflow-hidden bg-neutral-900 flex items-center justify-center border border-gold-soft shadow-sm shrink-0"
         style={{ width: size, height: size }}
       >
         {!err ? (
@@ -40,7 +40,7 @@ export function Logo({
           <h1 className="text-xl sm:text-2xl font-serif font-bold gold-text tracking-wider">
             {BRAND}
           </h1>
-          <p className="text-[9px] tracking-[0.3em] text-[#a88a4e]/70 uppercase mt-0.5">
+          <p className="text-[9px] tracking-[0.3em] text-gold/70 uppercase mt-0.5">
             Parfums Originaux
           </p>
         </div>

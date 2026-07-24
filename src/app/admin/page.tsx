@@ -25,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/site/logo";
+import { ThemeToggle } from "@/components/site/theme-toggle";
 import { resolveImg } from "@/lib/site";
 import type { Perfume, Order } from "@/lib/types";
 
@@ -72,34 +73,33 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#faf8f4] px-4">
-      <div className="w-full max-w-md bg-white border border-neutral-200 rounded-xl shadow-sm p-8">
+    <div className="min-h-screen flex items-center justify-center bg-surface-alt px-4">
+      <div className="w-full max-w-md bg-card border border-border rounded-xl shadow-sm p-8">
         <div className="text-center mb-6">
-          <div className="w-14 h-14 mx-auto mb-4 rounded-full border border-[#e2d3ae] bg-[#faf4e8] flex items-center justify-center">
-            <Shield className="w-7 h-7 text-[#a88a4e]" />
+          <div className="w-14 h-14 mx-auto mb-4 rounded-full border border-gold-soft bg-gold-soft flex items-center justify-center">
+            <Shield className="w-7 h-7 text-gold" />
           </div>
           <h1 className="gold-text text-2xl font-serif">Accès Administrateur</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="p-3 rounded border border-red-300 bg-red-50 text-red-600 text-sm text-center">
+            <div className="p-3 rounded border border-red-400/40 bg-red-500/10 text-red-500 text-sm text-center">
               {error}
             </div>
           )}
           <div className="space-y-2">
-            <Label className="text-neutral-600 text-sm">Email</Label>
+            <Label className="text-muted-foreground text-sm">Email</Label>
             <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@assil.ma"
               required
-              className="border-neutral-300 focus:border-[#c9a96e]"
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-neutral-600 text-sm">Mot de passe</Label>
+            <Label className="text-muted-foreground text-sm">Mot de passe</Label>
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
@@ -107,12 +107,12 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="border-neutral-300 focus:border-[#c9a96e] pr-10"
+                className="pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-[#a88a4e]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-gold"
               >
                 {showPassword ? (
                   <EyeOff className="w-4 h-4" />
@@ -125,7 +125,7 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-[#997640] via-[#b8935a] to-[#d4b478] text-white font-semibold tracking-wider uppercase py-5"
+            className="btn-gold w-full font-semibold tracking-wider uppercase py-5"
           >
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -141,7 +141,7 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
         <div className="mt-6 text-center">
           <Link
             href="/"
-            className="text-neutral-400 text-sm hover:text-[#a88a4e] inline-flex items-center gap-1"
+            className="text-muted-foreground text-sm hover:text-gold inline-flex items-center gap-1"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Retour au site
@@ -215,10 +215,14 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   };
 
   const updateSize = (i: number, key: keyof SizeRow, value: string) =>
-    setSizes((prev) => prev.map((s, idx) => (idx === i ? { ...s, [key]: value } : s)));
+    setSizes((prev) =>
+      prev.map((s, idx) => (idx === i ? { ...s, [key]: value } : s))
+    );
   const addSize = () => setSizes((prev) => [...prev, { label: "", price: "" }]);
   const removeSize = (i: number) =>
-    setSizes((prev) => (prev.length === 1 ? prev : prev.filter((_, idx) => idx !== i)));
+    setSizes((prev) =>
+      prev.length === 1 ? prev : prev.filter((_, idx) => idx !== i)
+    );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -298,20 +302,20 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const newOrdersCount = orders.filter((o) => o.status === "new").length;
 
   return (
-    <div className="min-h-screen bg-[#faf8f4]">
-      {/* Header */}
-      <header className="bg-white border-b border-neutral-200 sticky top-0 z-40">
+    <div className="min-h-screen bg-surface-alt">
+      <header className="bg-background border-b border-border sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Logo size={36} />
-            <Badge className="bg-[#faf4e8] text-[#a88a4e] border-[#e2d3ae] hidden sm:inline-flex">
+            <Badge className="bg-gold-soft text-gold border-gold-soft hidden sm:inline-flex">
               Admin
             </Badge>
           </div>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Link
               href="/"
-              className="text-sm text-neutral-500 hover:text-[#a88a4e] px-3 py-1.5"
+              className="text-sm text-muted-foreground hover:text-gold px-3 py-1.5"
             >
               Voir le site
             </Link>
@@ -319,7 +323,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
               onClick={onLogout}
               variant="ghost"
               size="sm"
-              className="text-red-500 hover:text-red-600 hover:bg-red-50"
+              className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Déconnexion
@@ -329,14 +333,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       </header>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        {/* Tabs */}
-        <div className="flex gap-2 border-b border-neutral-200 mb-6">
+        <div className="flex gap-2 border-b border-border mb-6">
           <button
             onClick={() => setTab("products")}
             className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "products"
-                ? "text-[#a88a4e] border-b-2 border-[#c9a96e]"
-                : "text-neutral-400 hover:text-neutral-600"
+                ? "text-gold border-b-2 border-gold"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <Package className="w-4 h-4" />
@@ -346,8 +349,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             onClick={() => setTab("orders")}
             className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "orders"
-                ? "text-[#a88a4e] border-b-2 border-[#c9a96e]"
-                : "text-neutral-400 hover:text-neutral-600"
+                ? "text-gold border-b-2 border-gold"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <ClipboardList className="w-4 h-4" />
@@ -360,7 +363,6 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </button>
         </div>
 
-        {/* PRODUCTS */}
         {tab === "products" && (
           <>
             <div className="flex justify-end mb-4">
@@ -369,7 +371,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   setShowForm(!showForm);
                   if (!showForm) resetForm();
                 }}
-                className="bg-[#faf4e8] border border-[#e2d3ae] text-[#a88a4e] hover:bg-[#f3e7cf]"
+                className="bg-gold-soft border border-gold-soft text-gold hover:opacity-90"
                 size="sm"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -380,11 +382,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             {showForm && (
               <form
                 onSubmit={handleSubmit}
-                className="bg-white border border-neutral-200 rounded-lg p-5 space-y-4 mb-6"
+                className="bg-card border border-border rounded-lg p-5 space-y-4 mb-6"
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-neutral-600 text-sm">Nom du parfum</Label>
+                    <Label className="text-muted-foreground text-sm">
+                      Nom du parfum
+                    </Label>
                     <Input
                       value={formData.name}
                       onChange={(e) =>
@@ -392,11 +396,10 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       }
                       placeholder="Ex: 9PM by Afnan"
                       required
-                      className="border-neutral-300 focus:border-[#c9a96e]"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-neutral-600 text-sm">Image</Label>
+                    <Label className="text-muted-foreground text-sm">Image</Label>
                     <div className="flex gap-2">
                       <Input
                         value={formData.image}
@@ -405,11 +408,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         }
                         placeholder="/api/uploads/image.png"
                         required
-                        className="border-neutral-300 focus:border-[#c9a96e] flex-1"
+                        className="flex-1"
                       />
-                      <label className="cursor-pointer px-3 py-2 border border-[#e2d3ae] text-[#a88a4e] hover:bg-[#faf4e8] transition-colors rounded-md flex items-center gap-1">
+                      <label className="cursor-pointer px-3 py-2 border border-gold-soft text-gold hover:bg-gold-soft transition-colors rounded-md flex items-center gap-1">
                         <Upload className="w-4 h-4" />
-                        <span className="text-xs">{uploading ? "..." : "Upload"}</span>
+                        <span className="text-xs">
+                          {uploading ? "..." : "Upload"}
+                        </span>
                         <input
                           type="file"
                           accept="image/*"
@@ -422,7 +427,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-neutral-600 text-sm">Description</Label>
+                  <Label className="text-muted-foreground text-sm">
+                    Description
+                  </Label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) =>
@@ -431,14 +438,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     placeholder="Sillage puissant, longue tenue..."
                     required
                     rows={3}
-                    className="border-neutral-300 focus:border-[#c9a96e] resize-none"
+                    className="resize-none"
                   />
                 </div>
 
-                {/* Sizes */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-neutral-600 text-sm">
+                    <Label className="text-muted-foreground text-sm">
                       Tailles &amp; prix (ml)
                     </Label>
                     <Button
@@ -446,7 +452,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       onClick={addSize}
                       size="sm"
                       variant="ghost"
-                      className="text-[#a88a4e] hover:bg-[#faf4e8] h-7"
+                      className="text-gold hover:bg-gold-soft h-7"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" />
                       Ajouter une taille
@@ -459,20 +465,20 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                           value={s.label}
                           onChange={(e) => updateSize(i, "label", e.target.value)}
                           placeholder="Ex: 5ml"
-                          className="border-neutral-300 focus:border-[#c9a96e] flex-1"
+                          className="flex-1"
                         />
                         <Input
                           value={s.price}
                           onChange={(e) => updateSize(i, "price", e.target.value)}
                           placeholder="Prix MAD (ex: 120)"
-                          className="border-neutral-300 focus:border-[#c9a96e] flex-1"
+                          className="flex-1"
                         />
                         <Button
                           type="button"
                           onClick={() => removeSize(i)}
                           size="icon"
                           variant="ghost"
-                          className="w-9 h-9 text-neutral-400 hover:text-red-500 shrink-0"
+                          className="w-9 h-9 text-muted-foreground hover:text-red-500 shrink-0"
                           disabled={sizes.length === 1}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -491,13 +497,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       }
                       className="data-[state=checked]:bg-[#b8935a]"
                     />
-                    <Label className="text-neutral-600 text-sm">
+                    <Label className="text-muted-foreground text-sm">
                       {formData.published ? "Publié" : "Brouillon"}
                     </Label>
                   </div>
                   <Button
                     type="submit"
-                    className="bg-gradient-to-r from-[#997640] via-[#b8935a] to-[#d4b478] text-white font-semibold tracking-wider uppercase"
+                    className="btn-gold font-semibold tracking-wider uppercase"
                   >
                     {editingId ? (
                       <>
@@ -518,7 +524,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <img
                     src={resolveImg(formData.image)}
                     alt="Preview"
-                    className="w-32 h-32 object-cover border border-neutral-200 rounded"
+                    className="w-32 h-32 object-cover border border-border rounded"
                   />
                 )}
               </form>
@@ -526,19 +532,19 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
             {loading ? (
               <div className="flex justify-center py-10">
-                <Loader2 className="w-8 h-8 text-[#c9a96e] animate-spin" />
+                <Loader2 className="w-8 h-8 text-gold animate-spin" />
               </div>
             ) : perfumes.length === 0 ? (
               <div className="text-center py-10">
-                <Package className="w-12 h-12 text-neutral-200 mx-auto mb-3" />
-                <p className="text-neutral-400">Aucun parfum ajouté</p>
+                <Package className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground">Aucun parfum ajouté</p>
               </div>
             ) : (
               <div className="space-y-2">
                 {perfumes.map((perfume) => (
                   <div
                     key={perfume.id}
-                    className="flex items-center gap-3 p-3 bg-white border border-neutral-200 hover:border-[#dcc9a0] transition-colors rounded-lg"
+                    className="flex items-center gap-3 p-3 bg-card border border-border hover:border-gold-soft transition-colors rounded-lg"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -548,20 +554,20 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className="text-neutral-900 text-sm font-medium truncate">
+                        <h4 className="text-foreground text-sm font-medium truncate">
                           {perfume.name}
                         </h4>
                         <Badge
                           className={`text-[10px] ${
                             perfume.published
-                              ? "bg-[#faf4e8] text-[#a88a4e] border-[#e2d3ae]"
-                              : "bg-neutral-100 text-neutral-400 border-neutral-200"
+                              ? "bg-gold-soft text-gold border-gold-soft"
+                              : "bg-muted text-muted-foreground border-border"
                           }`}
                         >
                           {perfume.published ? "Publié" : "Brouillon"}
                         </Badge>
                       </div>
-                      <p className="text-neutral-400 text-xs truncate">
+                      <p className="text-muted-foreground text-xs truncate">
                         {(perfume.sizes ?? [])
                           .map((s) => `${s.label}: ${s.price} MAD`)
                           .join(" · ") || "Aucune taille"}
@@ -571,7 +577,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="w-8 h-8 text-neutral-400 hover:text-[#a88a4e]"
+                        className="w-8 h-8 text-muted-foreground hover:text-gold"
                         onClick={() => togglePublish(perfume)}
                       >
                         {perfume.published ? (
@@ -583,7 +589,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="w-8 h-8 text-neutral-400 hover:text-[#a88a4e]"
+                        className="w-8 h-8 text-muted-foreground hover:text-gold"
                         onClick={() => handleEdit(perfume)}
                       >
                         <Pencil className="w-3.5 h-3.5" />
@@ -591,7 +597,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="w-8 h-8 text-neutral-400 hover:text-red-500"
+                        className="w-8 h-8 text-muted-foreground hover:text-red-500"
                         onClick={() => handleDelete(perfume.id)}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -604,52 +610,54 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </>
         )}
 
-        {/* ORDERS */}
         {tab === "orders" && (
           <>
             {ordersLoading ? (
               <div className="flex justify-center py-10">
-                <Loader2 className="w-8 h-8 text-[#c9a96e] animate-spin" />
+                <Loader2 className="w-8 h-8 text-gold animate-spin" />
               </div>
             ) : orders.length === 0 ? (
               <div className="text-center py-10">
-                <ClipboardList className="w-12 h-12 text-neutral-200 mx-auto mb-3" />
-                <p className="text-neutral-400">Aucune commande pour le moment</p>
+                <ClipboardList className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground">
+                  Aucune commande pour le moment
+                </p>
               </div>
             ) : (
               <div className="space-y-2">
                 {orders.map((order) => (
                   <div
                     key={order.id}
-                    className="p-4 bg-white border border-neutral-200 rounded-lg"
+                    className="p-4 bg-card border border-border rounded-lg"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="text-neutral-900 text-sm font-medium">
+                          <h4 className="text-foreground text-sm font-medium">
                             {order.customerName}
                           </h4>
                           <a
                             href={`tel:${order.phone}`}
-                            className="text-[#a88a4e] text-xs hover:underline"
+                            className="text-gold text-xs hover:underline"
                           >
                             {order.phone}
                           </a>
                         </div>
-                        <p className="text-neutral-600 text-xs mt-1">
-                          {order.perfumeName} — {order.sizeLabel} × {order.quantity}
+                        <p className="text-muted-foreground text-xs mt-1">
+                          {order.perfumeName} — {order.sizeLabel} ×{" "}
+                          {order.quantity}
                           {order.price ? ` · ${order.price} MAD/u` : ""}
                         </p>
-                        <p className="text-neutral-400 text-xs mt-0.5">
+                        <p className="text-muted-foreground/80 text-xs mt-0.5">
                           {order.address}
                           {order.city ? `, ${order.city}` : ""}
                         </p>
                         {order.note && (
-                          <p className="text-neutral-400 text-xs mt-0.5 italic">
+                          <p className="text-muted-foreground/80 text-xs mt-0.5 italic">
                             Note: {order.note}
                           </p>
                         )}
-                        <p className="text-neutral-300 text-[10px] mt-1">
+                        <p className="text-muted-foreground/50 text-[10px] mt-1">
                           {new Date(order.createdAt).toLocaleString("fr-FR")}
                         </p>
                       </div>
@@ -659,7 +667,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                           onChange={(e) =>
                             updateOrderStatus(order.id, e.target.value)
                           }
-                          className="bg-white border border-neutral-300 text-neutral-700 text-xs rounded px-2 py-1 focus:border-[#c9a96e] outline-none"
+                          className="bg-background border border-border text-foreground text-xs rounded px-2 py-1 outline-none"
                         >
                           {Object.keys(STATUS_LABELS).map((k) => (
                             <option key={k} value={k}>
@@ -670,7 +678,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="w-8 h-8 text-neutral-400 hover:text-red-500"
+                          className="w-8 h-8 text-muted-foreground hover:text-red-500"
                           onClick={() => deleteOrder(order.id)}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -714,8 +722,8 @@ export default function AdminPage() {
 
   if (!ready || status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#faf8f4]">
-        <Loader2 className="w-8 h-8 text-[#c9a96e] animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-surface-alt">
+        <Loader2 className="w-8 h-8 text-gold animate-spin" />
       </div>
     );
   }

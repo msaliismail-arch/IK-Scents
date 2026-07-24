@@ -56,7 +56,9 @@ export default function CommanderPage() {
             ? new URLSearchParams(window.location.search).get("taille")
             : null;
         const first = data.sizes?.[0]?.label ?? "";
-        setSizeLabel(preset && data.sizes?.some((s) => s.label === preset) ? preset : first);
+        setSizeLabel(
+          preset && data.sizes?.some((s) => s.label === preset) ? preset : first
+        );
       } catch {
         if (active) setPerfume(null);
       } finally {
@@ -111,13 +113,13 @@ export default function CommanderPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-1 pt-28 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <Link
             href="/#collection"
-            className="inline-flex items-center gap-2 text-neutral-500 hover:text-[#a88a4e] text-sm mb-8 transition-colors"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-gold text-sm mb-8 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Retour à la collection
@@ -125,41 +127,40 @@ export default function CommanderPage() {
 
           {loading ? (
             <div className="flex justify-center py-24">
-              <Loader2 className="w-8 h-8 text-[#c9a96e] animate-spin" />
+              <Loader2 className="w-8 h-8 text-gold animate-spin" />
             </div>
           ) : !perfume ? (
             <div className="text-center py-24">
-              <p className="text-neutral-500 text-lg">Parfum introuvable.</p>
+              <p className="text-muted-foreground text-lg">Parfum introuvable.</p>
               <Link
                 href="/#collection"
-                className="inline-block mt-4 text-[#a88a4e] hover:underline"
+                className="inline-block mt-4 text-gold hover:underline"
               >
                 Voir la collection
               </Link>
             </div>
           ) : done ? (
             <div className="max-w-md mx-auto text-center py-16">
-              <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-[#faf4e8] border border-[#e2d3ae] flex items-center justify-center">
-                <Check className="w-8 h-8 text-[#a88a4e]" />
+              <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-gold-soft border border-gold-soft flex items-center justify-center">
+                <Check className="w-8 h-8 text-gold" />
               </div>
-              <h1 className="text-2xl font-serif text-neutral-900 mb-2">Merci !</h1>
-              <p className="text-neutral-500 font-light leading-relaxed">
-                Votre commande de <strong>{perfume.name}</strong> ({selectedSize?.label}{" "}
-                × {quantity}) a bien été enregistrée. Nous vous contacterons au{" "}
-                {form.phone} pour confirmer la livraison.
+              <h1 className="text-2xl font-serif text-foreground mb-2">Merci !</h1>
+              <p className="text-muted-foreground font-light leading-relaxed">
+                Votre commande de <strong>{perfume.name}</strong> (
+                {selectedSize?.label} × {quantity}) a bien été enregistrée. Nous
+                vous contacterons au {form.phone} pour confirmer la livraison.
               </p>
               <Link
                 href="/#collection"
-                className="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-[#997640] via-[#b8935a] to-[#d4b478] text-white font-semibold tracking-wider uppercase text-sm rounded-sm"
+                className="btn-gold inline-block mt-6 px-6 py-3 font-semibold tracking-wider uppercase text-sm rounded-sm"
               >
                 Continuer mes achats
               </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              {/* Product */}
               <div>
-                <div className="aspect-[3/4] max-w-sm rounded-lg overflow-hidden bg-[#f5f1ea] border border-neutral-200">
+                <div className="aspect-[3/4] max-w-sm rounded-lg overflow-hidden bg-muted border border-border">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={resolveImg(perfume.image)}
@@ -167,29 +168,27 @@ export default function CommanderPage() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h1 className="text-2xl font-serif text-neutral-900 mt-5">
+                <h1 className="text-2xl font-serif text-foreground mt-5">
                   {perfume.name}
                 </h1>
-                <p className="text-neutral-500 font-light mt-2 leading-relaxed">
+                <p className="text-muted-foreground font-light mt-2 leading-relaxed">
                   {perfume.description}
                 </p>
               </div>
 
-              {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-5">
-                <h2 className="text-lg font-serif text-neutral-900">
+                <h2 className="text-lg font-serif text-foreground">
                   Passer commande
                 </h2>
 
                 {error && (
-                  <div className="p-3 rounded border border-red-300 bg-red-50 text-red-600 text-sm text-center">
+                  <div className="p-3 rounded border border-red-400/40 bg-red-500/10 text-red-500 text-sm text-center">
                     {error}
                   </div>
                 )}
 
-                {/* Sizes */}
                 <div className="space-y-2">
-                  <Label className="text-neutral-600 text-sm tracking-wider">
+                  <Label className="text-muted-foreground text-sm tracking-wider">
                     Taille (ml)
                   </Label>
                   <div className="flex flex-wrap gap-2">
@@ -200,8 +199,8 @@ export default function CommanderPage() {
                         onClick={() => setSizeLabel(s.label)}
                         className={`px-3 py-2 text-xs border transition-all duration-200 rounded-sm ${
                           s.label === sizeLabel
-                            ? "border-[#c9a96e] bg-[#faf4e8] text-[#a88a4e]"
-                            : "border-neutral-200 text-neutral-600 hover:border-[#dcc9a0]"
+                            ? "border-gold-soft bg-gold-soft text-gold"
+                            : "border-border text-muted-foreground hover:border-gold-soft"
                         }`}
                       >
                         {s.label} · {s.price} MAD
@@ -210,35 +209,34 @@ export default function CommanderPage() {
                   </div>
                 </div>
 
-                {/* Quantity */}
                 <div className="flex items-center justify-between">
-                  <Label className="text-neutral-600 text-sm tracking-wider">
+                  <Label className="text-muted-foreground text-sm tracking-wider">
                     Quantité
                   </Label>
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      className="w-8 h-8 rounded border border-neutral-200 text-neutral-600 hover:border-[#dcc9a0] flex items-center justify-center"
+                      className="w-8 h-8 rounded border border-border text-muted-foreground hover:border-gold-soft flex items-center justify-center"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="text-neutral-900 w-6 text-center">
+                    <span className="text-foreground w-6 text-center">
                       {quantity}
                     </span>
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => q + 1)}
-                      className="w-8 h-8 rounded border border-neutral-200 text-neutral-600 hover:border-[#dcc9a0] flex items-center justify-center"
+                      className="w-8 h-8 rounded border border-border text-muted-foreground hover:border-gold-soft flex items-center justify-center"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
 
-                <div className="space-y-4 border-t border-neutral-200 pt-5">
+                <div className="space-y-4 border-t border-border pt-5">
                   <div className="space-y-2">
-                    <Label className="text-neutral-600 text-sm tracking-wider">
+                    <Label className="text-muted-foreground text-sm tracking-wider">
                       Nom complet *
                     </Label>
                     <Input
@@ -248,12 +246,11 @@ export default function CommanderPage() {
                       }
                       placeholder="Votre nom"
                       required
-                      className="border-neutral-300 focus:border-[#c9a96e]"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-neutral-600 text-sm tracking-wider">
+                      <Label className="text-muted-foreground text-sm tracking-wider">
                         Téléphone *
                       </Label>
                       <Input
@@ -263,23 +260,23 @@ export default function CommanderPage() {
                         }
                         placeholder="06 00 00 00 00"
                         required
-                        className="border-neutral-300 focus:border-[#c9a96e]"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-neutral-600 text-sm tracking-wider">
+                      <Label className="text-muted-foreground text-sm tracking-wider">
                         Ville
                       </Label>
                       <Input
                         value={form.city}
-                        onChange={(e) => setForm({ ...form, city: e.target.value })}
+                        onChange={(e) =>
+                          setForm({ ...form, city: e.target.value })
+                        }
                         placeholder="Oujda"
-                        className="border-neutral-300 focus:border-[#c9a96e]"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-neutral-600 text-sm tracking-wider">
+                    <Label className="text-muted-foreground text-sm tracking-wider">
                       Adresse de livraison *
                     </Label>
                     <Textarea
@@ -290,27 +287,26 @@ export default function CommanderPage() {
                       placeholder="Quartier, rue, n°..."
                       required
                       rows={2}
-                      className="border-neutral-300 focus:border-[#c9a96e] resize-none"
+                      className="resize-none"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-neutral-600 text-sm tracking-wider">
+                    <Label className="text-muted-foreground text-sm tracking-wider">
                       Note (optionnel)
                     </Label>
                     <Input
                       value={form.note}
                       onChange={(e) => setForm({ ...form, note: e.target.value })}
                       placeholder="Précisions..."
-                      className="border-neutral-300 focus:border-[#c9a96e]"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-[#faf4e8] border border-[#e2d3ae] rounded-lg">
-                  <span className="text-neutral-600 text-sm">
+                <div className="flex items-center justify-between p-3 bg-gold-soft border border-gold-soft rounded-lg">
+                  <span className="text-muted-foreground text-sm">
                     Total (paiement à la livraison)
                   </span>
-                  <span className="text-[#a88a4e] font-serif text-lg">
+                  <span className="text-gold font-serif text-lg">
                     {total > 0 ? `${total} MAD` : "—"}
                   </span>
                 </div>
@@ -318,7 +314,7 @@ export default function CommanderPage() {
                 <Button
                   type="submit"
                   disabled={submitting || !selectedSize}
-                  className="w-full bg-gradient-to-r from-[#997640] via-[#b8935a] to-[#d4b478] text-white font-semibold tracking-wider uppercase hover:shadow-lg hover:shadow-[#c9a96e]/30 transition-all duration-300 py-5"
+                  className="btn-gold w-full font-semibold tracking-wider uppercase hover:shadow-lg hover:shadow-[#c9a96e]/30 transition-all duration-300 py-5"
                 >
                   {submitting ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
