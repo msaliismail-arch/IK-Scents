@@ -113,7 +113,7 @@ export default function CommanderPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col page-bg">
       <Navbar />
       <main className="flex-1 pt-28 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">

@@ -25,7 +25,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/site/logo";
-import { ThemeToggle } from "@/components/site/theme-toggle";
 import { resolveImg } from "@/lib/site";
 import type { Perfume, Order } from "@/lib/types";
 
@@ -73,8 +72,8 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface-alt px-4">
-      <div className="w-full max-w-md bg-card border border-border rounded-xl shadow-sm p-8">
+    <div className="min-h-screen flex items-center justify-center page-bg px-4">
+      <div className="w-full max-w-md bg-card border border-border rounded-xl shadow-xl p-8">
         <div className="text-center mb-6">
           <div className="w-14 h-14 mx-auto mb-4 rounded-full border border-gold-soft bg-gold-soft flex items-center justify-center">
             <Shield className="w-7 h-7 text-gold" />
@@ -302,8 +301,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const newOrdersCount = orders.filter((o) => o.status === "new").length;
 
   return (
-    <div className="min-h-screen bg-surface-alt">
-      <header className="bg-background border-b border-border sticky top-0 z-40">
+    <div className="min-h-screen page-bg">
+      <header className="bg-background/80 backdrop-blur-xl border-b border-border sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Logo size={36} />
@@ -312,7 +311,6 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             </Badge>
           </div>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             <Link
               href="/"
               className="text-sm text-muted-foreground hover:text-gold px-3 py-1.5"
@@ -722,7 +720,7 @@ export default function AdminPage() {
 
   if (!ready || status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-alt">
+      <div className="min-h-screen flex items-center justify-center page-bg">
         <Loader2 className="w-8 h-8 text-gold animate-spin" />
       </div>
     );

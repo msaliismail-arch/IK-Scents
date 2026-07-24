@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Menu, X, Instagram } from "lucide-react";
 import { Logo } from "./logo";
-import { ThemeToggle } from "./theme-toggle";
 import { INSTAGRAM_URL } from "@/lib/site";
 
 const links = [
@@ -51,7 +50,6 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <ThemeToggle />
           <a
             href={INSTAGRAM_URL}
             target="_blank"
