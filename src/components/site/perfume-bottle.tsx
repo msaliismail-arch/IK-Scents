@@ -32,17 +32,17 @@ export function PerfumeBottle({
           <stop offset="100%" stopColor="#a97e3c" />
         </linearGradient>
         <linearGradient id="cap" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#f0dca8" />
-          <stop offset="45%" stopColor="#c9a96e" />
-          <stop offset="100%" stopColor="#8a6a34" />
+          <stop offset="0%" stopColor="#3a3630" />
+          <stop offset="45%" stopColor="#1e1b16" />
+          <stop offset="100%" stopColor="#0f0d0a" />
         </linearGradient>
         <linearGradient id="collar" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#e6c98a" />
-          <stop offset="100%" stopColor="#b08f52" />
+          <stop offset="0%" stopColor="#2a2620" />
+          <stop offset="100%" stopColor="#14110d" />
         </linearGradient>
         <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#e8cd97" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="#e8cd97" stopOpacity="0" />
+          <stop offset="0%" stopColor="#c9a05a" stopOpacity="0.28" />
+          <stop offset="100%" stopColor="#c9a05a" stopOpacity="0" />
         </radialGradient>
         <clipPath id="bodyClip">
           <path d="M52 120 Q52 96 78 96 L162 96 Q188 96 188 120 L188 300 Q188 330 158 330 L82 330 Q52 330 52 300 Z" />
@@ -96,7 +96,7 @@ export function PerfumeBottle({
         fontSize="17"
         fontWeight="700"
         letterSpacing="2"
-        fill="#a88a4e"
+        fill="#1a1712"
       >
         {BRAND}
       </text>
@@ -107,11 +107,11 @@ export function PerfumeBottle({
         fontFamily="Georgia, serif"
         fontSize="7"
         letterSpacing="3"
-        fill="#b8935a"
+        fill="#6b6459"
       >
-        PARFUM
+        EAU DE PARFUM
       </text>
-      <rect x="104" y="256" width="32" height="1" fill="#c9a96e" opacity="0.6" />
+      <rect x="104" y="256" width="32" height="1" fill="#9a8266" opacity="0.7" />
     </svg>
   );
 }

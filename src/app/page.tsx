@@ -2,14 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import {
-  motion,
-  useInView,
-  useMotionValue,
-  useSpring,
-} from "framer-motion";
-import {
-  Sparkles,
   Star,
   ChevronDown,
   ShoppingBag,
@@ -17,10 +11,13 @@ import {
   Diamond,
   Instagram,
   Package,
+  ClipboardList,
+  Sparkles,
+  FlaskConical,
 } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
-import { Logo } from "@/components/site/logo";
+import { PerfumeBottle } from "@/components/site/perfume-bottle";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import type { Perfume } from "@/lib/types";
 
@@ -63,129 +60,125 @@ function AnimatedSection({
   );
 }
 
+// Decorative botanical line accent
+function Sprig({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 120 200"
+      className={className}
+      fill="none"
+      stroke="#9a8266"
+      strokeWidth="1.2"
+      aria-hidden="true"
+    >
+      <path d="M60 200 C60 150 60 100 60 20" strokeLinecap="round" />
+      {[...Array(6)].map((_, i) => {
+        const y = 40 + i * 24;
+        return (
+          <g key={i}>
+            <path d={`M60 ${y} C40 ${y - 12} 24 ${y - 6} 18 ${y + 6} C34 ${y + 10} 50 ${y + 6} 60 ${y}`} />
+            <path d={`M60 ${y + 12} C80 ${y} 96 ${y + 6} 102 ${y + 18} C86 ${y + 22} 70 ${y + 18} 60 ${y + 12}`} />
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 // ==========================================
-// HERO (original dark, warm, background image)
+// HERO (editorial cream)
 // ==========================================
 function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex items-center overflow-hidden hero-bg"
     >
-      {/* Background image + warm overlays */}
-      <div className="absolute inset-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/hero-perfume.png"
-          alt={`${BRAND} Parfums Originaux`}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/45 to-background" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(224,162,74,0.22),transparent_60%)]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50" />
-      </div>
+      <Sprig className="absolute top-24 right-8 w-16 h-40 opacity-40 hidden md:block" />
+      <Sprig className="absolute bottom-10 left-8 w-14 h-36 opacity-30 rotate-180 hidden md:block" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(154,130,102,0.08),transparent_60%)]" />
 
-      {/* Floating particles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(6)].map((_, i) => (
+      <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-28 pb-16 grid md:grid-cols-2 gap-12 items-center">
+        <div className="text-center md:text-left order-2 md:order-1">
+          <motion.span
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="text-gold text-xs tracking-[0.4em] uppercase font-light block mb-5"
+          >
+            L&apos;Art de l&apos;Essence
+          </motion.span>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.3 }}
+            className="text-5xl sm:text-6xl lg:text-7xl font-serif font-bold leading-[0.98] mb-6 text-foreground"
+          >
+            Découvrez
+            <br />
+            l&apos;essence d&apos;<span className="gold-text">{BRAND}</span>
+          </motion.h1>
+
           <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-[#e6b45c]/50 rounded-full"
-            style={{ left: `${15 + i * 14}%`, top: `${20 + (i % 3) * 24}%` }}
-            animate={{ y: [-20, 20, -20], opacity: [0.2, 0.6, 0.2] }}
-            transition={{
-              duration: 4 + i,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.5,
-            }}
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="w-24 h-[1px] bg-gradient-to-r from-[#9a8266] to-transparent mx-auto md:mx-0 mb-8 origin-left"
           />
-        ))}
-      </div>
 
-      {/* Content */}
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
+            className="text-muted-foreground text-lg max-w-lg mx-auto md:mx-0 mb-10 font-light leading-relaxed"
+          >
+            Des parfums originaux, authentiques et raffinés. Chaque fragrance est
+            une histoire — livrée partout au Maroc, paiement à la livraison.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.85 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start items-center"
+          >
+            <Link
+              href="/#collection"
+              className="btn-gold px-8 py-4 font-semibold tracking-wider uppercase text-sm hover:shadow-lg transition-all duration-300"
+            >
+              Découvrir les collections
+            </Link>
+            <Link
+              href="/#about"
+              className="px-8 py-4 border border-foreground/25 text-foreground font-light tracking-wider uppercase text-sm hover:border-gold hover:text-gold transition-all duration-300"
+            >
+              Notre Histoire
+            </Link>
+          </motion.div>
+        </div>
+
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex justify-center mb-6"
+          transition={{ duration: 1, delay: 0.35 }}
+          className="order-1 md:order-2 flex justify-center"
         >
-          <Logo size={72} showText={false} />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.35 }}
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#e6b45c]/30 bg-black/30 backdrop-blur-sm mb-8">
-            <Sparkles className="w-4 h-4 text-gold" />
-            <span className="text-gold text-xs tracking-[0.25em] uppercase font-light">
-              Authenticité Garantie · 100% Original
-            </span>
+          <div className="animate-float">
+            <PerfumeBottle width={300} />
           </div>
         </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.5 }}
-          className="text-6xl sm:text-7xl md:text-8xl font-serif font-bold mb-6 leading-[0.95]"
-        >
-          <span className="gold-shimmer">{BRAND}</span>
-          <br />
-          <span className="text-white font-light">Parfums Originaux</span>
-        </motion.h1>
-
-        <motion.div
-          initial={{ opacity: 0, scaleX: 0 }}
-          animate={{ opacity: 1, scaleX: 1 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-          className="w-24 h-[1px] bg-gradient-to-r from-transparent via-[#e6b45c] to-transparent mx-auto mb-8"
-        />
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="text-white/70 text-lg sm:text-xl max-w-2xl mx-auto mb-12 font-light leading-relaxed"
-        >
-          Des fragrances puissantes et authentiques, livrées partout au Maroc.
-          Paiement à la livraison.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-        >
-          <Link
-            href="/#collection"
-            className="btn-gold px-8 py-4 font-semibold tracking-wider uppercase text-sm hover:shadow-xl hover:shadow-[#cf8f38]/30 transition-all duration-300"
-          >
-            Explorer la Collection
-          </Link>
-          <Link
-            href="/#about"
-            className="px-8 py-4 border border-white/25 text-white/85 font-light tracking-wider uppercase text-sm hover:border-gold hover:text-gold transition-all duration-300"
-          >
-            Notre Histoire
-          </Link>
-        </motion.div>
       </div>
 
-      {/* Scroll indicator */}
       <motion.a
         href="/#collection"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.8, duration: 1 }}
+        transition={{ delay: 1.4, duration: 1 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
       >
-        <span className="text-white/40 text-[10px] tracking-[0.3em] uppercase">
-          Scroll
+        <span className="text-muted-foreground text-[10px] tracking-[0.3em] uppercase">
+          Découvrir
         </span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
@@ -199,7 +192,7 @@ function HeroSection() {
 }
 
 // ==========================================
-// PERFUME CARD (3D tilt)
+// PERFUME CARD
 // ==========================================
 function PerfumeCard({ perfume }: { perfume: Perfume }) {
   const [imgError, setImgError] = useState(false);
@@ -215,8 +208,8 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
     const r = e.currentTarget.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width - 0.5;
     const py = (e.clientY - r.top) / r.height - 0.5;
-    ry.set(px * 8);
-    rx.set(-py * 8);
+    ry.set(px * 6);
+    rx.set(-py * 6);
   };
   const onLeave = () => {
     rx.set(0);
@@ -231,9 +224,9 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
       style={{ rotateX: srx, rotateY: sry, transformPerspective: 900 }}
       whileHover={{ y: -6 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group relative bg-card border border-border hover:border-gold-soft hover:shadow-xl hover:shadow-black/40 transition-shadow duration-500 overflow-hidden flex flex-col rounded-lg"
+      className="group relative bg-card border border-border hover:border-gold-soft hover:shadow-xl hover:shadow-neutral-300/40 transition-shadow duration-500 overflow-hidden flex flex-col rounded-lg"
     >
-      <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+      <div className="relative aspect-[3/4] overflow-hidden bg-[#f0ece2]">
         {!imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -250,9 +243,8 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
             </span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-70" />
         <div className="absolute top-3 left-3">
-          <div className="flex items-center gap-1 px-2 py-1 bg-black/50 border border-gold-soft rounded-sm backdrop-blur-sm">
+          <div className="flex items-center gap-1 px-2 py-1 bg-white/85 border border-gold-soft rounded-sm backdrop-blur-sm">
             <Star className="w-3 h-3 text-gold" />
             <span className="text-[10px] text-gold tracking-wider uppercase">
               Original
@@ -286,7 +278,7 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
         <div className="mt-auto">
           <Link
             href={`/commander/${perfume.id}`}
-            className="btn-gold w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold tracking-wider uppercase hover:shadow-lg hover:shadow-[#cf8f38]/30 transition-all duration-300 rounded-sm"
+            className="btn-gold w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold tracking-wider uppercase hover:shadow-lg transition-all duration-300 rounded-sm"
           >
             <ShoppingBag className="w-4 h-4" />
             Commander
@@ -303,16 +295,15 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
 function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
   return (
     <section id="collection" className="relative py-24 sm:py-32 bg-background">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(224,162,74,0.06),transparent_55%)]" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="text-center mb-16">
-          <span className="text-gold/70 text-xs tracking-[0.4em] uppercase font-light">
-            Notre Collection
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
+            Nos Essences
           </span>
           <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mt-3 mb-4">
             Fragrances d&apos;<span className="gold-text">Exception</span>
           </h2>
-          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#e6b45c] to-transparent mx-auto mb-6" />
+          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#9a8266] to-transparent mx-auto mb-6" />
           <p className="text-muted-foreground max-w-xl mx-auto font-light leading-relaxed">
             Des parfums originaux, puissants et longue tenue. Choisissez votre
             taille, commandez en ligne, payez à la livraison.
@@ -348,6 +339,74 @@ function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
 }
 
 // ==========================================
+// EXPERIENCE (3 steps) — concept ASSIL
+// ==========================================
+function ExperienceSection() {
+  const steps = [
+    {
+      icon: <ClipboardList className="w-6 h-6" />,
+      n: "01",
+      title: "Choisissez",
+      desc: "Parcourez nos essences originales et sélectionnez votre fragrance.",
+    },
+    {
+      icon: <FlaskConical className="w-6 h-6" />,
+      n: "02",
+      title: "Votre taille",
+      desc: "Sélectionnez le format en ml qui vous convient, du décant au grand format.",
+    },
+    {
+      icon: <Sparkles className="w-6 h-6" />,
+      n: "03",
+      title: "Recevez",
+      desc: "Livraison partout au Maroc, paiement à la livraison. Simple et sûr.",
+    },
+  ];
+  return (
+    <section className="relative py-24 sm:py-32 bg-surface-alt">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <AnimatedSection className="text-center mb-16">
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
+            L&apos;expérience {BRAND}
+          </span>
+          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mt-3">
+            Simple &amp; <span className="gold-text">raffinée</span>
+          </h2>
+          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#9a8266] to-transparent mx-auto mt-6" />
+        </AnimatedSection>
+
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={staggerContainer}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+        >
+          {steps.map((s, i) => (
+            <motion.div
+              key={i}
+              variants={fadeInUp}
+              className="relative bg-card border border-border rounded-lg p-8 text-center"
+            >
+              <span className="absolute top-4 right-5 font-serif text-3xl text-gold/25">
+                {s.n}
+              </span>
+              <div className="w-14 h-14 mx-auto mb-6 rounded-full border border-gold-soft bg-gold-soft flex items-center justify-center text-gold">
+                {s.icon}
+              </div>
+              <h3 className="font-serif text-xl text-foreground mb-3">{s.title}</h3>
+              <p className="text-muted-foreground font-light leading-relaxed text-sm">
+                {s.desc}
+              </p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ==========================================
 // ABOUT
 // ==========================================
 function AboutSection() {
@@ -370,17 +429,16 @@ function AboutSection() {
   ];
 
   return (
-    <section id="about" className="relative py-24 sm:py-32 bg-surface-alt">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(224,162,74,0.08),transparent_60%)]" />
+    <section id="about" className="relative py-24 sm:py-32 bg-background">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="text-center mb-16">
-          <span className="text-gold/70 text-xs tracking-[0.4em] uppercase font-light">
-            À Propos
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
+            Le Concept
           </span>
           <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mt-3 mb-4">
             L&apos;Art du <span className="gold-text">Parfum</span>
           </h2>
-          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#e6b45c] to-transparent mx-auto mb-6" />
+          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#9a8266] to-transparent mx-auto mb-6" />
           <p className="text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
             Chez {BRAND}, nous croyons que chaque personne mérite de porter une
             fragrance d&apos;exception, authentique et à un prix juste. Notre
@@ -400,7 +458,7 @@ function AboutSection() {
               key={i}
               variants={fadeInUp}
               whileHover={{ y: -5 }}
-              className="bg-card border border-border p-8 text-center group hover:border-gold-soft hover:shadow-lg hover:shadow-black/40 transition-all duration-500 rounded-lg"
+              className="bg-card border border-border p-8 text-center group hover:border-gold-soft hover:shadow-lg transition-all duration-500 rounded-lg"
             >
               <div className="w-14 h-14 mx-auto mb-6 rounded-full border border-gold-soft bg-gold-soft flex items-center justify-center text-gold transition-all duration-300">
                 {feature.icon}
@@ -444,17 +502,16 @@ function AboutSection() {
 // ==========================================
 function ContactSection() {
   return (
-    <section id="contact" className="relative py-24 sm:py-32 bg-background">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,rgba(224,162,74,0.08),transparent_55%)]" />
+    <section id="contact" className="relative py-24 sm:py-32 bg-surface-alt">
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <AnimatedSection>
-          <span className="text-gold/70 text-xs tracking-[0.4em] uppercase font-light">
-            Commander
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
+            Contact
           </span>
           <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mt-3 mb-4">
             Votre Parfum Vous <span className="gold-text">Attend</span>
           </h2>
-          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#e6b45c] to-transparent mx-auto mb-6" />
+          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#9a8266] to-transparent mx-auto mb-6" />
           <p className="text-muted-foreground max-w-xl mx-auto font-light leading-relaxed mb-10">
             Parcourez la collection, choisissez votre taille et commandez
             directement sur le site. Paiement à la livraison, partout au Maroc.
@@ -465,7 +522,7 @@ function ContactSection() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/#collection"
-              className="btn-gold px-8 py-4 font-semibold tracking-wider uppercase text-sm hover:shadow-lg hover:shadow-[#cf8f38]/30 transition-all duration-300 flex items-center gap-2"
+              className="btn-gold px-8 py-4 font-semibold tracking-wider uppercase text-sm hover:shadow-lg transition-all duration-300 flex items-center gap-2"
             >
               <ShoppingBag className="w-5 h-5" />
               Voir la Collection
@@ -513,6 +570,7 @@ export default function Home() {
       <main className="flex-1">
         <HeroSection />
         <CollectionSection perfumes={perfumes} />
+        <ExperienceSection />
         <AboutSection />
         <ContactSection />
       </main>

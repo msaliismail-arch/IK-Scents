@@ -8,8 +8,8 @@ import { INSTAGRAM_URL } from "@/lib/site";
 
 const links = [
   { href: "/", label: "Accueil" },
-  { href: "/#collection", label: "Collection" },
-  { href: "/#about", label: "À Propos" },
+  { href: "/#collection", label: "Nos Essences" },
+  { href: "/#about", label: "Le Concept" },
   { href: "/#contact", label: "Contact" },
 ];
 

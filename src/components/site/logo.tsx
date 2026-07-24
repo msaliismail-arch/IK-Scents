@@ -26,7 +26,7 @@ export function Logo({
           <img
             src={SOURCES[idx]}
             alt={BRAND}
-            className="w-full h-full object-contain p-1"
+            className="w-full h-full object-cover"
             onError={() => setIdx((i) => i + 1)}
           />
         ) : (

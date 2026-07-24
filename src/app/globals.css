@@ -41,9 +41,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-gold: #e6b45c;
-  --color-gold-light: #f2cd7e;
-  --color-gold-dark: #cf8f38;
+  --color-gold: #9a8266;
+  --color-gold-light: #b8a488;
+  --color-gold-dark: #7d6a4f;
   --color-luxury-black: #ffffff;
   --color-luxury-dark: #faf8f4;
   --color-luxury-card: #ffffff;
@@ -97,33 +97,33 @@
 
 :root,
 .dark {
-  --background: oklch(0.09 0.014 60);
-  --foreground: oklch(0.96 0.012 85);
-  --card: oklch(0.13 0.016 58);
-  --card-foreground: oklch(0.96 0.012 85);
-  --popover: oklch(0.13 0.016 58);
-  --popover-foreground: oklch(0.96 0.012 85);
-  --primary: oklch(0.78 0.13 68);
-  --primary-foreground: oklch(0.15 0.02 55);
-  --secondary: oklch(0.18 0.018 58);
-  --secondary-foreground: oklch(0.96 0.012 85);
-  --muted: oklch(0.18 0.018 58);
-  --muted-foreground: oklch(0.72 0.035 72);
-  --accent: oklch(0.78 0.13 68);
-  --accent-foreground: oklch(0.15 0.02 55);
-  --border: oklch(0.30 0.025 58);
-  --input: oklch(0.30 0.025 58);
-  --ring: oklch(0.78 0.13 68);
+  --background: oklch(0.965 0.008 85);
+  --foreground: oklch(0.22 0.006 60);
+  --card: oklch(0.995 0.004 85);
+  --card-foreground: oklch(0.22 0.006 60);
+  --popover: oklch(0.995 0.004 85);
+  --popover-foreground: oklch(0.22 0.006 60);
+  --primary: oklch(0.24 0.004 60);
+  --primary-foreground: oklch(0.98 0.004 85);
+  --secondary: oklch(0.93 0.008 82);
+  --secondary-foreground: oklch(0.24 0.004 60);
+  --muted: oklch(0.93 0.008 82);
+  --muted-foreground: oklch(0.50 0.012 68);
+  --accent: oklch(0.62 0.03 70);
+  --accent-foreground: oklch(0.98 0.004 85);
+  --border: oklch(0.88 0.01 82);
+  --input: oklch(0.88 0.01 82);
+  --ring: oklch(0.62 0.03 70);
 
-  /* Warm brand tokens (brun / orange / jaune) */
-  --surface-alt: #0c0a06;
-  --gold: #e6b45c;
-  --gold-strong: #cf8f38;
-  --gold-soft: #1f150a;
-  --gold-border: #4d3c1f;
-  --hero-from: #0b0906;
-  --hero-via: #0d0a07;
-  --hero-to: #080604;
+  /* Editorial brand tokens (crème / noir / taupe) */
+  --surface-alt: #efeae0;
+  --gold: #9a8266;
+  --gold-strong: #7d6a4f;
+  --gold-soft: #efe9dd;
+  --gold-border: #e3ddd0;
+  --hero-from: #f6f2ea;
+  --hero-via: #f2ede3;
+  --hero-to: #ece6da;
 }
 
 @layer base {
@@ -147,22 +147,22 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0c0a06;
+  background: #ece6da;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cf8f38;
+  background: #b8a488;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #e6b45c;
+  background: #9a8266;
 }
 
 /* Selection */
 ::selection {
-  background: rgba(230, 180, 92, 0.3);
-  color: #fff;
+  background: rgba(154, 130, 102, 0.25);
+  color: #1a1712;
 }
 
 /* Glass effect utility */
@@ -183,7 +183,7 @@
 
 /* Gold gradient text */
 .gold-text {
-  background: linear-gradient(135deg, #f4d488 0%, #e0a24a 50%, #b06a24 100%);
+  background: linear-gradient(135deg, #3a352c 0%, #201c16 60%, #1a1712 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -202,11 +202,11 @@
 .gold-shimmer {
   background: linear-gradient(
     90deg,
-    #b06a24 0%,
-    #f4d488 25%,
-    #e0a24a 50%,
-    #f4d488 75%,
-    #b06a24 100%
+    #2a251d 0%,
+    #4a4236 25%,
+    #201c16 50%,
+    #4a4236 75%,
+    #2a251d 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -291,25 +291,25 @@
   );
 }
 .btn-gold {
-  background: linear-gradient(90deg, #8a4f1e 0%, #cf8f38 45%, #edc45f 100%);
-  color: #1a1208;
+  background: #1a1712;
+  color: #f6f2ea;
 }
 .btn-gold:hover {
-  background: linear-gradient(90deg, #96581f 0%, #dd9a3c 45%, #f4d071 100%);
+  background: #333026;
 }
 
 /* Designed background for inner pages */
 .page-bg {
   background:
     radial-gradient(
-      circle at 15% 8%,
-      rgba(224, 162, 74, 0.12),
-      transparent 42%
+      circle at 12% 6%,
+      rgba(154, 130, 102, 0.10),
+      transparent 40%
     ),
     radial-gradient(
-      circle at 85% 92%,
-      rgba(207, 143, 56, 0.1),
-      transparent 46%
+      circle at 88% 94%,
+      rgba(154, 130, 102, 0.08),
+      transparent 44%
     ),
     var(--background);
 }
