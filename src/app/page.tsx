@@ -2,7 +2,13 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { motion, useInView } from "framer-motion";
+import {
+  motion,
+  useInView,
+  useMotionValue,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import {
   Sparkles,
   Star,
@@ -15,7 +21,7 @@ import {
 } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
-import { Logo } from "@/components/site/logo";
+import { PerfumeBottle } from "@/components/site/perfume-bottle";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import type { Perfume } from "@/lib/types";
 
@@ -59,23 +65,54 @@ function AnimatedSection({
 }
 
 // ==========================================
-// HERO (light)
+// HERO (light, premium, 3D bottle + parallax)
 // ==========================================
 function HeroSection() {
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const sx = useSpring(mx, { stiffness: 60, damping: 15 });
+  const sy = useSpring(my, { stiffness: 60, damping: 15 });
+  const bottleX = useTransform(sx, [-0.5, 0.5], [-22, 22]);
+  const bottleY = useTransform(sy, [-0.5, 0.5], [-16, 16]);
+  const bottleRotate = useTransform(sx, [-0.5, 0.5], [-7, 7]);
+  const glowX = useTransform(sx, [-0.5, 0.5], [16, -16]);
+  const glowY = useTransform(sy, [-0.5, 0.5], [16, -16]);
+
+  const onMove = (e: React.MouseEvent<HTMLElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    mx.set((e.clientX - r.left) / r.width - 0.5);
+    my.set((e.clientY - r.top) / r.height - 0.5);
+  };
+  const onLeave = () => {
+    mx.set(0);
+    my.set(0);
+  };
+
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#fbf9f5] via-white to-[#fbf9f5]"
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-b from-[#fbf9f5] via-white to-[#faf6ee]"
     >
-      <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_50%_30%,rgba(184,147,90,0.10),transparent_60%)]" />
+      {/* Decorative gold orbs */}
+      <motion.div
+        style={{ x: glowX, y: glowY }}
+        className="absolute -top-20 -right-20 w-[28rem] h-[28rem] rounded-full bg-[radial-gradient(circle,rgba(201,169,110,0.18),transparent_65%)]"
+      />
+      <motion.div
+        style={{ x: glowY, y: glowX }}
+        className="absolute -bottom-24 -left-24 w-[26rem] h-[26rem] rounded-full bg-[radial-gradient(circle,rgba(201,169,110,0.12),transparent_65%)]"
+      />
 
+      {/* Floating particles */}
       <div className="absolute inset-0 pointer-events-none">
         {[...Array(6)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute w-1 h-1 bg-[#c9a96e]/40 rounded-full"
-            style={{ left: `${15 + i * 15}%`, top: `${20 + (i % 3) * 25}%` }}
-            animate={{ y: [-20, 20, -20], opacity: [0.15, 0.5, 0.15] }}
+            style={{ left: `${12 + i * 14}%`, top: `${18 + (i % 3) * 24}%` }}
+            animate={{ y: [-18, 18, -18], opacity: [0.15, 0.5, 0.15] }}
             transition={{
               duration: 4 + i,
               repeat: Infinity,
@@ -86,75 +123,84 @@ function HeroSection() {
         ))}
       </div>
 
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-24">
+      <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-28 pb-16 grid md:grid-cols-2 gap-10 items-center">
+        {/* Text */}
+        <div className="text-center md:text-left order-2 md:order-1">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#e2d3ae] bg-[#faf4e8] mb-6">
+              <Sparkles className="w-4 h-4 text-[#a88a4e]" />
+              <span className="text-[#a88a4e] text-xs tracking-[0.25em] uppercase font-light">
+                Authenticité Garantie · 100% Original
+              </span>
+            </div>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.35 }}
+            className="text-5xl sm:text-6xl lg:text-7xl font-serif font-bold leading-[0.95] mb-6"
+          >
+            <span className="gold-shimmer">{BRAND}</span>
+            <br />
+            <span className="text-neutral-800 font-light">Parfums Originaux</span>
+          </motion.h1>
+
+          <motion.div
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
+            className="w-24 h-[1px] bg-gradient-to-r from-[#c9a96e] to-transparent mx-auto md:mx-0 mb-8 origin-left"
+          />
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="text-neutral-500 text-lg max-w-lg mx-auto md:mx-0 mb-10 font-light leading-relaxed"
+          >
+            Des fragrances puissantes et authentiques, livrées partout au Maroc.
+            Paiement à la livraison.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.95 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start items-center"
+          >
+            <Link
+              href="/#collection"
+              className="px-8 py-4 bg-gradient-to-r from-[#997640] via-[#b8935a] to-[#d4b478] text-white font-semibold tracking-wider uppercase text-sm hover:shadow-xl hover:shadow-[#c9a96e]/30 transition-all duration-300"
+            >
+              Explorer la Collection
+            </Link>
+            <Link
+              href="/#about"
+              className="px-8 py-4 border border-neutral-300 text-neutral-700 font-light tracking-wider uppercase text-sm hover:border-[#c9a96e] hover:text-[#a88a4e] transition-all duration-300"
+            >
+              Notre Histoire
+            </Link>
+          </motion.div>
+        </div>
+
+        {/* 3D bottle */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex justify-center mb-8"
+          transition={{ duration: 1, delay: 0.3 }}
+          className="order-1 md:order-2 flex justify-center"
         >
-          <Logo size={96} showText={false} />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#e2d3ae] bg-[#faf4e8] mb-8">
-            <Sparkles className="w-4 h-4 text-[#a88a4e]" />
-            <span className="text-[#a88a4e] text-xs tracking-[0.25em] uppercase font-light">
-              Authenticité Garantie · 100% Original
-            </span>
-          </div>
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.6 }}
-          className="text-5xl sm:text-6xl md:text-7xl font-serif font-bold mb-6 leading-[0.95]"
-        >
-          <span className="gold-shimmer">{BRAND}</span>
-          <br />
-          <span className="text-neutral-800 font-light">Parfums Originaux</span>
-        </motion.h1>
-
-        <motion.div
-          initial={{ opacity: 0, scaleX: 0 }}
-          animate={{ opacity: 1, scaleX: 1 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="w-24 h-[1px] bg-gradient-to-r from-transparent via-[#c9a96e] to-transparent mx-auto mb-8"
-        />
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.1 }}
-          className="text-neutral-500 text-lg sm:text-xl max-w-2xl mx-auto mb-12 font-light leading-relaxed"
-        >
-          Des fragrances puissantes et authentiques, livrées partout au Maroc.
-          Paiement à la livraison.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.3 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-        >
-          <Link
-            href="/#collection"
-            className="px-8 py-4 bg-gradient-to-r from-[#997640] via-[#b8935a] to-[#d4b478] text-white font-semibold tracking-wider uppercase text-sm hover:shadow-lg hover:shadow-[#c9a96e]/30 transition-all duration-300"
+          <motion.div
+            style={{ x: bottleX, y: bottleY, rotate: bottleRotate }}
+            className="animate-float"
           >
-            Explorer la Collection
-          </Link>
-          <Link
-            href="/#about"
-            className="px-8 py-4 border border-neutral-300 text-neutral-700 font-light tracking-wider uppercase text-sm hover:border-[#c9a96e] hover:text-[#a88a4e] transition-all duration-300"
-          >
-            Notre Histoire
-          </Link>
+            <PerfumeBottle width={330} />
+          </motion.div>
         </motion.div>
       </div>
 
@@ -162,7 +208,7 @@ function HeroSection() {
         href="/#collection"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.8, duration: 1 }}
+        transition={{ delay: 1.6, duration: 1 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
       >
         <span className="text-neutral-400 text-[10px] tracking-[0.3em] uppercase">
@@ -180,19 +226,39 @@ function HeroSection() {
 }
 
 // ==========================================
-// PERFUME CARD (links to order page)
+// PERFUME CARD (3D tilt on hover, links to order page)
 // ==========================================
 function PerfumeCard({ perfume }: { perfume: Perfume }) {
   const [imgError, setImgError] = useState(false);
   const imageUrl = resolveImg(perfume.image);
   const sizes = perfume.sizes ?? [];
 
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const srx = useSpring(rx, { stiffness: 150, damping: 15 });
+  const sry = useSpring(ry, { stiffness: 150, damping: 15 });
+
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    ry.set(px * 8);
+    rx.set(-py * 8);
+  };
+  const onLeave = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+
   return (
     <motion.div
       variants={fadeInUp}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      style={{ rotateX: srx, rotateY: sry, transformPerspective: 900 }}
       whileHover={{ y: -6 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group relative bg-white border border-neutral-200 hover:border-[#dcc9a0] hover:shadow-xl hover:shadow-neutral-200/60 transition-all duration-500 overflow-hidden flex flex-col rounded-lg"
+      className="group relative bg-white border border-neutral-200 hover:border-[#dcc9a0] hover:shadow-xl hover:shadow-neutral-200/60 transition-shadow duration-500 overflow-hidden flex flex-col rounded-lg"
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-[#f5f1ea]">
         {!imgError ? (
