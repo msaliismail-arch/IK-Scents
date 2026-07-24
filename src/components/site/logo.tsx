@@ -21,9 +21,9 @@ export function Logo({
         {!err ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src="/logo.png"
+            src="/logo.svg"
             alt={BRAND}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain p-1"
             onError={() => setErr(true)}
           />
         ) : (

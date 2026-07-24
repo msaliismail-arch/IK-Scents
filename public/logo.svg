@@ -1,0 +1,21 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="assilGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f4d488" />
+      <stop offset="50%" stop-color="#e0a24a" />
+      <stop offset="100%" stop-color="#b06a24" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer ring -->
+  <circle cx="128" cy="128" r="118" fill="none" stroke="url(#assilGold)" stroke-width="3" />
+  <!-- Inner ring -->
+  <circle cx="128" cy="128" r="104" fill="none" stroke="url(#assilGold)" stroke-width="1.2" opacity="0.55" />
+
+  <!-- Top star accent -->
+  <path d="M128 46 l4.5 10 10 4.5 -10 4.5 -4.5 10 -4.5 -10 -10 -4.5 10 -4.5 z" fill="url(#assilGold)" opacity="0.9" />
+
+  <!-- Monogram A -->
+  <text x="128" y="192" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="150" font-weight="700" fill="url(#assilGold)">A</text>
+</svg>
