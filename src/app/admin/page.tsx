@@ -25,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/site/logo";
+import { FloralSpray, LeafBranch } from "@/components/site/botanical";
 import { resolveImg } from "@/lib/site";
 import type { Perfume, Order } from "@/lib/types";
 
@@ -72,8 +73,10 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center page-bg px-4">
-      <div className="w-full max-w-md bg-card border border-border rounded-xl shadow-xl p-8">
+    <div className="min-h-screen flex items-center justify-center page-bg px-4 relative overflow-hidden">
+      <FloralSpray className="absolute top-8 right-8 w-32 h-28 text-[#9a8266] opacity-25 pointer-events-none hidden sm:block" />
+      <LeafBranch className="absolute bottom-6 left-8 w-20 h-44 text-[#9a8266] opacity-20 pointer-events-none hidden sm:block" />
+      <div className="relative z-10 w-full max-w-md bg-card border border-border rounded-xl shadow-xl p-8">
         <div className="text-center mb-6">
           <div className="w-14 h-14 mx-auto mb-4 rounded-full border border-gold-soft bg-gold-soft flex items-center justify-center">
             <Shield className="w-7 h-7 text-gold" />
@@ -301,8 +304,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const newOrdersCount = orders.filter((o) => o.status === "new").length;
 
   return (
-    <div className="min-h-screen page-bg">
-      <header className="bg-background/80 backdrop-blur-xl border-b border-border sticky top-0 z-40">
+    <div className="min-h-screen page-bg relative overflow-hidden">
+      <FloralSpray className="absolute top-20 right-6 w-28 h-24 text-[#9a8266] opacity-15 pointer-events-none hidden md:block" />
+      <header className="bg-background/80 backdrop-blur-xl border-b border-border sticky top-0 z-40 relative">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Logo size={36} />

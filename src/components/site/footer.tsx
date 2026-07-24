@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { Instagram } from "lucide-react";
 import { Logo } from "./logo";
+import { LeafBranch } from "./botanical";
 import { BRAND, INSTAGRAM_URL } from "@/lib/site";
 
 export function Footer() {
   return (
-    <footer className="bg-surface-alt border-t border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="relative bg-surface-alt border-t border-border overflow-hidden">
+      <LeafBranch className="absolute -top-4 right-6 w-16 h-40 text-[#9a8266] opacity-15 pointer-events-none hidden md:block" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           <Logo size={36} />
 

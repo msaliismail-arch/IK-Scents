@@ -6,18 +6,20 @@ import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import {
   Star,
   ChevronDown,
+  ChevronRight,
   ShoppingBag,
   Crown,
   Diamond,
   Instagram,
   Package,
   ClipboardList,
-  Sparkles,
+  Flower2,
   FlaskConical,
 } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { PerfumeBottle } from "@/components/site/perfume-bottle";
+import { FloralSpray, LeafBranch } from "@/components/site/botanical";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import type { Perfume } from "@/lib/types";
 
@@ -60,33 +62,8 @@ function AnimatedSection({
   );
 }
 
-// Decorative botanical line accent
-function Sprig({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 120 200"
-      className={className}
-      fill="none"
-      stroke="#9a8266"
-      strokeWidth="1.2"
-      aria-hidden="true"
-    >
-      <path d="M60 200 C60 150 60 100 60 20" strokeLinecap="round" />
-      {[...Array(6)].map((_, i) => {
-        const y = 40 + i * 24;
-        return (
-          <g key={i}>
-            <path d={`M60 ${y} C40 ${y - 12} 24 ${y - 6} 18 ${y + 6} C34 ${y + 10} 50 ${y + 6} 60 ${y}`} />
-            <path d={`M60 ${y + 12} C80 ${y} 96 ${y + 6} 102 ${y + 18} C86 ${y + 22} 70 ${y + 18} 60 ${y + 12}`} />
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
 // ==========================================
-// HERO (editorial cream)
+// HERO — product left, text right (mockup)
 // ==========================================
 function HeroSection() {
   return (
@@ -94,80 +71,66 @@ function HeroSection() {
       id="hero"
       className="relative min-h-screen flex items-center overflow-hidden hero-bg"
     >
-      <Sprig className="absolute top-24 right-8 w-16 h-40 opacity-40 hidden md:block" />
-      <Sprig className="absolute bottom-10 left-8 w-14 h-36 opacity-30 rotate-180 hidden md:block" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(154,130,102,0.08),transparent_60%)]" />
+      {/* Botanical accents */}
+      <FloralSpray className="absolute top-20 right-6 w-40 h-36 text-[#9a8266] opacity-50 hidden md:block" />
+      <LeafBranch className="absolute -bottom-4 left-4 w-24 h-56 text-[#9a8266] opacity-30 hidden md:block" />
 
       <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-28 pb-16 grid md:grid-cols-2 gap-12 items-center">
-        <div className="text-center md:text-left order-2 md:order-1">
-          <motion.span
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15 }}
-            className="text-gold text-xs tracking-[0.4em] uppercase font-light block mb-5"
-          >
-            L&apos;Art de l&apos;Essence
-          </motion.span>
+        {/* Product (left) */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="flex justify-center order-1"
+        >
+          <div className="animate-float">
+            <PerfumeBottle width={320} />
+          </div>
+        </motion.div>
 
+        {/* Text (right) */}
+        <div className="text-center md:text-left order-2">
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, delay: 0.3 }}
-            className="text-5xl sm:text-6xl lg:text-7xl font-serif font-bold leading-[0.98] mb-6 text-foreground"
+            className="text-5xl sm:text-6xl lg:text-7xl font-serif font-bold leading-[0.98] mb-6 text-foreground uppercase tracking-tight"
           >
             Découvrez
             <br />
-            l&apos;essence d&apos;<span className="gold-text">{BRAND}</span>
+            l&apos;essence d&apos;<span className="gold-text">{BRAND}</span>.
           </motion.h1>
-
-          <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={{ opacity: 1, scaleX: 1 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="w-24 h-[1px] bg-gradient-to-r from-[#9a8266] to-transparent mx-auto md:mx-0 mb-8 origin-left"
-          />
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="text-muted-foreground text-lg max-w-lg mx-auto md:mx-0 mb-10 font-light leading-relaxed"
+            transition={{ duration: 0.8, delay: 0.55 }}
+            className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto md:mx-0 mb-9 font-light leading-relaxed"
           >
-            Des parfums originaux, authentiques et raffinés. Chaque fragrance est
-            une histoire — livrée partout au Maroc, paiement à la livraison.
+            Plongez dans l&apos;univers de la parfumerie conceptuelle. Chaque
+            fragrance est une histoire, une émotion, un reflet de vous-même.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.85 }}
+            transition={{ duration: 0.8, delay: 0.75 }}
             className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start items-center"
           >
             <Link
               href="/#collection"
-              className="btn-gold px-8 py-4 font-semibold tracking-wider uppercase text-sm hover:shadow-lg transition-all duration-300"
+              className="btn-gold px-7 py-3.5 font-semibold tracking-[0.12em] uppercase text-xs hover:shadow-lg transition-all duration-300"
             >
               Découvrir les collections
             </Link>
             <Link
-              href="/#about"
-              className="px-8 py-4 border border-foreground/25 text-foreground font-light tracking-wider uppercase text-sm hover:border-gold hover:text-gold transition-all duration-300"
+              href="/#experience"
+              className="px-7 py-3.5 border border-foreground/30 text-foreground font-light tracking-[0.12em] uppercase text-xs hover:border-gold hover:text-gold transition-all duration-300"
             >
-              Notre Histoire
+              Créer votre parfum
             </Link>
           </motion.div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.35 }}
-          className="order-1 md:order-2 flex justify-center"
-        >
-          <div className="animate-float">
-            <PerfumeBottle width={300} />
-          </div>
-        </motion.div>
       </div>
 
       <motion.a
@@ -187,6 +150,65 @@ function HeroSection() {
           <ChevronDown className="w-5 h-5 text-gold" />
         </motion.div>
       </motion.a>
+    </section>
+  );
+}
+
+// ==========================================
+// EXPÉRIENCE PERSONNALISÉE (3 étapes)
+// ==========================================
+function ExperienceSection() {
+  const steps = [
+    {
+      icon: <ClipboardList className="w-8 h-8" />,
+      label: "1. Questionnaire olfactif",
+    },
+    {
+      icon: <Flower2 className="w-8 h-8" />,
+      label: "2. Sélection de notes",
+    },
+    {
+      icon: <FlaskConical className="w-8 h-8" />,
+      label: "3. Création unique",
+    },
+  ];
+
+  return (
+    <section id="experience" className="relative py-24 sm:py-28 bg-background overflow-hidden">
+      <FloralSpray className="absolute top-6 left-2 w-28 h-24 text-[#9a8266] opacity-25 -scale-x-100 hidden md:block" />
+      <FloralSpray className="absolute bottom-6 right-2 w-28 h-24 text-[#9a8266] opacity-25 hidden md:block" />
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <AnimatedSection className="text-center mb-14">
+          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-foreground tracking-wide uppercase">
+            L&apos;expérience personnalisée
+          </h2>
+        </AnimatedSection>
+
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={staggerContainer}
+          className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-2"
+        >
+          {steps.map((s, i) => (
+            <div key={i} className="flex flex-col md:flex-row items-center gap-4 md:gap-2">
+              <motion.div variants={fadeInUp} className="flex flex-col items-center">
+                <div className="w-40 h-32 rounded-lg bg-gold-soft border border-gold-border flex items-center justify-center text-gold">
+                  {s.icon}
+                </div>
+                <p className="mt-4 text-xs tracking-[0.12em] uppercase text-muted-foreground text-center">
+                  {s.label}
+                </p>
+              </motion.div>
+              {i < steps.length - 1 && (
+                <ChevronRight className="w-6 h-6 text-gold rotate-90 md:rotate-0 shrink-0" />
+              )}
+            </div>
+          ))}
+        </motion.div>
+      </div>
     </section>
   );
 }
@@ -294,7 +316,8 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
 // ==========================================
 function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
   return (
-    <section id="collection" className="relative py-24 sm:py-32 bg-background">
+    <section id="collection" className="relative py-24 sm:py-32 bg-surface-alt overflow-hidden">
+      <LeafBranch className="absolute top-10 right-4 w-20 h-44 text-[#9a8266] opacity-20 hidden md:block" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="text-center mb-16">
           <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
@@ -339,74 +362,6 @@ function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
 }
 
 // ==========================================
-// EXPERIENCE (3 steps) — concept ASSIL
-// ==========================================
-function ExperienceSection() {
-  const steps = [
-    {
-      icon: <ClipboardList className="w-6 h-6" />,
-      n: "01",
-      title: "Choisissez",
-      desc: "Parcourez nos essences originales et sélectionnez votre fragrance.",
-    },
-    {
-      icon: <FlaskConical className="w-6 h-6" />,
-      n: "02",
-      title: "Votre taille",
-      desc: "Sélectionnez le format en ml qui vous convient, du décant au grand format.",
-    },
-    {
-      icon: <Sparkles className="w-6 h-6" />,
-      n: "03",
-      title: "Recevez",
-      desc: "Livraison partout au Maroc, paiement à la livraison. Simple et sûr.",
-    },
-  ];
-  return (
-    <section className="relative py-24 sm:py-32 bg-surface-alt">
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <AnimatedSection className="text-center mb-16">
-          <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
-            L&apos;expérience {BRAND}
-          </span>
-          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mt-3">
-            Simple &amp; <span className="gold-text">raffinée</span>
-          </h2>
-          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#9a8266] to-transparent mx-auto mt-6" />
-        </AnimatedSection>
-
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={staggerContainer}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
-        >
-          {steps.map((s, i) => (
-            <motion.div
-              key={i}
-              variants={fadeInUp}
-              className="relative bg-card border border-border rounded-lg p-8 text-center"
-            >
-              <span className="absolute top-4 right-5 font-serif text-3xl text-gold/25">
-                {s.n}
-              </span>
-              <div className="w-14 h-14 mx-auto mb-6 rounded-full border border-gold-soft bg-gold-soft flex items-center justify-center text-gold">
-                {s.icon}
-              </div>
-              <h3 className="font-serif text-xl text-foreground mb-3">{s.title}</h3>
-              <p className="text-muted-foreground font-light leading-relaxed text-sm">
-                {s.desc}
-              </p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-// ==========================================
 // ABOUT
 // ==========================================
 function AboutSection() {
@@ -429,7 +384,8 @@ function AboutSection() {
   ];
 
   return (
-    <section id="about" className="relative py-24 sm:py-32 bg-background">
+    <section id="about" className="relative py-24 sm:py-32 bg-background overflow-hidden">
+      <FloralSpray className="absolute -top-2 right-2 w-28 h-24 text-[#9a8266] opacity-20 hidden md:block" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="text-center mb-16">
           <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
@@ -472,26 +428,6 @@ function AboutSection() {
             </motion.div>
           ))}
         </motion.div>
-
-        <AnimatedSection className="mt-20">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { value: "100%", label: "Original" },
-              { value: "48h", label: "Livraison" },
-              { value: "COD", label: "Paiement livraison" },
-              { value: "7j/7", label: "Support" },
-            ].map((stat, i) => (
-              <div key={i} className="text-center py-6 border-t border-gold-soft">
-                <div className="text-3xl sm:text-4xl font-serif font-bold gold-text mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-muted-foreground text-sm tracking-wider uppercase font-light">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </AnimatedSection>
       </div>
     </section>
   );
@@ -502,7 +438,8 @@ function AboutSection() {
 // ==========================================
 function ContactSection() {
   return (
-    <section id="contact" className="relative py-24 sm:py-32 bg-surface-alt">
+    <section id="contact" className="relative py-24 sm:py-32 bg-surface-alt overflow-hidden">
+      <LeafBranch className="absolute bottom-0 left-4 w-20 h-44 text-[#9a8266] opacity-20 rotate-180 hidden md:block" />
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <AnimatedSection>
           <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
@@ -569,8 +506,8 @@ export default function Home() {
       <Navbar />
       <main className="flex-1">
         <HeroSection />
-        <CollectionSection perfumes={perfumes} />
         <ExperienceSection />
+        <CollectionSection perfumes={perfumes} />
         <AboutSection />
         <ContactSection />
       </main>
