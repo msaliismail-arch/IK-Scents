@@ -333,6 +333,12 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
 function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
   return (
     <section id="collection" className="relative py-24 sm:py-32 bg-surface-alt overflow-hidden">
+      {/* Background photo (public/collection-bg.jpg) — optionnel */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-20"
+        style={{ backgroundImage: "url('/collection-bg.jpg')" }}
+      />
+      <div className="absolute inset-0 bg-surface-alt/80" />
       <LeafBranch className="absolute top-10 right-4 w-20 h-44 text-[#9a8266] opacity-20 hidden md:block" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="text-center mb-16">
