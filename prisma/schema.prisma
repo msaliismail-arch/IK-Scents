@@ -23,9 +23,38 @@ model Perfume {
   name        String
   description String
   image       String
-  price5ml    String
-  price10ml   String
   published   Boolean  @default(false)
+  sizes       Size[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Size {
+  id        String  @id @default(cuid())
+  label     String
+  price     String
+  position  Int     @default(0)
+  perfumeId String
+  perfume   Perfume @relation(fields: [perfumeId], references: [id], onDelete: Cascade)
+
+  @@index([perfumeId])
+}
+
+model Order {
+  id           String   @id @default(cuid())
+  customerName String
+  phone        String
+  address      String
+  city         String?
+  perfumeId    String?
+  perfumeName  String
+  sizeLabel    String
+  price        String
+  quantity     Int      @default(1)
+  note         String?
+  status       String   @default("new")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
 }

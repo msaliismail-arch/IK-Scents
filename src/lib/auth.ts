@@ -70,6 +70,6 @@ export const authOptions: NextAuthOptions = {
     signIn: "/",
     error: "/",
   },
-  secret: process.env.NEXTAUTH_SECRET || "ik-scents-secret-key-2024-luxury",
+  secret: process.env.NEXTAUTH_SECRET || "assil-secret-key-2026-parfums",
   debug: false,
 };

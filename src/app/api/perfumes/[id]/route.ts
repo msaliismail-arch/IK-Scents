@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+type SizeInput = { label?: string; price?: string };
+
+function cleanSizes(sizes: unknown): { label: string; price: string; position: number }[] {
+  if (!Array.isArray(sizes)) return [];
+  return sizes
+    .map((s: SizeInput, i: number) => ({
+      label: (s?.label ?? "").toString().trim(),
+      price: (s?.price ?? "").toString().trim(),
+      position: i,
+    }))
+    .filter((s) => s.label !== "" && s.price !== "");
+}
+
 // GET /api/perfumes/[id]
 export async function GET(
   request: NextRequest,
@@ -10,13 +23,11 @@ export async function GET(
     const { id } = await params;
     const perfume = await db.perfume.findUnique({
       where: { id },
+      include: { sizes: { orderBy: { position: "asc" } } },
     });
 
     if (!perfume) {
-      return NextResponse.json(
-        { error: "Perfume not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Perfume not found" }, { status: 404 });
     }
 
     return NextResponse.json(perfume);
@@ -37,7 +48,9 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, description, image, price5ml, price10ml, published } = body;
+    const { name, description, image, published } = body;
+    const hasSizes = Array.isArray(body.sizes);
+    const sizes = cleanSizes(body.sizes);
 
     const perfume = await db.perfume.update({
       where: { id },
@@ -45,10 +58,15 @@ export async function PUT(
         ...(name !== undefined && { name }),
         ...(description !== undefined && { description }),
         ...(image !== undefined && { image }),
-        ...(price5ml !== undefined && { price5ml }),
-        ...(price10ml !== undefined && { price10ml }),
         ...(published !== undefined && { published }),
+        ...(hasSizes && {
+          sizes: {
+            deleteMany: {},
+            create: sizes,
+          },
+        }),
       },
+      include: { sizes: { orderBy: { position: "asc" } } },
     });
 
     return NextResponse.json(perfume);
@@ -68,10 +86,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    await db.perfume.delete({
-      where: { id },
-    });
-
+    await db.perfume.delete({ where: { id } });
     return NextResponse.json({ message: "Perfume deleted successfully" });
   } catch (error) {
     console.error("Error deleting perfume:", error);

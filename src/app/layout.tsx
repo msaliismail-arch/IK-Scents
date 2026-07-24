@@ -15,25 +15,25 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "IK Scents — Luxury in Every Drop",
+  title: "ASSIL — Parfums Originaux",
   description:
-    "Discover premium perfume decants from the world's most prestigious fragrance houses. IK Scents delivers luxury fragrances in 5ml and 10ml formats.",
+    "ASSIL — Parfums 100% originaux, authenticité garantie. Livraison partout au Maroc, paiement à la livraison. Commandez directement en ligne.",
   keywords: [
-    "IK Scents",
-    "luxury perfumes",
-    "perfume decants",
-    "fragrance",
-    "5ml",
-    "10ml",
+    "ASSIL",
+    "parfums originaux",
+    "parfum maroc",
+    "parfum authentique",
+    "livraison maroc",
+    "paiement à la livraison",
   ],
-  authors: [{ name: "IK Scents" }],
+  authors: [{ name: "ASSIL" }],
   icons: {
     icon: "/logo.svg",
   },
   openGraph: {
-    title: "IK Scents — Luxury in Every Drop",
+    title: "ASSIL — Parfums Originaux",
     description:
-      "Discover premium perfume decants from the world's most prestigious fragrance houses.",
+      "Parfums 100% originaux, authenticité garantie. Livraison partout au Maroc.",
     type: "website",
   },
 };

@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-// GET /api/perfumes - List all perfumes (published only for non-admins)
+type SizeInput = { label?: string; price?: string };
+
+function cleanSizes(sizes: unknown): { label: string; price: string; position: number }[] {
+  if (!Array.isArray(sizes)) return [];
+  return sizes
+    .map((s: SizeInput, i: number) => ({
+      label: (s?.label ?? "").toString().trim(),
+      price: (s?.price ?? "").toString().trim(),
+      position: i,
+    }))
+    .filter((s) => s.label !== "" && s.price !== "");
+}
+
+// GET /api/perfumes - List perfumes (published only unless ?all=true)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -10,6 +23,7 @@ export async function GET(request: NextRequest) {
     const perfumes = await db.perfume.findMany({
       where: all ? {} : { published: true },
       orderBy: { createdAt: "desc" },
+      include: { sizes: { orderBy: { position: "asc" } } },
     });
 
     return NextResponse.json(perfumes);
@@ -22,15 +36,16 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/perfumes - Create a new perfume
+// POST /api/perfumes - Create a perfume with dynamic sizes
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, image, price5ml, price10ml, published } = body;
+    const { name, description, image, published } = body;
+    const sizes = cleanSizes(body.sizes);
 
-    if (!name || !description || !image || !price5ml || !price10ml) {
+    if (!name || !description || !image || sizes.length === 0) {
       return NextResponse.json(
-        { error: "All fields are required" },
+        { error: "Nom, description, image et au moins une taille sont requis" },
         { status: 400 }
       );
     }
@@ -40,10 +55,10 @@ export async function POST(request: NextRequest) {
         name,
         description,
         image,
-        price5ml,
-        price10ml,
         published: published ?? false,
+        sizes: { create: sizes },
       },
+      include: { sizes: { orderBy: { position: "asc" } } },
     });
 
     return NextResponse.json(perfume, { status: 201 });

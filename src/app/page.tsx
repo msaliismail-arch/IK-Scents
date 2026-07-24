@@ -30,14 +30,25 @@ import {
   Package,
   Star,
   ChevronDown,
-  MessageCircle,
   Sparkles,
   Crown,
   Diamond,
-  Phone,
   Instagram,
+  ShoppingBag,
+  Check,
+  Minus,
+  ClipboardList,
 } from "lucide-react";
-import type { Perfume } from "@/lib/types";
+import type { Perfume, Order, Size } from "@/lib/types";
+
+// ==========================================
+// BRAND CONSTANTS
+// ==========================================
+const BRAND = "ASSIL";
+const INSTAGRAM_URL = "https://www.instagram.com/assill.parfums/";
+
+const resolveImg = (url: string) =>
+  url && url.startsWith("/uploads/") ? `/api${url}` : url;
 
 // ==========================================
 // ANIMATION VARIANTS
@@ -51,14 +62,6 @@ const fadeInUp = {
   },
 };
 
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { duration: 0.6 },
-  },
-};
-
 const staggerContainer = {
   hidden: { opacity: 0 },
   visible: {
@@ -67,24 +70,6 @@ const staggerContainer = {
       staggerChildren: 0.15,
       delayChildren: 0.1,
     },
-  },
-};
-
-const slideInLeft = {
-  hidden: { opacity: 0, x: -60 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
-  },
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
   },
 };
 
@@ -154,9 +139,7 @@ function Navbar({
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "glass-dark py-3"
-          : "bg-transparent py-5"
+        scrolled ? "glass-dark py-3" : "bg-transparent py-5"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -171,10 +154,10 @@ function Navbar({
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-serif font-bold gold-text tracking-wider">
-              IK SCENTS
+              {BRAND}
             </h1>
             <p className="text-[9px] tracking-[0.3em] text-gold/60 uppercase">
-              Luxury Fragrances
+              Parfums Originaux
             </p>
           </div>
         </motion.div>
@@ -194,6 +177,17 @@ function Navbar({
 
         {/* Right Actions */}
         <div className="flex items-center gap-3">
+          <motion.a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="w-9 h-9 rounded-full border border-gold/30 flex items-center justify-center text-gold hover:bg-gold/10 transition-all duration-300"
+            aria-label="Instagram"
+          >
+            <Instagram className="w-4 h-4" />
+          </motion.a>
           {isAdmin && (
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
@@ -288,10 +282,9 @@ function HeroSection({ onScrollTo }: { onScrollTo: (id: string) => void }) {
       <div className="absolute inset-0">
         <img
           src="/hero-perfume.png"
-          alt="IK Scents Luxury Perfume"
+          alt={`${BRAND} Parfums Originaux`}
           className="w-full h-full object-cover"
         />
-        {/* Dark overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/90" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50" />
       </div>
@@ -302,14 +295,8 @@ function HeroSection({ onScrollTo }: { onScrollTo: (id: string) => void }) {
           <motion.div
             key={i}
             className="absolute w-1 h-1 bg-gold/30 rounded-full"
-            style={{
-              left: `${15 + i * 15}%`,
-              top: `${20 + (i % 3) * 25}%`,
-            }}
-            animate={{
-              y: [-20, 20, -20],
-              opacity: [0.2, 0.6, 0.2],
-            }}
+            style={{ left: `${15 + i * 15}%`, top: `${20 + (i % 3) * 25}%` }}
+            animate={{ y: [-20, 20, -20], opacity: [0.2, 0.6, 0.2] }}
             transition={{
               duration: 4 + i,
               repeat: Infinity,
@@ -330,7 +317,7 @@ function HeroSection({ onScrollTo }: { onScrollTo: (id: string) => void }) {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gold/20 bg-gold/5 mb-8">
             <Sparkles className="w-4 h-4 text-gold" />
             <span className="text-gold text-xs tracking-[0.25em] uppercase font-light">
-              Collection Exclusive 2024
+              Authenticité Garantie · 100% Original
             </span>
           </div>
         </motion.div>
@@ -341,9 +328,9 @@ function HeroSection({ onScrollTo }: { onScrollTo: (id: string) => void }) {
           transition={{ duration: 1, delay: 0.6 }}
           className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-bold mb-6 leading-[0.95]"
         >
-          <span className="gold-shimmer">Luxury</span>
+          <span className="gold-shimmer">{BRAND}</span>
           <br />
-          <span className="text-white font-light">in Every Drop</span>
+          <span className="text-white font-light">Parfums Originaux</span>
         </motion.h1>
 
         <motion.div
@@ -359,8 +346,8 @@ function HeroSection({ onScrollTo }: { onScrollTo: (id: string) => void }) {
           transition={{ duration: 0.8, delay: 1.2 }}
           className="text-white/60 text-lg sm:text-xl max-w-2xl mx-auto mb-12 font-light leading-relaxed tracking-wide"
         >
-          Découvrez les plus grandes fragrances du monde, dans des formats
-          exclusifs 5ml &amp; 10ml
+          Des fragrances puissantes et authentiques, livrées partout au Maroc.
+          Paiement à la livraison.
         </motion.p>
 
         <motion.div
@@ -415,31 +402,23 @@ function HeroSection({ onScrollTo }: { onScrollTo: (id: string) => void }) {
 // ==========================================
 function PerfumeCard({
   perfume,
-  index,
+  onOrder,
 }: {
   perfume: Perfume;
-  index: number;
+  onOrder: (perfume: Perfume, sizeLabel: string) => void;
 }) {
   const [imgError, setImgError] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  const orderWhatsApp = (size: string, price: string) => {
-    const message = `Bonjour, je souhaite commander le parfum ${perfume.name} (${size}) chez IK Scents.`;
-    const url = `https://wa.me/212606684390?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
-  };
-
-  // Resolve image URL: if it's an old /uploads/ path, convert to /api/uploads/
-  const imageUrl = perfume.image.startsWith("/uploads/")
-    ? `/api${perfume.image}`
-    : perfume.image;
+  const imageUrl = resolveImg(perfume.image);
+  const sizes = perfume.sizes ?? [];
 
   return (
     <motion.div
       variants={fadeInUp}
       whileHover={{ y: -8 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group relative bg-luxury-card border border-luxury-border hover:border-gold/30 transition-all duration-500 overflow-hidden"
+      className="group relative bg-luxury-card border border-luxury-border hover:border-gold/30 transition-all duration-500 overflow-hidden flex flex-col"
     >
       {/* Image */}
       <div className="relative aspect-[3/4] overflow-hidden bg-luxury-dark">
@@ -454,7 +433,9 @@ function PerfumeCard({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-luxury-dark">
             <Diamond className="w-12 h-12 text-gold/20 mb-2" />
-            <span className="text-white/20 text-sm font-light">{perfume.name}</span>
+            <span className="text-white/20 text-sm font-light">
+              {perfume.name}
+            </span>
           </div>
         )}
         {!imgLoaded && !imgError && (
@@ -468,76 +449,50 @@ function PerfumeCard({
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
-        {/* Hover overlay with order buttons */}
-        <div className="absolute inset-0 flex items-end justify-center pb-6 opacity-0 group-hover:opacity-100 transition-all duration-500">
-          <div className="flex gap-2">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => orderWhatsApp("5ml", perfume.price5ml)}
-              className="px-4 py-2 bg-gold/90 text-luxury-black text-xs font-semibold tracking-wider uppercase hover:bg-gold transition-colors"
-            >
-              5ml · {perfume.price5ml} MAD
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => orderWhatsApp("10ml", perfume.price10ml)}
-              className="px-4 py-2 bg-white/90 text-luxury-black text-xs font-semibold tracking-wider uppercase hover:bg-white transition-colors"
-            >
-              10ml · {perfume.price10ml} MAD
-            </motion.button>
-          </div>
-        </div>
-
         {/* Featured badge */}
         <div className="absolute top-3 left-3">
           <div className="flex items-center gap-1 px-2 py-1 bg-gold/20 border border-gold/30 rounded-sm">
             <Star className="w-3 h-3 text-gold" />
             <span className="text-[10px] text-gold tracking-wider uppercase">
-              Premium
+              Original
             </span>
           </div>
         </div>
       </div>
 
       {/* Info */}
-      <div className="p-5">
+      <div className="p-5 flex flex-col flex-1">
         <h3 className="font-serif text-lg text-white group-hover:text-gold transition-colors duration-300 mb-2">
           {perfume.name}
         </h3>
         <p className="text-white/50 text-sm font-light leading-relaxed mb-4 line-clamp-2">
           {perfume.description}
         </p>
-        <div className="flex items-center justify-between">
-          <div className="flex gap-4">
-            <div className="text-center">
-              <span className="text-[10px] text-white/40 uppercase tracking-wider block">
-                5ml
-              </span>
-              <span className="text-gold font-serif text-lg">
-                {perfume.price5ml}
-              </span>
-              <span className="text-[10px] text-white/40 ml-1">MAD</span>
-            </div>
-            <div className="w-px bg-luxury-border" />
-            <div className="text-center">
-              <span className="text-[10px] text-white/40 uppercase tracking-wider block">
-                10ml
-              </span>
-              <span className="text-gold font-serif text-lg">
-                {perfume.price10ml}
-              </span>
-              <span className="text-[10px] text-white/40 ml-1">MAD</span>
-            </div>
-          </div>
+
+        {/* Dynamic sizes */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {sizes.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => onOrder(perfume, s.label)}
+              className="px-3 py-1.5 border border-gold/25 text-xs text-white/80 hover:bg-gold/10 hover:border-gold/50 transition-all duration-300 rounded-sm"
+            >
+              <span className="text-gold font-medium">{s.label}</span>
+              <span className="text-white/40"> · </span>
+              <span>{s.price} MAD</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-auto">
           <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => orderWhatsApp("5ml", perfume.price5ml)}
-            className="w-10 h-10 rounded-full border border-gold/30 flex items-center justify-center text-gold hover:bg-gold hover:text-luxury-black transition-all duration-300"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => onOrder(perfume, sizes[0]?.label ?? "")}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-luxury-black text-xs font-semibold tracking-wider uppercase hover:shadow-lg hover:shadow-gold/20 transition-all duration-300"
           >
-            <MessageCircle className="w-4 h-4" />
+            <ShoppingBag className="w-4 h-4" />
+            Commander
           </motion.button>
         </div>
       </div>
@@ -546,16 +501,312 @@ function PerfumeCard({
 }
 
 // ==========================================
+// ORDER DIALOG (order form -> saved to DB)
+// ==========================================
+function OrderDialog({
+  open,
+  onClose,
+  perfume,
+  initialSize,
+}: {
+  open: boolean;
+  onClose: () => void;
+  perfume: Perfume | null;
+  initialSize: string;
+}) {
+  const [sizeLabel, setSizeLabel] = useState(initialSize);
+  const [quantity, setQuantity] = useState(1);
+  const [form, setForm] = useState({
+    customerName: "",
+    phone: "",
+    address: "",
+    city: "",
+    note: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setSizeLabel(initialSize || perfume?.sizes?.[0]?.label || "");
+      setQuantity(1);
+      setError("");
+      setDone(false);
+      setForm({ customerName: "", phone: "", address: "", city: "", note: "" });
+    }
+  }, [open, initialSize, perfume]);
+
+  const sizes: Size[] = perfume?.sizes ?? [];
+  const selectedSize = sizes.find((s) => s.label === sizeLabel) ?? sizes[0];
+  const unitPrice = Number.parseFloat(selectedSize?.price ?? "0") || 0;
+  const total = unitPrice * quantity;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!perfume || !selectedSize) return;
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: form.customerName,
+          phone: form.phone,
+          address: form.address,
+          city: form.city,
+          note: form.note,
+          perfumeId: perfume.id,
+          perfumeName: perfume.name,
+          sizeLabel: selectedSize.label,
+          price: selectedSize.price,
+          quantity,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Une erreur est survenue. Réessayez.");
+        setLoading(false);
+        return;
+      }
+      setDone(true);
+    } catch {
+      setError("Erreur de connexion. Réessayez.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="glass-dark border-gold/20 max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full border border-gold/20 bg-gold/5 flex items-center justify-center">
+              <ShoppingBag className="w-5 h-5 text-gold" />
+            </div>
+            <span className="gold-text text-xl font-serif">
+              {done ? "Commande reçue" : "Passer commande"}
+            </span>
+          </DialogTitle>
+        </DialogHeader>
+
+        {done ? (
+          <div className="py-8 text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="w-16 h-16 mx-auto mb-5 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center"
+            >
+              <Check className="w-8 h-8 text-gold" />
+            </motion.div>
+            <p className="text-white text-lg font-serif mb-2">Merci !</p>
+            <p className="text-white/50 text-sm font-light leading-relaxed max-w-xs mx-auto">
+              Votre commande a bien été enregistrée. Nous vous contacterons très
+              vite au {form.phone} pour confirmer la livraison.
+            </p>
+            <Button
+              onClick={onClose}
+              className="mt-6 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-luxury-black font-semibold tracking-wider uppercase"
+            >
+              Fermer
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+            {/* Product summary */}
+            {perfume && (
+              <div className="flex items-center gap-3 p-3 bg-luxury-dark/60 border border-luxury-border rounded-lg">
+                <img
+                  src={resolveImg(perfume.image)}
+                  alt={perfume.name}
+                  className="w-12 h-12 object-cover rounded"
+                />
+                <div className="min-w-0">
+                  <p className="text-white text-sm font-medium truncate">
+                    {perfume.name}
+                  </p>
+                  <p className="text-white/40 text-xs truncate">
+                    {perfume.description}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="p-3 rounded border border-red-500/30 bg-red-500/10 text-red-400 text-sm text-center">
+                {error}
+              </div>
+            )}
+
+            {/* Size selection */}
+            <div className="space-y-2">
+              <Label className="text-white/60 text-sm tracking-wider">
+                Taille (ml)
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {sizes.map((s, i) => (
+                  <button
+                    type="button"
+                    key={i}
+                    onClick={() => setSizeLabel(s.label)}
+                    className={`px-3 py-2 text-xs border transition-all duration-200 rounded-sm ${
+                      s.label === sizeLabel
+                        ? "border-gold bg-gold/15 text-gold"
+                        : "border-luxury-border text-white/70 hover:border-gold/40"
+                    }`}
+                  >
+                    {s.label} · {s.price} MAD
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity */}
+            <div className="flex items-center justify-between">
+              <Label className="text-white/60 text-sm tracking-wider">
+                Quantité
+              </Label>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="w-8 h-8 rounded border border-luxury-border text-white/70 hover:border-gold/40 flex items-center justify-center"
+                >
+                  <Minus className="w-3.5 h-3.5" />
+                </button>
+                <span className="text-white w-6 text-center">{quantity}</span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => q + 1)}
+                  className="w-8 h-8 rounded border border-luxury-border text-white/70 hover:border-gold/40 flex items-center justify-center"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="border-t border-luxury-border pt-4 space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-white/60 text-sm tracking-wider">
+                    Nom complet *
+                  </Label>
+                  <Input
+                    value={form.customerName}
+                    onChange={(e) =>
+                      setForm({ ...form, customerName: e.target.value })
+                    }
+                    placeholder="Votre nom"
+                    required
+                    className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-white/60 text-sm tracking-wider">
+                      Téléphone *
+                    </Label>
+                    <Input
+                      value={form.phone}
+                      onChange={(e) =>
+                        setForm({ ...form, phone: e.target.value })
+                      }
+                      placeholder="06 00 00 00 00"
+                      required
+                      className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-white/60 text-sm tracking-wider">
+                      Ville
+                    </Label>
+                    <Input
+                      value={form.city}
+                      onChange={(e) => setForm({ ...form, city: e.target.value })}
+                      placeholder="Oujda"
+                      className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-white/60 text-sm tracking-wider">
+                    Adresse de livraison *
+                  </Label>
+                  <Textarea
+                    value={form.address}
+                    onChange={(e) =>
+                      setForm({ ...form, address: e.target.value })
+                    }
+                    placeholder="Quartier, rue, n°..."
+                    required
+                    rows={2}
+                    className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50 resize-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-white/60 text-sm tracking-wider">
+                    Note (optionnel)
+                  </Label>
+                  <Input
+                    value={form.note}
+                    onChange={(e) => setForm({ ...form, note: e.target.value })}
+                    placeholder="Précisions..."
+                    className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Total */}
+            <div className="flex items-center justify-between p-3 bg-gold/5 border border-gold/20 rounded-lg">
+              <span className="text-white/60 text-sm">Total (paiement à la livraison)</span>
+              <span className="text-gold font-serif text-lg">
+                {total > 0 ? `${total} MAD` : "—"}
+              </span>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={loading || !selectedSize}
+              className="w-full bg-gradient-to-r from-gold-dark via-gold to-gold-light text-luxury-black font-semibold tracking-wider uppercase hover:shadow-lg hover:shadow-gold/20 transition-all duration-300 py-5"
+            >
+              {loading ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-5 h-5 border-2 border-luxury-black border-t-transparent rounded-full"
+                />
+              ) : (
+                <>
+                  <ShoppingBag className="w-4 h-4 mr-2" />
+                  Confirmer la commande
+                </>
+              )}
+            </Button>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ==========================================
 // COLLECTION / PRODUCTS SECTION
 // ==========================================
-function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
+function CollectionSection({
+  perfumes,
+  onOrder,
+}: {
+  perfumes: Perfume[];
+  onOrder: (perfume: Perfume, sizeLabel: string) => void;
+}) {
   return (
     <section id="collection" className="relative py-24 sm:py-32">
-      {/* Section background */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0d0d0d] to-[#0a0a0a]" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
         <AnimatedSection className="text-center mb-16">
           <span className="text-gold/60 text-xs tracking-[0.4em] uppercase font-light">
             Notre Collection
@@ -565,13 +816,11 @@ function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
           </h2>
           <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-6" />
           <p className="text-white/40 max-w-xl mx-auto font-light leading-relaxed">
-            Chaque flacon raconte une histoire. Découvrez notre sélection de
-            parfums les plus prestigieux, disponibles en formats voyage
-            exclusifs.
+            Des parfums originaux, puissants et longue tenue. Choisissez votre
+            taille, commandez en ligne, payez à la livraison.
           </p>
         </AnimatedSection>
 
-        {/* Products Grid */}
         {perfumes.length === 0 ? (
           <AnimatedSection className="text-center py-20">
             <Package className="w-16 h-16 text-white/10 mx-auto mb-4" />
@@ -590,8 +839,12 @@ function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
             variants={staggerContainer}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           >
-            {perfumes.map((perfume, index) => (
-              <PerfumeCard key={perfume.id} perfume={perfume} index={index} />
+            {perfumes.map((perfume) => (
+              <PerfumeCard
+                key={perfume.id}
+                perfume={perfume}
+                onOrder={onOrder}
+              />
             ))}
           </motion.div>
         )}
@@ -608,17 +861,17 @@ function AboutSection() {
     {
       icon: <Crown className="w-6 h-6" />,
       title: "Authenticité Garantie",
-      desc: "100% parfums originaux, sourced directement des maisons les plus prestigieuses.",
+      desc: "100% parfums originaux. Jamais de contrefaçon — c'est notre engagement.",
     },
     {
       icon: <Diamond className="w-6 h-6" />,
-      title: "Formats Exclusifs",
-      desc: "Décants 5ml et 10ml parfaits pour découvrir les fragrances avant de vous engager.",
+      title: "Tailles au Choix",
+      desc: "Choisissez le format en ml qui vous convient, du décant à la grande taille.",
     },
     {
       icon: <Star className="w-6 h-6" />,
-      title: "Livraison Rapide",
-      desc: "Expédition soignée et rapide partout au Maroc avec emballage premium.",
+      title: "Livraison & Paiement",
+      desc: "Livraison partout au Maroc, paiement à la livraison. Simple et sécurisé.",
     },
   ];
 
@@ -633,14 +886,13 @@ function AboutSection() {
             À Propos
           </span>
           <h2 className="text-4xl sm:text-5xl font-serif font-bold text-white mt-3 mb-4">
-            L&apos;Art du{" "}
-            <span className="gold-text">Parfum</span>
+            L&apos;Art du <span className="gold-text">Parfum</span>
           </h2>
           <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-6" />
           <p className="text-white/40 max-w-2xl mx-auto font-light leading-relaxed">
-            Chez IK Scents, nous croyons que chaque personne mérite de
-            porter une fragrance d&apos;exception. Notre mission est de rendre
-            le luxe olfactif accessible à tous.
+            Chez {BRAND}, nous croyons que chaque personne mérite de porter une
+            fragrance d&apos;exception, authentique et à un prix juste. Notre
+            mission : rendre le parfum original accessible à tous au Maroc.
           </p>
         </AnimatedSection>
 
@@ -671,19 +923,15 @@ function AboutSection() {
           ))}
         </motion.div>
 
-        {/* Stats */}
         <AnimatedSection className="mt-20">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { value: "50+", label: "Fragrances" },
-              { value: "100%", label: "Authentique" },
-              { value: "500+", label: "Clients" },
-              { value: "24h", label: "Livraison" },
+              { value: "100%", label: "Original" },
+              { value: "48h", label: "Livraison" },
+              { value: "COD", label: "Paiement livraison" },
+              { value: "7j/7", label: "Support" },
             ].map((stat, i) => (
-              <div
-                key={i}
-                className="text-center py-6 border-t border-gold/10"
-              >
+              <div key={i} className="text-center py-6 border-t border-gold/10">
                 <div className="text-3xl sm:text-4xl font-serif font-bold gold-text mb-2">
                   {stat.value}
                 </div>
@@ -702,7 +950,7 @@ function AboutSection() {
 // ==========================================
 // CONTACT / CTA SECTION
 // ==========================================
-function ContactSection() {
+function ContactSection({ onScrollTo }: { onScrollTo: (id: string) => void }) {
   return (
     <section id="contact" className="relative py-24 sm:py-32">
       <div className="absolute inset-0 bg-gradient-to-b from-luxury-dark to-[#0a0a0a]" />
@@ -710,40 +958,39 @@ function ContactSection() {
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <AnimatedSection>
           <span className="text-gold/60 text-xs tracking-[0.4em] uppercase font-light">
-            Contactez-nous
+            Commander
           </span>
           <h2 className="text-4xl sm:text-5xl font-serif font-bold text-white mt-3 mb-4">
-            Votre Parfum Vous{" "}
-            <span className="gold-text">Attend</span>
+            Votre Parfum Vous <span className="gold-text">Attend</span>
           </h2>
           <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-6" />
           <p className="text-white/40 max-w-xl mx-auto font-light leading-relaxed mb-10">
-            Commandez facilement via WhatsApp. Notre équipe est à votre
-            disposition pour vous guider dans le choix de votre fragrance.
+            Parcourez la collection, choisissez votre taille et commandez
+            directement sur le site. Paiement à la livraison, partout au Maroc.
           </p>
         </AnimatedSection>
 
         <AnimatedSection>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <motion.a
+            <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              href="https://wa.me/212606684390?text=Bonjour%2C%20je%20souhaite%20avoir%20des%20informations%20sur%20les%20parfums%20IK%20Scents."
-              target="_blank"
-              rel="noopener noreferrer"
+              onClick={() => onScrollTo("collection")}
               className="px-8 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-luxury-black font-semibold tracking-wider uppercase text-sm hover:shadow-lg hover:shadow-gold/20 transition-all duration-300 flex items-center gap-2"
             >
-              <MessageCircle className="w-5 h-5" />
-              Commander sur WhatsApp
-            </motion.a>
+              <ShoppingBag className="w-5 h-5" />
+              Voir la Collection
+            </motion.button>
             <motion.a
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              href="tel:+212606684390"
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-8 py-4 border border-gold/30 text-gold font-light tracking-wider uppercase text-sm hover:border-gold/60 hover:bg-gold/5 transition-all duration-300 flex items-center gap-2"
             >
-              <Phone className="w-4 h-4" />
-              +212 606 684 390
+              <Instagram className="w-4 h-4" />
+              @assill.parfums
             </motion.a>
           </div>
         </AnimatedSection>
@@ -767,17 +1014,17 @@ function Footer() {
             </div>
             <div>
               <h3 className="text-lg font-serif font-bold gold-text tracking-wider">
-                IK SCENTS
+                {BRAND}
               </h3>
               <p className="text-[8px] tracking-[0.3em] text-gold/40 uppercase">
-                Luxury Fragrances
+                Parfums Originaux
               </p>
             </div>
           </div>
 
           {/* Links */}
           <div className="flex gap-6 text-white/30 text-sm font-light">
-            <span>Luxury in Every Drop</span>
+            <span>Authenticité garantie</span>
             <span>·</span>
             <span>Made with ♥ in Morocco</span>
           </div>
@@ -785,16 +1032,11 @@ function Footer() {
           {/* Social */}
           <div className="flex gap-3">
             <a
-              href="https://wa.me/212606684390"
+              href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="w-9 h-9 rounded-full border border-luxury-border flex items-center justify-center text-white/40 hover:text-gold hover:border-gold/30 transition-all duration-300"
-            >
-              <MessageCircle className="w-4 h-4" />
-            </a>
-            <a
-              href="#"
-              className="w-9 h-9 rounded-full border border-luxury-border flex items-center justify-center text-white/40 hover:text-gold hover:border-gold/30 transition-all duration-300"
+              aria-label="Instagram"
             >
               <Instagram className="w-4 h-4" />
             </a>
@@ -803,7 +1045,7 @@ function Footer() {
 
         <div className="mt-8 pt-6 border-t border-luxury-border text-center">
           <p className="text-white/20 text-xs font-light tracking-wider">
-            © 2024 IK Scents. Tous droits réservés.
+            © 2026 {BRAND}. Tous droits réservés.
           </p>
         </div>
       </div>
@@ -835,7 +1077,6 @@ function LoginDialog({
     setLoading(true);
 
     try {
-      // First verify credentials via custom login endpoint
       const verifyRes = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -850,26 +1091,11 @@ function LoginDialog({
         return;
       }
 
-      // Then sign in with NextAuth to establish the session
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        // Even if NextAuth signIn fails, the credentials are valid
-        // Store admin state manually
-        onLogin();
-        onClose();
-        setEmail("");
-        setPassword("");
-      } else {
-        onLogin();
-        onClose();
-        setEmail("");
-        setPassword("");
-      }
+      await signIn("credentials", { email, password, redirect: false });
+      onLogin();
+      onClose();
+      setEmail("");
+      setPassword("");
     } catch {
       setError("Erreur de connexion");
     } finally {
@@ -903,14 +1129,12 @@ function LoginDialog({
           )}
 
           <div className="space-y-2">
-            <Label className="text-white/60 text-sm tracking-wider">
-              Email
-            </Label>
+            <Label className="text-white/60 text-sm tracking-wider">Email</Label>
             <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@ikscents.com"
+              placeholder="admin@assil.ma"
               required
               className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50 focus:ring-gold/20"
             />
@@ -952,11 +1176,7 @@ function LoginDialog({
               {loading ? (
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   className="w-5 h-5 border-2 border-luxury-black border-t-transparent rounded-full"
                 />
               ) : (
@@ -976,6 +1196,16 @@ function LoginDialog({
 // ==========================================
 // ADMIN PANEL
 // ==========================================
+type SizeRow = { label: string; price: string };
+
+const STATUS_LABELS: Record<string, string> = {
+  new: "Nouveau",
+  confirmed: "Confirmé",
+  shipped: "Expédié",
+  delivered: "Livré",
+  cancelled: "Annulé",
+};
+
 function AdminPanel({
   open,
   onClose,
@@ -985,26 +1215,29 @@ function AdminPanel({
   onClose: () => void;
   onRefresh: () => void;
 }) {
+  const [tab, setTab] = useState<"products" | "orders">("products");
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
+  const [ordersLoading, setOrdersLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
+  const [uploading, setUploading] = useState(false);
+  const emptyForm = {
     name: "",
     description: "",
     image: "",
-    price5ml: "",
-    price10ml: "",
     published: true,
-  });
-  const [uploading, setUploading] = useState(false);
+  };
+  const [formData, setFormData] = useState(emptyForm);
+  const [sizes, setSizes] = useState<SizeRow[]>([{ label: "", price: "" }]);
 
   const fetchPerfumes = async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/perfumes?all=true");
       const data = await res.json();
-      setPerfumes(Array.isArray(data) ? data : []); // <-- CORRECTION APPLIQUÉE ICI
+      setPerfumes(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching perfumes:", error);
     } finally {
@@ -1012,30 +1245,42 @@ function AdminPanel({
     }
   };
 
+  const fetchOrders = async () => {
+    setOrdersLoading(true);
+    try {
+      const res = await fetch("/api/orders");
+      const data = await res.json();
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (open) {
       fetchPerfumes();
+      fetchOrders();
     }
   }, [open]);
+
+  const resetForm = () => {
+    setFormData(emptyForm);
+    setSizes([{ label: "", price: "" }]);
+    setEditingId(null);
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setUploading(true);
     try {
-      const formDataUpload = new FormData();
-      formDataUpload.append("image", file);
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formDataUpload,
-      });
-
+      const fd = new FormData();
+      fd.append("image", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
       const data = await res.json();
-      if (data.url) {
-        setFormData((prev) => ({ ...prev, image: data.url }));
-      }
+      if (data.url) setFormData((prev) => ({ ...prev, image: data.url }));
     } catch (error) {
       console.error("Error uploading image:", error);
     } finally {
@@ -1043,33 +1288,40 @@ function AdminPanel({
     }
   };
 
+  const updateSize = (i: number, key: keyof SizeRow, value: string) => {
+    setSizes((prev) =>
+      prev.map((s, idx) => (idx === i ? { ...s, [key]: value } : s))
+    );
+  };
+  const addSize = () => setSizes((prev) => [...prev, { label: "", price: "" }]);
+  const removeSize = (i: number) =>
+    setSizes((prev) => (prev.length === 1 ? prev : prev.filter((_, idx) => idx !== i)));
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    const cleanSizes = sizes.filter(
+      (s) => s.label.trim() !== "" && s.price.trim() !== ""
+    );
+    if (cleanSizes.length === 0) {
+      alert("Ajoutez au moins une taille avec un prix.");
+      return;
+    }
+    const payload = { ...formData, sizes: cleanSizes };
     try {
       if (editingId) {
         await fetch(`/api/perfumes/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
       } else {
         await fetch("/api/perfumes", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
       }
-
-      setFormData({
-        name: "",
-        description: "",
-        image: "",
-        price5ml: "",
-        price10ml: "",
-        published: true,
-      });
-      setEditingId(null);
+      resetForm();
       setShowForm(false);
       fetchPerfumes();
       onRefresh();
@@ -1083,17 +1335,19 @@ function AdminPanel({
       name: perfume.name,
       description: perfume.description,
       image: perfume.image,
-      price5ml: perfume.price5ml,
-      price10ml: perfume.price10ml,
       published: perfume.published,
     });
+    setSizes(
+      perfume.sizes && perfume.sizes.length > 0
+        ? perfume.sizes.map((s) => ({ label: s.label, price: s.price }))
+        : [{ label: "", price: "" }]
+    );
     setEditingId(perfume.id);
     setShowForm(true);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer ce parfum ?")) return;
-
     try {
       await fetch(`/api/perfumes/${id}`, { method: "DELETE" });
       fetchPerfumes();
@@ -1117,288 +1371,433 @@ function AdminPanel({
     }
   };
 
+  const updateOrderStatus = async (id: string, status: string) => {
+    try {
+      await fetch(`/api/orders/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      fetchOrders();
+    } catch (error) {
+      console.error("Error updating order:", error);
+    }
+  };
+
+  const deleteOrder = async (id: string) => {
+    if (!confirm("Supprimer cette commande ?")) return;
+    try {
+      await fetch(`/api/orders/${id}`, { method: "DELETE" });
+      fetchOrders();
+    } catch (error) {
+      console.error("Error deleting order:", error);
+    }
+  };
+
+  const newOrdersCount = orders.filter((o) => o.status === "new").length;
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="glass-dark border-gold/20 max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full border border-gold/20 bg-gold/5 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-gold" />
-              </div>
-              <span className="gold-text text-xl font-serif">
-                Gestion des Parfums
-              </span>
+          <DialogTitle className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full border border-gold/20 bg-gold/5 flex items-center justify-center">
+              <Shield className="w-5 h-5 text-gold" />
             </div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                onClick={() => {
-                  setShowForm(!showForm);
-                  if (!showForm) {
-                    setEditingId(null);
-                    setFormData({
-                      name: "",
-                      description: "",
-                      image: "",
-                      price5ml: "",
-                      price10ml: "",
-                      published: true,
-                    });
-                  }
-                }}
-                className="bg-gold/10 border border-gold/30 text-gold hover:bg-gold/20 hover:border-gold/50 transition-all duration-300"
-                size="sm"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                {showForm ? "Annuler" : "Ajouter"}
-              </Button>
-            </motion.div>
+            <span className="gold-text text-xl font-serif">
+              Espace Admin {BRAND}
+            </span>
           </DialogTitle>
         </DialogHeader>
 
-        {/* Add/Edit Form */}
-        <AnimatePresence>
-          {showForm && (
-            <motion.form
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              onSubmit={handleSubmit}
-              className="space-y-4 mt-4 overflow-hidden"
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-white/60 text-sm tracking-wider">
-                    Nom du parfum
-                  </Label>
-                  <Input
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    placeholder="Dior Sauvage"
-                    required
-                    className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-white/60 text-sm tracking-wider">
-                    Image
-                  </Label>
-                  <div className="flex gap-2">
-                    <Input
-                      value={formData.image}
-                      onChange={(e) =>
-                        setFormData({ ...formData, image: e.target.value })
-                      }
-                      placeholder="/api/uploads/image.png"
-                      required
-                      className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50 flex-1"
-                    />
-                    <label className="cursor-pointer px-3 py-2 border border-gold/30 text-gold hover:bg-gold/10 transition-colors rounded-md flex items-center gap-1">
-                      <Upload className="w-4 h-4" />
-                      <span className="text-xs">
-                        {uploading ? "..." : "Upload"}
-                      </span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageUpload}
+        {/* Tabs */}
+        <div className="flex gap-2 mt-2 border-b border-luxury-border">
+          <button
+            onClick={() => setTab("products")}
+            className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+              tab === "products"
+                ? "text-gold border-b-2 border-gold"
+                : "text-white/40 hover:text-white/70"
+            }`}
+          >
+            <Package className="w-4 h-4" />
+            Parfums
+          </button>
+          <button
+            onClick={() => setTab("orders")}
+            className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+              tab === "orders"
+                ? "text-gold border-b-2 border-gold"
+                : "text-white/40 hover:text-white/70"
+            }`}
+          >
+            <ClipboardList className="w-4 h-4" />
+            Commandes
+            {newOrdersCount > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-gold text-luxury-black font-semibold">
+                {newOrdersCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* PRODUCTS TAB */}
+        {tab === "products" && (
+          <>
+            <div className="flex justify-end mt-4">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  onClick={() => {
+                    setShowForm(!showForm);
+                    if (!showForm) resetForm();
+                  }}
+                  className="bg-gold/10 border border-gold/30 text-gold hover:bg-gold/20 hover:border-gold/50 transition-all duration-300"
+                  size="sm"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  {showForm ? "Annuler" : "Ajouter un parfum"}
+                </Button>
+              </motion.div>
+            </div>
+
+            <AnimatePresence>
+              {showForm && (
+                <motion.form
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  onSubmit={handleSubmit}
+                  className="space-y-4 mt-4 overflow-hidden"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-white/60 text-sm tracking-wider">
+                        Nom du parfum
+                      </Label>
+                      <Input
+                        value={formData.name}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
+                        placeholder="Ex: 9PM by Afnan"
+                        required
+                        className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50"
                       />
-                    </label>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-white/60 text-sm tracking-wider">
+                        Image
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          value={formData.image}
+                          onChange={(e) =>
+                            setFormData({ ...formData, image: e.target.value })
+                          }
+                          placeholder="/api/uploads/image.png"
+                          required
+                          className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50 flex-1"
+                        />
+                        <label className="cursor-pointer px-3 py-2 border border-gold/30 text-gold hover:bg-gold/10 transition-colors rounded-md flex items-center gap-1">
+                          <Upload className="w-4 h-4" />
+                          <span className="text-xs">
+                            {uploading ? "..." : "Upload"}
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleImageUpload}
+                          />
+                        </label>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label className="text-white/60 text-sm tracking-wider">
-                  Description
-                </Label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  placeholder="Une fragrance audacieuse et sauvage..."
-                  required
-                  rows={3}
-                  className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50 resize-none"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label className="text-white/60 text-sm tracking-wider">
+                      Description
+                    </Label>
+                    <Textarea
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({ ...formData, description: e.target.value })
+                      }
+                      placeholder="Sillage puissant, longue tenue..."
+                      required
+                      rows={3}
+                      className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50 resize-none"
+                    />
+                  </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-white/60 text-sm tracking-wider">
-                    Prix 5ml (MAD)
-                  </Label>
-                  <Input
-                    value={formData.price5ml}
-                    onChange={(e) =>
-                      setFormData({ ...formData, price5ml: e.target.value })
-                    }
-                    placeholder="150"
-                    required
-                    className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50"
+                  {/* Dynamic sizes editor */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-white/60 text-sm tracking-wider">
+                        Tailles & prix (ml)
+                      </Label>
+                      <Button
+                        type="button"
+                        onClick={addSize}
+                        size="sm"
+                        variant="ghost"
+                        className="text-gold hover:bg-gold/10 h-7"
+                      >
+                        <Plus className="w-3.5 h-3.5 mr-1" />
+                        Ajouter une taille
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      {sizes.map((s, i) => (
+                        <div key={i} className="flex gap-2 items-center">
+                          <Input
+                            value={s.label}
+                            onChange={(e) => updateSize(i, "label", e.target.value)}
+                            placeholder="Ex: 5ml"
+                            className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50 flex-1"
+                          />
+                          <Input
+                            value={s.price}
+                            onChange={(e) => updateSize(i, "price", e.target.value)}
+                            placeholder="Prix MAD (ex: 120)"
+                            className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            onClick={() => removeSize(i)}
+                            size="icon"
+                            variant="ghost"
+                            className="w-9 h-9 text-white/40 hover:text-red-400 shrink-0"
+                            disabled={sizes.length === 1}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        checked={formData.published}
+                        onCheckedChange={(checked) =>
+                          setFormData({ ...formData, published: checked })
+                        }
+                        className="data-[state=checked]:bg-gold"
+                      />
+                      <Label className="text-white/60 text-sm">
+                        {formData.published ? "Publié" : "Brouillon"}
+                      </Label>
+                    </div>
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                      <Button
+                        type="submit"
+                        className="bg-gradient-to-r from-gold-dark via-gold to-gold-light text-luxury-black font-semibold tracking-wider uppercase hover:shadow-lg hover:shadow-gold/20 transition-all duration-300"
+                      >
+                        {editingId ? (
+                          <>
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Modifier
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Publier
+                          </>
+                        )}
+                      </Button>
+                    </motion.div>
+                  </div>
+
+                  {formData.image && (
+                    <div className="mt-2">
+                      <img
+                        src={resolveImg(formData.image)}
+                        alt="Preview"
+                        className="w-32 h-32 object-cover border border-gold/20"
+                      />
+                    </div>
+                  )}
+                </motion.form>
+              )}
+            </AnimatePresence>
+
+            {/* Perfumes List */}
+            <div className="mt-6 space-y-3">
+              {loading ? (
+                <div className="flex justify-center py-8">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-white/60 text-sm tracking-wider">
-                    Prix 10ml (MAD)
-                  </Label>
-                  <Input
-                    value={formData.price10ml}
-                    onChange={(e) =>
-                      setFormData({ ...formData, price10ml: e.target.value })
-                    }
-                    placeholder="250"
-                    required
-                    className="bg-luxury-dark border-luxury-border text-white placeholder:text-white/20 focus:border-gold/50"
-                  />
+              ) : perfumes.length === 0 ? (
+                <div className="text-center py-8">
+                  <Package className="w-12 h-12 text-white/10 mx-auto mb-3" />
+                  <p className="text-white/30 font-light">Aucun parfum ajouté</p>
                 </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Switch
-                    checked={formData.published}
-                    onCheckedChange={(checked) =>
-                      setFormData({ ...formData, published: checked })
-                    }
-                    className="data-[state=checked]:bg-gold"
-                  />
-                  <Label className="text-white/60 text-sm">
-                    {formData.published ? "Publié" : "Brouillon"}
-                  </Label>
-                </div>
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    type="submit"
-                    className="bg-gradient-to-r from-gold-dark via-gold to-gold-light text-luxury-black font-semibold tracking-wider uppercase hover:shadow-lg hover:shadow-gold/20 transition-all duration-300"
-                  >
-                    {editingId ? (
-                      <>
-                        <Pencil className="w-4 h-4 mr-2" />
-                        Modifier
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Publier
-                      </>
-                    )}
-                  </Button>
-                </motion.div>
-              </div>
-
-              {/* Image Preview */}
-              {formData.image && (
-                <div className="mt-2">
-                  <img
-                    src={formData.image.startsWith("/uploads/") ? `/api${formData.image}` : formData.image}
-                    alt="Preview"
-                    className="w-32 h-32 object-cover border border-gold/20"
-                  />
+              ) : (
+                <div className="max-h-96 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                  {perfumes.map((perfume) => (
+                    <motion.div
+                      key={perfume.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="flex items-center gap-3 p-3 bg-luxury-dark/50 border border-luxury-border hover:border-gold/20 transition-colors rounded-lg"
+                    >
+                      <img
+                        src={resolveImg(perfume.image)}
+                        alt={perfume.name}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-white text-sm font-medium truncate">
+                            {perfume.name}
+                          </h4>
+                          <Badge
+                            variant={perfume.published ? "default" : "secondary"}
+                            className={`text-[10px] ${
+                              perfume.published
+                                ? "bg-gold/20 text-gold border-gold/30"
+                                : "bg-white/5 text-white/40"
+                            }`}
+                          >
+                            {perfume.published ? "Publié" : "Brouillon"}
+                          </Badge>
+                        </div>
+                        <p className="text-white/30 text-xs truncate">
+                          {(perfume.sizes ?? [])
+                            .map((s) => `${s.label}: ${s.price} MAD`)
+                            .join(" · ") || "Aucune taille"}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-8 h-8 text-white/40 hover:text-gold"
+                          onClick={() => togglePublish(perfume)}
+                        >
+                          {perfume.published ? (
+                            <Eye className="w-3.5 h-3.5" />
+                          ) : (
+                            <EyeOff className="w-3.5 h-3.5" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-8 h-8 text-white/40 hover:text-gold"
+                          onClick={() => handleEdit(perfume)}
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-8 h-8 text-white/40 hover:text-red-400"
+                          onClick={() => handleDelete(perfume.id)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               )}
-            </motion.form>
-          )}
-        </AnimatePresence>
+            </div>
+          </>
+        )}
 
-        {/* Perfumes List */}
-        <div className="mt-6 space-y-3">
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{
-                  duration: 1,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-                className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full"
-              />
-            </div>
-          ) : perfumes.length === 0 ? (
-            <div className="text-center py-8">
-              <Package className="w-12 h-12 text-white/10 mx-auto mb-3" />
-              <p className="text-white/30 font-light">
-                Aucun parfum ajouté
-              </p>
-            </div>
-          ) : (
-            <div className="max-h-96 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-              {perfumes.map((perfume) => (
+        {/* ORDERS TAB */}
+        {tab === "orders" && (
+          <div className="mt-4 space-y-3">
+            {ordersLoading ? (
+              <div className="flex justify-center py-8">
                 <motion.div
-                  key={perfume.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-3 p-3 bg-luxury-dark/50 border border-luxury-border hover:border-gold/20 transition-colors rounded-lg"
-                >
-                  <img
-                    src={perfume.image.startsWith("/uploads/") ? `/api${perfume.image}` : perfume.image}
-                    alt={perfume.name}
-                    className="w-12 h-12 object-cover rounded"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-white text-sm font-medium truncate">
-                        {perfume.name}
-                      </h4>
-                      <Badge
-                        variant={
-                          perfume.published ? "default" : "secondary"
-                        }
-                        className={`text-[10px] ${
-                          perfume.published
-                            ? "bg-gold/20 text-gold border-gold/30"
-                            : "bg-white/5 text-white/40"
-                        }`}
-                      >
-                        {perfume.published ? "Publié" : "Brouillon"}
-                      </Badge>
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full"
+                />
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="text-center py-8">
+                <ClipboardList className="w-12 h-12 text-white/10 mx-auto mb-3" />
+                <p className="text-white/30 font-light">Aucune commande pour le moment</p>
+              </div>
+            ) : (
+              <div className="max-h-[28rem] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                {orders.map((order) => (
+                  <motion.div
+                    key={order.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="p-3 bg-luxury-dark/50 border border-luxury-border rounded-lg"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="text-white text-sm font-medium">
+                            {order.customerName}
+                          </h4>
+                          <a
+                            href={`tel:${order.phone}`}
+                            className="text-gold text-xs hover:underline"
+                          >
+                            {order.phone}
+                          </a>
+                        </div>
+                        <p className="text-white/50 text-xs mt-1">
+                          {order.perfumeName} — {order.sizeLabel} × {order.quantity}
+                          {order.price ? ` · ${order.price} MAD/u` : ""}
+                        </p>
+                        <p className="text-white/30 text-xs mt-0.5">
+                          {order.address}
+                          {order.city ? `, ${order.city}` : ""}
+                        </p>
+                        {order.note && (
+                          <p className="text-white/30 text-xs mt-0.5 italic">
+                            Note: {order.note}
+                          </p>
+                        )}
+                        <p className="text-white/20 text-[10px] mt-1">
+                          {new Date(order.createdAt).toLocaleString("fr-FR")}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2 shrink-0">
+                        <select
+                          value={order.status}
+                          onChange={(e) =>
+                            updateOrderStatus(order.id, e.target.value)
+                          }
+                          className="bg-luxury-dark border border-luxury-border text-white text-xs rounded px-2 py-1 focus:border-gold/50 outline-none"
+                        >
+                          {Object.keys(STATUS_LABELS).map((k) => (
+                            <option key={k} value={k} className="bg-luxury-dark">
+                              {STATUS_LABELS[k]}
+                            </option>
+                          ))}
+                        </select>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-8 h-8 text-white/40 hover:text-red-400"
+                          onClick={() => deleteOrder(order.id)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     </div>
-                    <p className="text-white/30 text-xs truncate">
-                      5ml: {perfume.price5ml} MAD · 10ml: {perfume.price10ml}{" "}
-                      MAD
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-8 h-8 text-white/40 hover:text-gold"
-                      onClick={() => togglePublish(perfume)}
-                    >
-                      {perfume.published ? (
-                        <Eye className="w-3.5 h-3.5" />
-                      ) : (
-                        <EyeOff className="w-3.5 h-3.5" />
-                      )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-8 h-8 text-white/40 hover:text-gold"
-                      onClick={() => handleEdit(perfume)}
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-8 h-8 text-white/40 hover:text-red-400"
-                      onClick={() => handleDelete(perfume.id)}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
@@ -1414,24 +1813,30 @@ export default function Home() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
 
-  // Check localStorage for admin state on mount
+  // Order dialog state
+  const [orderOpen, setOrderOpen] = useState(false);
+  const [orderPerfume, setOrderPerfume] = useState<Perfume | null>(null);
+  const [orderSize, setOrderSize] = useState("");
+
+  const openOrder = (perfume: Perfume, sizeLabel: string) => {
+    setOrderPerfume(perfume);
+    setOrderSize(sizeLabel);
+    setOrderOpen(true);
+  };
+
   useEffect(() => {
-    const stored = localStorage.getItem("ik-scents-admin");
-    if (stored === "true") {
-      setLocalAdmin(true);
-    }
-    // Seed admin users
+    const stored = localStorage.getItem("assil-admin");
+    if (stored === "true") setLocalAdmin(true);
     fetch("/api/seed", { method: "POST" }).catch(() => {});
   }, []);
 
-  // Fetch published perfumes
   const fetchPerfumes = useCallback(async () => {
     try {
       const res = await fetch("/api/perfumes");
       const data = await res.json();
-      setPerfumes(Array.isArray(data) ? data : []); // <-- CORRECTION APPLIQUÉE ICI
+      setPerfumes(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching perfumes:", error);
     } finally {
@@ -1445,13 +1850,13 @@ export default function Home() {
 
   const handleLogin = () => {
     setLocalAdmin(true);
-    localStorage.setItem("ik-scents-admin", "true");
+    localStorage.setItem("assil-admin", "true");
     fetchPerfumes();
   };
 
   const handleLogout = async () => {
     setLocalAdmin(false);
-    localStorage.removeItem("ik-scents-admin");
+    localStorage.removeItem("assil-admin");
     await signOut({ redirect: false });
   };
 
@@ -1471,12 +1876,19 @@ export default function Home() {
 
       <main className="flex-1">
         <HeroSection onScrollTo={scrollTo} />
-        <CollectionSection perfumes={perfumes} />
+        <CollectionSection perfumes={perfumes} onOrder={openOrder} />
         <AboutSection />
-        <ContactSection />
+        <ContactSection onScrollTo={scrollTo} />
       </main>
 
       <Footer />
+
+      <OrderDialog
+        open={orderOpen}
+        onClose={() => setOrderOpen(false)}
+        perfume={orderPerfume}
+        initialSize={orderSize}
+      />
 
       <LoginDialog
         open={loginOpen}
