@@ -7,10 +7,10 @@ export function SideFlorals() {
       aria-hidden="true"
       className="pointer-events-none select-none absolute inset-0 overflow-hidden"
     >
-      <FloralSpray className="absolute top-4 left-0 w-36 h-32 sm:w-44 sm:h-40 text-[#5c5344] opacity-90 -scale-x-100" />
-      <FloralSpray className="absolute bottom-4 right-0 w-36 h-32 sm:w-44 sm:h-40 text-[#5c5344] opacity-90" />
-      <LeafBranch className="absolute -bottom-4 left-2 w-20 h-48 text-[#7d6a4f] opacity-70 hidden lg:block" />
-      <LeafBranch className="absolute -top-4 right-2 w-20 h-48 text-[#7d6a4f] opacity-70 rotate-180 hidden lg:block" />
+      <FloralSpray className="absolute -top-2 -left-6 w-28 h-24 text-[#6b5f4a] opacity-60 -scale-x-100 hidden lg:block" />
+      <FloralSpray className="absolute -bottom-2 -right-6 w-28 h-24 text-[#6b5f4a] opacity-60 hidden lg:block" />
+      <LeafBranch className="absolute bottom-0 -left-4 w-14 h-36 text-[#8a7a63] opacity-45 hidden xl:block" />
+      <LeafBranch className="absolute top-0 -right-4 w-14 h-36 text-[#8a7a63] opacity-45 rotate-180 hidden xl:block" />
     </div>
   );
 }

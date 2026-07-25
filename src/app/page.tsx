@@ -24,16 +24,16 @@ function Hero() {
   return (
     <section id="hero" className="relative pt-[72px] bg-background overflow-hidden">
       <div className="grid lg:grid-cols-2 items-stretch">
-        <div className="relative order-1 h-[200px] sm:h-[240px] lg:h-[340px]">
+        <div className="relative order-1 h-[220px] sm:h-[280px] lg:h-[380px] lg:self-center px-6 lg:px-10">
           <Img
             name="hero-bottle"
             alt={`Flacon ${BRAND}`}
             ratio="h-full"
+            fit="contain"
           />
         </div>
 
-        <div className="relative order-2 flex items-center px-6 sm:px-12 lg:px-16 py-14 lg:py-0">
-          <SideFlorals />
+        <div className="relative order-2 flex items-center px-6 sm:px-12 lg:px-16 py-14 lg:py-16">
           <div className="relative z-10 w-full max-w-md mx-auto lg:mx-0">
             <span className="block text-[10px] tracking-[0.4em] uppercase text-gold mb-6">
               Parfumerie conceptuelle
@@ -299,7 +299,6 @@ function Concept() {
     <section id="about" className="relative bg-surface-alt border-y border-border overflow-hidden">
       <div className="grid lg:grid-cols-2 items-stretch">
         <div className="relative order-2 lg:order-1 flex items-center px-6 sm:px-12 lg:px-16 py-14 lg:py-20">
-          <SideFlorals />
           <div className="relative z-10 max-w-md mx-auto lg:mx-0">
             <span className="block text-[10px] tracking-[0.4em] uppercase text-gold mb-5">
               Le Concept
@@ -336,8 +335,8 @@ function Concept() {
           </div>
         </div>
 
-        <div className="order-1 lg:order-2 h-[200px] sm:h-[240px] lg:h-[320px] lg:self-center">
-          <Img name="concept" alt="L'art du parfum" ratio="h-full" />
+        <div className="order-1 lg:order-2 h-[220px] sm:h-[280px] lg:h-[360px] lg:self-center px-6 lg:px-10">
+          <Img name="concept" alt="L'art du parfum" ratio="h-full" fit="contain" />
         </div>
       </div>
     </section>

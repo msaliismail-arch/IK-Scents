@@ -14,11 +14,13 @@ export function Img({
   alt,
   className = "",
   ratio = "aspect-[4/5]",
+  fit = "cover",
 }: {
   name: string;
   alt: string;
   className?: string;
   ratio?: string;
+  fit?: "cover" | "contain";
 }) {
   const [i, setI] = useState(0);
   const exhausted = i >= EXTS.length;
@@ -44,7 +46,9 @@ export function Img({
           alt=""
           aria-label={alt}
           onError={() => setI((v) => v + 1)}
-          className="relative w-full h-full object-cover transition-transform duration-[1.2s] ease-out hover:scale-[1.04]"
+          className={`relative w-full h-full ${
+            fit === "contain" ? "object-contain" : "object-cover"
+          }`}
         />
       )}
     </div>
