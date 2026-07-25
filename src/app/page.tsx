@@ -22,18 +22,19 @@ import type { Perfume } from "@/lib/types";
 // ==========================================
 function Hero() {
   return (
-    <section id="hero" className="relative pt-[72px] bg-background">
+    <section id="hero" className="relative pt-[72px] bg-background overflow-hidden">
       <div className="grid lg:grid-cols-2 items-stretch">
-        <div className="relative order-1 min-h-[300px] lg:min-h-[500px]">
+        <div className="relative order-1 h-[200px] sm:h-[240px] lg:h-[340px]">
           <Img
             name="hero-bottle"
             alt={`Flacon ${BRAND}`}
-            ratio="h-full min-h-[300px] lg:min-h-[500px]"
+            ratio="h-full"
           />
         </div>
 
-        <div className="order-2 flex items-center px-6 sm:px-12 lg:px-16 py-14 lg:py-0">
-          <div className="w-full max-w-md mx-auto lg:mx-0">
+        <div className="relative order-2 flex items-center px-6 sm:px-12 lg:px-16 py-14 lg:py-0">
+          <SideFlorals />
+          <div className="relative z-10 w-full max-w-md mx-auto lg:mx-0">
             <span className="block text-[10px] tracking-[0.4em] uppercase text-gold mb-6">
               Parfumerie conceptuelle
             </span>
@@ -335,12 +336,8 @@ function Concept() {
           </div>
         </div>
 
-        <div className="order-1 lg:order-2 min-h-[280px] lg:min-h-[440px]">
-          <Img
-            name="concept"
-            alt="L'art du parfum"
-            ratio="h-full min-h-[280px] lg:min-h-[440px]"
-          />
+        <div className="order-1 lg:order-2 h-[200px] sm:h-[240px] lg:h-[320px] lg:self-center">
+          <Img name="concept" alt="L'art du parfum" ratio="h-full" />
         </div>
       </div>
     </section>
