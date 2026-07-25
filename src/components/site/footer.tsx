@@ -1,44 +1,80 @@
 import Link from "next/link";
 import { Instagram } from "lucide-react";
-import { Logo } from "./logo";
-import { LeafBranch } from "./botanical";
 import { BRAND, INSTAGRAM_URL } from "@/lib/site";
 
 export function Footer() {
   return (
-    <footer className="relative bg-surface-alt border-t border-border overflow-hidden">
-      <LeafBranch className="absolute -top-4 right-6 w-16 h-40 text-[#9a8266] opacity-15 pointer-events-none hidden md:block" />
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-          <Logo size={36} />
-
-          <div className="flex gap-6 text-muted-foreground text-sm font-light text-center">
-            <span>Authenticité garantie</span>
-            <span>·</span>
-            <span>Made with ♥ in Morocco</span>
+    <footer className="bg-foreground text-background">
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+          <div className="md:col-span-2">
+            <span className="font-serif text-2xl tracking-[0.25em]">{BRAND}</span>
+            <p className="mt-4 text-background/60 text-sm font-light leading-relaxed max-w-xs">
+              Parfums originaux, authenticité garantie. Livraison partout au
+              Maroc, paiement à la livraison.
+            </p>
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 inline-flex items-center gap-2 text-[11px] tracking-[0.16em] uppercase text-background/70 hover:text-[#c9a96e] transition-colors"
+            >
+              <Instagram className="w-4 h-4" />
+              @assill.parfums
+            </a>
           </div>
 
-          <a
-            href={INSTAGRAM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-9 h-9 rounded-full border border-gold-soft flex items-center justify-center text-muted-foreground hover:text-gold hover:bg-gold-soft transition-all duration-300"
-            aria-label="Instagram"
-          >
-            <Instagram className="w-4 h-4" />
-          </a>
+          <div>
+            <h4 className="text-[10px] tracking-[0.3em] uppercase text-background/50 mb-5">
+              Boutique
+            </h4>
+            <ul className="space-y-3 text-sm font-light">
+              <li>
+                <Link href="/#collection" className="text-background/75 hover:text-[#c9a96e] transition-colors">
+                  Nos Essences
+                </Link>
+              </li>
+              <li>
+                <Link href="/#experience" className="text-background/75 hover:text-[#c9a96e] transition-colors">
+                  Personnalisation
+                </Link>
+              </li>
+              <li>
+                <Link href="/#about" className="text-background/75 hover:text-[#c9a96e] transition-colors">
+                  Le Concept
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-[10px] tracking-[0.3em] uppercase text-background/50 mb-5">
+              Informations
+            </h4>
+            <ul className="space-y-3 text-sm font-light">
+              <li>
+                <Link href="/#contact" className="text-background/75 hover:text-[#c9a96e] transition-colors">
+                  Contact
+                </Link>
+              </li>
+              <li className="text-background/50">Livraison 48h — Maroc</li>
+              <li className="text-background/50">Paiement à la livraison</li>
+              <li>
+                <Link href="/admin" className="text-background/40 hover:text-[#c9a96e] transition-colors text-xs">
+                  Espace Admin
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2 text-center">
-          <p className="text-muted-foreground text-xs font-light tracking-wider">
+        <div className="mt-14 pt-7 border-t border-background/15 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-background/40 text-[11px] tracking-[0.1em]">
             © 2026 {BRAND}. Tous droits réservés.
           </p>
-          <Link
-            href="/admin"
-            className="text-muted-foreground/70 text-xs hover:text-gold transition-colors tracking-wider uppercase"
-          >
-            Espace Admin
-          </Link>
+          <p className="text-background/40 text-[11px] tracking-[0.1em]">
+            Oujda, Maroc
+          </p>
         </div>
       </div>
     </footer>

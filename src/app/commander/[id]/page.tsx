@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
-import { SideFlorals } from "@/components/site/botanical";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -114,8 +113,7 @@ export default function CommanderPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col page-bg relative overflow-hidden">
-      <SideFlorals />
+    <div className="min-h-screen flex flex-col bg-background relative">
       <Navbar />
       <main className="flex-1 pt-28 pb-20 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-4xl mx-auto">
