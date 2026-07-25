@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import {
   Star,
   ChevronDown,
@@ -18,8 +18,7 @@ import {
 } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
-import { PerfumeBottle } from "@/components/site/perfume-bottle";
-import { FloralSpray, LeafBranch } from "@/components/site/botanical";
+import { SideFlorals } from "@/components/site/botanical";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import type { Perfume } from "@/lib/types";
 
@@ -62,24 +61,30 @@ function AnimatedSection({
   );
 }
 
-// Uses a real product photo if present (public/hero-bottle.png), else SVG.
-function HeroProduct() {
-  const [useImg, setUseImg] = useState(true);
-  return useImg ? (
+// Product photo (public/hero-bottle.png). Empty frame if absent — never a drawing.
+function ProductImg({ width = 300 }: { width?: number }) {
+  const [ok, setOk] = useState(true);
+  return ok ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src="/hero-bottle.png"
       alt={`Flacon ${BRAND}`}
-      onError={() => setUseImg(false)}
-      className="w-[320px] max-w-full object-contain drop-shadow-2xl"
+      onError={() => setOk(false)}
+      style={{ width }}
+      className="max-w-full object-contain drop-shadow-2xl"
     />
   ) : (
-    <PerfumeBottle width={320} />
+    <div
+      style={{ width, height: width * 1.3 }}
+      className="max-w-full flex items-center justify-center rounded-md bg-gold-soft border border-gold-border text-muted-foreground text-[11px] tracking-[0.2em] uppercase"
+    >
+      Flacon {BRAND}
+    </div>
   );
 }
 
 // ==========================================
-// HERO — product left, text right (mockup)
+// HERO — product left, text right
 // ==========================================
 function HeroSection() {
   return (
@@ -87,12 +92,8 @@ function HeroSection() {
       id="hero"
       className="relative min-h-screen flex items-center overflow-hidden hero-bg"
     >
-      {/* Botanical accents */}
-      <FloralSpray className="absolute top-20 right-6 w-40 h-36 text-[#9a8266] opacity-50 hidden md:block" />
-      <LeafBranch className="absolute -bottom-4 left-4 w-24 h-56 text-[#9a8266] opacity-30 hidden md:block" />
-
+      <SideFlorals />
       <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-28 pb-16 grid md:grid-cols-2 gap-12 items-center">
-        {/* Product (left) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -100,11 +101,10 @@ function HeroSection() {
           className="flex justify-center order-1"
         >
           <div className="animate-float">
-            <PerfumeBottle width={320} />
+            <ProductImg width={300} />
           </div>
         </motion.div>
 
-        {/* Text (right) */}
         <div className="text-center md:text-left order-2">
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -154,15 +154,12 @@ function HeroSection() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.4, duration: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer z-10"
       >
         <span className="text-muted-foreground text-[10px] tracking-[0.3em] uppercase">
           Découvrir
         </span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
+        <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
           <ChevronDown className="w-5 h-5 text-gold" />
         </motion.div>
       </motion.a>
@@ -171,32 +168,24 @@ function HeroSection() {
 }
 
 // ==========================================
-// EXPÉRIENCE PERSONNALISÉE (3 étapes)
+// EXPÉRIENCE PERSONNALISÉE
 // ==========================================
 function ExperienceSection() {
   const steps = [
-    {
-      icon: <ClipboardList className="w-8 h-8" />,
-      label: "1. Questionnaire olfactif",
-    },
-    {
-      icon: <Flower2 className="w-8 h-8" />,
-      label: "2. Sélection de notes",
-    },
-    {
-      icon: <FlaskConical className="w-8 h-8" />,
-      label: "3. Création unique",
-    },
+    { icon: <ClipboardList className="w-8 h-8" />, label: "1. Questionnaire olfactif" },
+    { icon: <Flower2 className="w-8 h-8" />, label: "2. Sélection de notes" },
+    { icon: <FlaskConical className="w-8 h-8" />, label: "3. Création unique" },
   ];
 
   return (
-    <section id="experience" className="relative py-20 sm:py-24 bg-surface-alt border-y border-border overflow-hidden">
-      <FloralSpray className="absolute top-6 left-2 w-28 h-24 text-[#9a8266] opacity-25 -scale-x-100 hidden md:block" />
-      <FloralSpray className="absolute bottom-6 right-2 w-28 h-24 text-[#9a8266] opacity-25 hidden md:block" />
-
+    <section
+      id="experience"
+      className="relative py-20 sm:py-24 bg-surface-alt border-y border-border overflow-hidden"
+    >
+      <SideFlorals />
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="text-center mb-14">
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-foreground tracking-wide uppercase">
+          <h2 className="text-3xl sm:text-4xl font-serif font-semibold text-foreground tracking-[0.06em] uppercase">
             L&apos;expérience personnalisée
           </h2>
         </AnimatedSection>
@@ -211,15 +200,15 @@ function ExperienceSection() {
           {steps.map((s, i) => (
             <div key={i} className="flex flex-col md:flex-row items-center gap-4 md:gap-2">
               <motion.div variants={fadeInUp} className="flex flex-col items-center">
-                <div className="w-40 h-32 rounded-lg bg-gold-soft border border-gold-border flex items-center justify-center text-gold">
+                <div className="w-44 h-32 rounded-md bg-gold-soft border border-gold-border flex items-center justify-center text-gold">
                   {s.icon}
                 </div>
-                <p className="mt-4 text-xs tracking-[0.12em] uppercase text-muted-foreground text-center">
+                <p className="mt-4 text-xs tracking-[0.12em] uppercase text-foreground/80 text-center font-medium">
                   {s.label}
                 </p>
               </motion.div>
               {i < steps.length - 1 && (
-                <ChevronRight className="w-6 h-6 text-gold rotate-90 md:rotate-0 shrink-0" />
+                <ChevronRight className="w-6 h-6 text-muted-foreground rotate-90 md:rotate-0 shrink-0" />
               )}
             </div>
           ))}
@@ -237,32 +226,12 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
   const imageUrl = resolveImg(perfume.image);
   const sizes = perfume.sizes ?? [];
 
-  const rx = useMotionValue(0);
-  const ry = useMotionValue(0);
-  const srx = useSpring(rx, { stiffness: 150, damping: 15 });
-  const sry = useSpring(ry, { stiffness: 150, damping: 15 });
-
-  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    ry.set(px * 6);
-    rx.set(-py * 6);
-  };
-  const onLeave = () => {
-    rx.set(0);
-    ry.set(0);
-  };
-
   return (
     <motion.div
       variants={fadeInUp}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      style={{ rotateX: srx, rotateY: sry, transformPerspective: 900 }}
       whileHover={{ y: -6 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group relative bg-card border border-border hover:border-gold-soft hover:shadow-xl hover:shadow-neutral-300/40 transition-shadow duration-500 overflow-hidden flex flex-col rounded-lg"
+      className="group relative bg-card border border-border hover:border-gold-soft hover:shadow-xl hover:shadow-neutral-300/40 transition-all duration-500 overflow-hidden flex flex-col rounded-lg"
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-[#f0ece2]">
         {!imgError ? (
@@ -276,23 +245,19 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center">
             <Diamond className="w-12 h-12 text-gold/30 mb-2" />
-            <span className="text-muted-foreground text-sm font-light">
-              {perfume.name}
-            </span>
+            <span className="text-muted-foreground text-sm font-light">{perfume.name}</span>
           </div>
         )}
         <div className="absolute top-3 left-3">
           <div className="flex items-center gap-1 px-2 py-1 bg-white/85 border border-gold-soft rounded-sm backdrop-blur-sm">
             <Star className="w-3 h-3 text-gold" />
-            <span className="text-[10px] text-gold tracking-wider uppercase">
-              Original
-            </span>
+            <span className="text-[10px] text-gold tracking-wider uppercase">Original</span>
           </div>
         </div>
       </div>
 
       <div className="p-5 flex flex-col flex-1">
-        <h3 className="font-serif text-lg text-foreground group-hover:text-gold transition-colors duration-300 mb-2">
+        <h3 className="font-serif text-xl text-foreground group-hover:text-gold transition-colors duration-300 mb-2">
           {perfume.name}
         </h3>
         <p className="text-muted-foreground text-sm font-light leading-relaxed mb-4 line-clamp-2">
@@ -335,20 +300,20 @@ function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
     <section id="collection" className="relative py-24 sm:py-32 bg-surface-alt overflow-hidden">
       {/* Background photo (public/collection-bg.jpg) — optionnel */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-20"
+        className="absolute inset-0 bg-cover bg-center opacity-25"
         style={{ backgroundImage: "url('/collection-bg.jpg')" }}
       />
       <div className="absolute inset-0 bg-surface-alt/80" />
-      <LeafBranch className="absolute top-10 right-4 w-20 h-44 text-[#9a8266] opacity-20 hidden md:block" />
+      <SideFlorals />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="text-center mb-16">
           <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
             Nos Essences
           </span>
-          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mt-3 mb-4">
+          <h2 className="text-4xl sm:text-5xl font-serif font-semibold text-foreground mt-3 mb-4">
             Fragrances d&apos;<span className="gold-text">Exception</span>
           </h2>
-          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#9a8266] to-transparent mx-auto mb-6" />
+          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#8a7a63] to-transparent mx-auto mb-6" />
           <p className="text-muted-foreground max-w-xl mx-auto font-light leading-relaxed">
             Des parfums originaux, puissants et longue tenue. Choisissez votre
             taille, commandez en ligne, payez à la livraison.
@@ -407,16 +372,16 @@ function AboutSection() {
 
   return (
     <section id="about" className="relative py-24 sm:py-32 bg-background overflow-hidden">
-      <FloralSpray className="absolute -top-2 right-2 w-28 h-24 text-[#9a8266] opacity-20 hidden md:block" />
+      <SideFlorals />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="text-center mb-16">
           <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
             Le Concept
           </span>
-          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mt-3 mb-4">
+          <h2 className="text-4xl sm:text-5xl font-serif font-semibold text-foreground mt-3 mb-4">
             L&apos;Art du <span className="gold-text">Parfum</span>
           </h2>
-          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#9a8266] to-transparent mx-auto mb-6" />
+          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#8a7a63] to-transparent mx-auto mb-6" />
           <p className="text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
             Chez {BRAND}, nous croyons que chaque personne mérite de porter une
             fragrance d&apos;exception, authentique et à un prix juste. Notre
@@ -450,6 +415,26 @@ function AboutSection() {
             </motion.div>
           ))}
         </motion.div>
+
+        <AnimatedSection className="mt-20">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { value: "100%", label: "Original" },
+              { value: "48h", label: "Livraison" },
+              { value: "COD", label: "Paiement livraison" },
+              { value: "7j/7", label: "Support" },
+            ].map((stat, i) => (
+              <div key={i} className="text-center py-6 border-t border-gold-soft">
+                <div className="text-3xl sm:text-4xl font-serif font-bold gold-text mb-2">
+                  {stat.value}
+                </div>
+                <div className="text-muted-foreground text-sm tracking-wider uppercase font-light">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </AnimatedSection>
       </div>
     </section>
   );
@@ -461,16 +446,14 @@ function AboutSection() {
 function ContactSection() {
   return (
     <section id="contact" className="relative py-24 sm:py-32 bg-surface-alt overflow-hidden">
-      <LeafBranch className="absolute bottom-0 left-4 w-20 h-44 text-[#9a8266] opacity-20 rotate-180 hidden md:block" />
+      <SideFlorals />
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <AnimatedSection>
-          <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
-            Contact
-          </span>
-          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mt-3 mb-4">
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">Contact</span>
+          <h2 className="text-4xl sm:text-5xl font-serif font-semibold text-foreground mt-3 mb-4">
             Votre Parfum Vous <span className="gold-text">Attend</span>
           </h2>
-          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#9a8266] to-transparent mx-auto mb-6" />
+          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#8a7a63] to-transparent mx-auto mb-6" />
           <p className="text-muted-foreground max-w-xl mx-auto font-light leading-relaxed mb-10">
             Parcourez la collection, choisissez votre taille et commandez
             directement sur le site. Paiement à la livraison, partout au Maroc.
@@ -503,16 +486,16 @@ function ContactSection() {
 }
 
 // ==========================================
-// SHOWCASE (bas de page — mockup)
+// SHOWCASE (bas de page)
 // ==========================================
 function ShowcaseSection() {
   return (
     <section className="relative py-20 sm:py-24 bg-card border-t border-border overflow-hidden">
-      <LeafBranch className="absolute top-8 left-6 w-16 h-40 text-[#9a8266] opacity-15 pointer-events-none hidden md:block" />
+      <SideFlorals />
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="grid grid-cols-1 md:grid-cols-3 gap-10 items-center justify-items-center">
           <div className="flex flex-col items-center text-center">
-            <PerfumeBottle width={150} />
+            <ProductImg width={150} />
             <p className="mt-4 text-xs tracking-[0.15em] uppercase text-muted-foreground">
               Formats 10ml / 20ml
             </p>
