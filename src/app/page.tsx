@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { motion, useInView } from "framer-motion";
 import {
   Star,
   ChevronDown,
@@ -22,147 +21,75 @@ import { SideFlorals } from "@/components/site/botanical";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import type { Perfume } from "@/lib/types";
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
-  },
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.12, delayChildren: 0.05 },
-  },
-};
-
-function AnimatedSection({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
-  return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      variants={fadeInUp}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-// Product photo (public/hero-bottle.png). Empty frame if absent — never a drawing.
-function ProductImg({ width = 300 }: { width?: number }) {
-  const [ok, setOk] = useState(true);
-  return ok ? (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src="/hero-bottle.png"
-      alt={`Flacon ${BRAND}`}
-      onError={() => setOk(false)}
-      style={{ width }}
-      className="max-w-full object-contain drop-shadow-2xl"
-    />
-  ) : (
-    <div
-      style={{ width, height: width * 1.3 }}
-      className="max-w-full flex items-center justify-center rounded-md bg-gold-soft border border-gold-border text-muted-foreground text-[11px] tracking-[0.2em] uppercase"
-    >
-      Flacon {BRAND}
-    </div>
-  );
-}
-
 // ==========================================
-// HERO — product left, text right
+// HERO — photo pleine hauteur à gauche, texte à droite
 // ==========================================
 function HeroSection() {
+  const [imgOk, setImgOk] = useState(true);
+
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center overflow-hidden hero-bg"
+      className="relative bg-background pt-[76px] border-b border-border"
     >
-      <SideFlorals />
-      <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-28 pb-16 grid md:grid-cols-2 gap-12 items-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="flex justify-center order-1"
-        >
-          <div className="animate-float">
-            <ProductImg width={300} />
+      <div className="grid md:grid-cols-2 items-stretch min-h-[560px]">
+        {/* Photo */}
+        <div className="relative bg-[#f0ece2] min-h-[340px] md:min-h-[560px] overflow-hidden">
+          {imgOk ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src="/hero-bottle.png"
+              alt={`Flacon ${BRAND}`}
+              onError={() => setImgOk(false)}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-[11px] tracking-[0.25em] uppercase">
+              Flacon {BRAND}
+            </div>
+          )}
+        </div>
+
+        {/* Texte */}
+        <div className="relative flex items-center px-6 sm:px-10 lg:px-16 py-14 md:py-0">
+          <SideFlorals />
+          <div className="relative z-10 w-full text-center md:text-left">
+            <h1 className="font-serif font-semibold uppercase text-foreground leading-[1.06] tracking-[0.005em] text-4xl sm:text-5xl lg:text-[3.4rem] mb-5">
+              Découvrez
+              <br />
+              l&apos;essence d&apos;{BRAND}.
+            </h1>
+
+            <p className="text-muted-foreground text-sm sm:text-base font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-8">
+              Plongez dans l&apos;univers de la parfumerie conceptuelle. Chaque
+              fragrance est une histoire, une émotion, un reflet de vous-même.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start items-center">
+              <Link
+                href="/#collection"
+                className="btn-gold px-6 py-3 font-medium tracking-[0.1em] uppercase text-[11px] transition-all duration-300"
+              >
+                Découvrir les collections
+              </Link>
+              <Link
+                href="/#experience"
+                className="px-6 py-3 border border-foreground text-foreground font-medium tracking-[0.1em] uppercase text-[11px] hover:bg-foreground hover:text-background transition-all duration-300"
+              >
+                Créer votre parfum
+              </Link>
+            </div>
           </div>
-        </motion.div>
-
-        <div className="text-center md:text-left order-2">
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, delay: 0.3 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-serif font-semibold leading-[1.08] mb-5 text-foreground uppercase tracking-[0.01em]"
-          >
-            Découvrez
-            <br />
-            l&apos;essence d&apos;<span className="gold-text">{BRAND}</span>.
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.55 }}
-            className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto md:mx-0 mb-9 font-light leading-relaxed"
-          >
-            Plongez dans l&apos;univers de la parfumerie conceptuelle. Chaque
-            fragrance est une histoire, une émotion, un reflet de vous-même.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.75 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start items-center"
-          >
-            <Link
-              href="/#collection"
-              className="btn-gold px-7 py-3.5 font-semibold tracking-[0.12em] uppercase text-xs hover:shadow-lg transition-all duration-300"
-            >
-              Découvrir les collections
-            </Link>
-            <Link
-              href="/#experience"
-              className="px-7 py-3.5 border border-foreground/30 text-foreground font-light tracking-[0.12em] uppercase text-xs hover:border-gold hover:text-gold transition-all duration-300"
-            >
-              Créer votre parfum
-            </Link>
-          </motion.div>
         </div>
       </div>
 
-      <motion.a
-        href="/#collection"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer z-10"
+      <a
+        href="/#experience"
+        className="flex flex-col items-center gap-1.5 py-6 text-muted-foreground hover:text-gold transition-colors"
       >
-        <span className="text-muted-foreground text-[10px] tracking-[0.3em] uppercase">
-          Découvrir
-        </span>
-        <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
-          <ChevronDown className="w-5 h-5 text-gold" />
-        </motion.div>
-      </motion.a>
+        <span className="text-[10px] tracking-[0.3em] uppercase">Découvrir</span>
+        <ChevronDown className="w-4 h-4" />
+      </a>
     </section>
   );
 }
@@ -180,40 +107,71 @@ function ExperienceSection() {
   return (
     <section
       id="experience"
-      className="relative py-20 sm:py-24 bg-surface-alt border-y border-border overflow-hidden"
+      className="relative py-16 sm:py-20 bg-surface-alt border-b border-border overflow-hidden"
     >
       <SideFlorals />
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <AnimatedSection className="text-center mb-14">
-          <h2 className="text-3xl sm:text-4xl font-serif font-semibold text-foreground tracking-[0.06em] uppercase">
-            L&apos;expérience personnalisée
-          </h2>
-        </AnimatedSection>
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6">
+        <h2 className="text-center text-2xl sm:text-3xl font-serif font-semibold text-foreground tracking-[0.08em] uppercase mb-10">
+          L&apos;expérience personnalisée
+        </h2>
 
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={staggerContainer}
-          className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-2"
-        >
+        <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-3">
           {steps.map((s, i) => (
-            <div key={i} className="flex flex-col md:flex-row items-center gap-4 md:gap-2">
-              <motion.div variants={fadeInUp} className="flex flex-col items-center">
-                <div className="w-44 h-32 rounded-md bg-gold-soft border border-gold-border flex items-center justify-center text-gold">
+            <div key={i} className="flex flex-col md:flex-row items-center gap-4 md:gap-3">
+              <div className="flex flex-col items-center">
+                <div className="w-44 h-28 rounded bg-gold-soft border border-gold-border flex items-center justify-center text-gold">
                   {s.icon}
                 </div>
-                <p className="mt-4 text-xs tracking-[0.12em] uppercase text-foreground/80 text-center font-medium">
+                <p className="mt-3 text-[11px] tracking-[0.1em] uppercase text-foreground/80 text-center font-medium">
                   {s.label}
                 </p>
-              </motion.div>
+              </div>
               {i < steps.length - 1 && (
-                <ChevronRight className="w-6 h-6 text-muted-foreground rotate-90 md:rotate-0 shrink-0" />
+                <ChevronRight className="w-5 h-5 text-muted-foreground rotate-90 md:rotate-0 shrink-0" />
               )}
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
+    </section>
+  );
+}
+
+// ==========================================
+// BANDE SHOWCASE (marbre)
+// ==========================================
+function ShowcaseBand() {
+  const [imgOk, setImgOk] = useState(true);
+
+  return (
+    <section className="relative bg-[#1a1a1a] border-b border-border">
+      {imgOk ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src="/showcase.jpg"
+          alt={`Coffret ${BRAND}`}
+          onError={() => setImgOk(false)}
+          className="w-full h-[260px] sm:h-[360px] object-cover"
+        />
+      ) : (
+        <div className="w-full h-[260px] sm:h-[340px] flex items-center justify-center gap-8 sm:gap-16 bg-[#faf8f5] px-6">
+          <div className="w-24 h-32 sm:w-32 sm:h-44 bg-[#f0ece2] border border-border rounded flex items-center justify-center text-[10px] tracking-[0.15em] uppercase text-muted-foreground text-center">
+            Flacon
+          </div>
+          <div className="w-28 h-28 sm:w-40 sm:h-40 bg-[#1a1a1a] rounded flex items-center justify-center">
+            <span className="font-serif text-4xl sm:text-6xl text-[#c9a96e]">A</span>
+          </div>
+          <div className="w-28 h-32 sm:w-40 sm:h-44 bg-white border border-border rounded flex items-center justify-center rotate-[-4deg]">
+            <span className="font-serif text-sm sm:text-lg text-foreground leading-tight text-center">
+              Votre
+              <br />
+              Voyage
+              <br />
+              Olfactif
+            </span>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -227,12 +185,7 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
   const sizes = perfume.sizes ?? [];
 
   return (
-    <motion.div
-      variants={fadeInUp}
-      whileHover={{ y: -6 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group relative bg-card border border-border hover:border-gold-soft hover:shadow-xl hover:shadow-neutral-300/40 transition-all duration-500 overflow-hidden flex flex-col rounded-lg"
-    >
+    <div className="group relative bg-card border border-border hover:border-gold-soft hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden flex flex-col rounded">
       <div className="relative aspect-[3/4] overflow-hidden bg-[#f0ece2]">
         {!imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -281,14 +234,14 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
         <div className="mt-auto">
           <Link
             href={`/commander/${perfume.id}`}
-            className="btn-gold w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold tracking-wider uppercase hover:shadow-lg transition-all duration-300 rounded-sm"
+            className="btn-gold w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[11px] font-medium tracking-[0.1em] uppercase transition-all duration-300 rounded-sm"
           >
             <ShoppingBag className="w-4 h-4" />
             Commander
           </Link>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -297,51 +250,47 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
 // ==========================================
 function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
   return (
-    <section id="collection" className="relative py-24 sm:py-32 bg-surface-alt overflow-hidden">
-      {/* Background photo (public/collection-bg.jpg) — optionnel */}
+    <section
+      id="collection"
+      className="relative py-20 sm:py-24 bg-background border-b border-border overflow-hidden"
+    >
       <div
         className="absolute inset-0 bg-cover bg-center opacity-25"
         style={{ backgroundImage: "url('/collection-bg.jpg')" }}
       />
-      <div className="absolute inset-0 bg-surface-alt/80" />
+      <div className="absolute inset-0 bg-background/85" />
       <SideFlorals />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <AnimatedSection className="text-center mb-16">
-          <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
+        <div className="text-center mb-12">
+          <span className="text-gold text-[11px] tracking-[0.35em] uppercase font-light">
             Nos Essences
           </span>
-          <h2 className="text-4xl sm:text-5xl font-serif font-semibold text-foreground mt-3 mb-4">
-            Fragrances d&apos;<span className="gold-text">Exception</span>
+          <h2 className="text-3xl sm:text-4xl font-serif font-semibold text-foreground mt-3 mb-4 uppercase tracking-[0.04em]">
+            Fragrances d&apos;Exception
           </h2>
-          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#8a7a63] to-transparent mx-auto mb-6" />
-          <p className="text-muted-foreground max-w-xl mx-auto font-light leading-relaxed">
+          <div className="w-16 h-[1px] bg-[#8a7a63] mx-auto mb-5" />
+          <p className="text-muted-foreground max-w-xl mx-auto text-sm font-light leading-relaxed">
             Des parfums originaux, puissants et longue tenue. Choisissez votre
             taille, commandez en ligne, payez à la livraison.
           </p>
-        </AnimatedSection>
+        </div>
 
         {perfumes.length === 0 ? (
-          <AnimatedSection className="text-center py-20">
-            <Package className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-            <p className="text-muted-foreground text-lg font-light">
+          <div className="text-center py-16">
+            <Package className="w-14 h-14 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-muted-foreground text-base font-light">
               Aucun parfum disponible pour le moment
             </p>
             <p className="text-muted-foreground/60 text-sm mt-2">
               Nouvelles fragrances bientôt disponibles
             </p>
-          </AnimatedSection>
+          </div>
         ) : (
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            variants={staggerContainer}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {perfumes.map((perfume) => (
               <PerfumeCard key={perfume.id} perfume={perfume} />
             ))}
-          </motion.div>
+          </div>
         )}
       </div>
     </section>
@@ -349,7 +298,7 @@ function CollectionSection({ perfumes }: { perfumes: Perfume[] }) {
 }
 
 // ==========================================
-// ABOUT
+// LE CONCEPT
 // ==========================================
 function AboutSection() {
   const features = [
@@ -371,70 +320,63 @@ function AboutSection() {
   ];
 
   return (
-    <section id="about" className="relative py-24 sm:py-32 bg-background overflow-hidden">
+    <section
+      id="about"
+      className="relative py-20 sm:py-24 bg-surface-alt border-b border-border overflow-hidden"
+    >
       <SideFlorals />
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <AnimatedSection className="text-center mb-16">
-          <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <span className="text-gold text-[11px] tracking-[0.35em] uppercase font-light">
             Le Concept
           </span>
-          <h2 className="text-4xl sm:text-5xl font-serif font-semibold text-foreground mt-3 mb-4">
-            L&apos;Art du <span className="gold-text">Parfum</span>
+          <h2 className="text-3xl sm:text-4xl font-serif font-semibold text-foreground mt-3 mb-4 uppercase tracking-[0.04em]">
+            L&apos;Art du Parfum
           </h2>
-          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#8a7a63] to-transparent mx-auto mb-6" />
-          <p className="text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
+          <div className="w-16 h-[1px] bg-[#8a7a63] mx-auto mb-5" />
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm font-light leading-relaxed">
             Chez {BRAND}, nous croyons que chaque personne mérite de porter une
             fragrance d&apos;exception, authentique et à un prix juste. Notre
             mission : rendre le parfum original accessible à tous au Maroc.
           </p>
-        </AnimatedSection>
+        </div>
 
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={staggerContainer}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {features.map((feature, i) => (
-            <motion.div
+            <div
               key={i}
-              variants={fadeInUp}
-              whileHover={{ y: -5 }}
-              className="bg-card border border-border p-8 text-center group hover:border-gold-soft hover:shadow-lg transition-all duration-500 rounded-lg"
+              className="bg-card border border-border p-7 text-center group hover:border-gold-soft hover:shadow-lg hover:-translate-y-1 transition-all duration-500 rounded"
             >
-              <div className="w-14 h-14 mx-auto mb-6 rounded-full border border-gold-soft bg-gold-soft flex items-center justify-center text-gold transition-all duration-300">
+              <div className="w-12 h-12 mx-auto mb-5 rounded-full border border-gold-border bg-gold-soft flex items-center justify-center text-gold">
                 {feature.icon}
               </div>
-              <h3 className="font-serif text-xl text-foreground mb-3 group-hover:text-gold transition-colors duration-300">
+              <h3 className="font-serif text-lg text-foreground mb-2.5 group-hover:text-gold transition-colors duration-300">
                 {feature.title}
               </h3>
               <p className="text-muted-foreground font-light leading-relaxed text-sm">
                 {feature.desc}
               </p>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
 
-        <AnimatedSection className="mt-20">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { value: "100%", label: "Original" },
-              { value: "48h", label: "Livraison" },
-              { value: "COD", label: "Paiement livraison" },
-              { value: "7j/7", label: "Support" },
-            ].map((stat, i) => (
-              <div key={i} className="text-center py-6 border-t border-gold-soft">
-                <div className="text-3xl sm:text-4xl font-serif font-bold gold-text mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-muted-foreground text-sm tracking-wider uppercase font-light">
-                  {stat.label}
-                </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-14">
+          {[
+            { value: "100%", label: "Original" },
+            { value: "48h", label: "Livraison" },
+            { value: "COD", label: "Paiement livraison" },
+            { value: "7j/7", label: "Support" },
+          ].map((stat, i) => (
+            <div key={i} className="text-center py-5 border-t border-gold-border">
+              <div className="text-2xl sm:text-3xl font-serif font-semibold text-foreground mb-1.5">
+                {stat.value}
               </div>
-            ))}
-          </div>
-        </AnimatedSection>
+              <div className="text-muted-foreground text-[11px] tracking-[0.12em] uppercase font-light">
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -445,86 +387,42 @@ function AboutSection() {
 // ==========================================
 function ContactSection() {
   return (
-    <section id="contact" className="relative py-24 sm:py-32 bg-surface-alt overflow-hidden">
+    <section
+      id="contact"
+      className="relative py-20 sm:py-24 bg-background overflow-hidden"
+    >
       <SideFlorals />
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <AnimatedSection>
-          <span className="text-gold text-xs tracking-[0.4em] uppercase font-light">Contact</span>
-          <h2 className="text-4xl sm:text-5xl font-serif font-semibold text-foreground mt-3 mb-4">
-            Votre Parfum Vous <span className="gold-text">Attend</span>
-          </h2>
-          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#8a7a63] to-transparent mx-auto mb-6" />
-          <p className="text-muted-foreground max-w-xl mx-auto font-light leading-relaxed mb-10">
-            Parcourez la collection, choisissez votre taille et commandez
-            directement sur le site. Paiement à la livraison, partout au Maroc.
-          </p>
-        </AnimatedSection>
+      <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center">
+        <span className="text-gold text-[11px] tracking-[0.35em] uppercase font-light">
+          Contact
+        </span>
+        <h2 className="text-3xl sm:text-4xl font-serif font-semibold text-foreground mt-3 mb-4 uppercase tracking-[0.04em]">
+          Votre Parfum Vous Attend
+        </h2>
+        <div className="w-16 h-[1px] bg-[#8a7a63] mx-auto mb-5" />
+        <p className="text-muted-foreground max-w-xl mx-auto text-sm font-light leading-relaxed mb-9">
+          Parcourez la collection, choisissez votre taille et commandez
+          directement sur le site. Paiement à la livraison, partout au Maroc.
+        </p>
 
-        <AnimatedSection>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link
-              href="/#collection"
-              className="btn-gold px-8 py-4 font-semibold tracking-wider uppercase text-sm hover:shadow-lg transition-all duration-300 flex items-center gap-2"
-            >
-              <ShoppingBag className="w-5 h-5" />
-              Voir la Collection
-            </Link>
-            <a
-              href={INSTAGRAM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-4 border border-gold-soft text-gold font-light tracking-wider uppercase text-sm hover:bg-gold-soft transition-all duration-300 flex items-center gap-2"
-            >
-              <Instagram className="w-4 h-4" />
-              @assill.parfums
-            </a>
-          </div>
-        </AnimatedSection>
-      </div>
-    </section>
-  );
-}
-
-// ==========================================
-// SHOWCASE (bas de page)
-// ==========================================
-function ShowcaseSection() {
-  return (
-    <section className="relative py-20 sm:py-24 bg-card border-t border-border overflow-hidden">
-      <SideFlorals />
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <AnimatedSection className="grid grid-cols-1 md:grid-cols-3 gap-10 items-center justify-items-center">
-          <div className="flex flex-col items-center text-center">
-            <ProductImg width={150} />
-            <p className="mt-4 text-xs tracking-[0.15em] uppercase text-muted-foreground">
-              Formats 10ml / 20ml
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center text-center">
-            <div className="w-40 h-40 rounded-lg bg-[#1a1a1a] flex items-center justify-center shadow-xl border border-[#2a2a2a]">
-              <span className="font-serif text-6xl text-[#c9a96e] leading-none">A</span>
-            </div>
-            <p className="mt-4 text-xs tracking-[0.15em] uppercase text-muted-foreground">
-              Coffret {BRAND}
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center text-center">
-            <div className="w-44 h-40 rounded-lg bg-surface-alt border border-border flex items-center justify-center rotate-[-4deg] shadow-md">
-              <span className="font-serif text-xl text-foreground italic leading-tight">
-                Votre
-                <br />
-                Voyage
-                <br />
-                Olfactif
-              </span>
-            </div>
-            <p className="mt-4 text-xs tracking-[0.15em] uppercase text-muted-foreground">
-              Carte parfumée
-            </p>
-          </div>
-        </AnimatedSection>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+          <Link
+            href="/#collection"
+            className="btn-gold px-7 py-3.5 font-medium tracking-[0.1em] uppercase text-[11px] transition-all duration-300 flex items-center gap-2"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            Voir la Collection
+          </Link>
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-7 py-3.5 border border-foreground text-foreground font-medium tracking-[0.1em] uppercase text-[11px] hover:bg-foreground hover:text-background transition-all duration-300 flex items-center gap-2"
+          >
+            <Instagram className="w-4 h-4" />
+            @assill.parfums
+          </a>
+        </div>
       </div>
     </section>
   );
@@ -557,10 +455,10 @@ export default function Home() {
       <main className="flex-1">
         <HeroSection />
         <ExperienceSection />
+        <ShowcaseBand />
         <CollectionSection perfumes={perfumes} />
         <AboutSection />
         <ContactSection />
-        <ShowcaseSection />
       </main>
       <Footer />
     </div>
