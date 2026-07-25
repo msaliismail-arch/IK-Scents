@@ -1,8 +1,16 @@
 # Photos à ajouter — ASSIL
 
 **Où les déposer :** `prjct 3/public/`
-Les noms doivent être **exactement** ceux-ci (minuscules, même extension).
+Le nom doit être **exactement** celui indiqué. L'extension peut être `.png`, `.jpg`, `.jpeg` ou `.webp` — le site les teste automatiquement.
 Tant qu'une image manque, le site affiche un cadre pointillé avec le nom du fichier attendu.
+
+### ✅ Déjà en place
+- `hero-bottle.png`
+- `collection-bg.png`
+- `showcase.png`
+
+### ⏳ Encore à générer
+- `step-1` · `step-2` · `step-3` · `concept`
 
 ---
 

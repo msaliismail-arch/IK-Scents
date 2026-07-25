@@ -26,7 +26,7 @@ function Hero() {
       <div className="grid lg:grid-cols-2 items-stretch">
         <div className="relative order-1 min-h-[380px] lg:min-h-[620px]">
           <Img
-            src="/hero-bottle.jpg"
+            name="hero-bottle"
             alt={`Flacon ${BRAND}`}
             ratio="h-full min-h-[380px] lg:min-h-[620px]"
           />
@@ -107,9 +107,9 @@ function TrustBar() {
 // ==========================================
 function Experience() {
   const steps = [
-    { n: "01", src: "/step-1.jpg", t: "Questionnaire olfactif", d: "Quelques questions pour cerner vos goûts." },
-    { n: "02", src: "/step-2.jpg", t: "Sélection de notes", d: "Nous composons votre palette de notes." },
-    { n: "03", src: "/step-3.jpg", t: "Création unique", d: "Votre fragrance, faite pour vous seul." },
+    { n: "01", img: "step-1", t: "Questionnaire olfactif", d: "Quelques questions pour cerner vos goûts." },
+    { n: "02", img: "step-2", t: "Sélection de notes", d: "Nous composons votre palette de notes." },
+    { n: "03", img: "step-3", t: "Création unique", d: "Votre fragrance, faite pour vous seul." },
   ];
 
   return (
@@ -129,7 +129,7 @@ function Experience() {
           {steps.map((s, i) => (
             <div key={i} className="group">
               <div className="overflow-hidden">
-                <Img src={s.src} alt={s.t} ratio="aspect-[4/5]" />
+                <Img name={s.img} alt={s.t} ratio="aspect-[4/5]" />
               </div>
               <div className="mt-5 flex items-baseline gap-3">
                 <span className="font-serif text-[#c0b299] text-lg leading-none">{s.n}</span>
@@ -208,8 +208,13 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
 
 function Collection({ perfumes }: { perfumes: Perfume[] }) {
   return (
-    <section id="collection" className="py-20 sm:py-28 bg-background">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="collection" className="relative py-20 sm:py-28 bg-background overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-[0.18]"
+        style={{ backgroundImage: "url('/collection-bg.png')" }}
+      />
+      <div className="absolute inset-0 bg-background/70" />
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-12">
           <div>
             <span className="block text-[10px] tracking-[0.4em] uppercase text-gold mb-4">
@@ -293,7 +298,7 @@ function Concept() {
 
         <div className="order-1 lg:order-2 min-h-[360px] lg:min-h-[620px]">
           <Img
-            src="/concept.jpg"
+            name="concept"
             alt="L'art du parfum"
             ratio="h-full min-h-[360px] lg:min-h-[620px]"
           />
@@ -310,7 +315,7 @@ function Showcase() {
   return (
     <section className="relative bg-background">
       <Img
-        src="/showcase.jpg"
+        name="showcase"
         alt={`Coffret ${BRAND}`}
         ratio="h-[300px] sm:h-[420px]"
       />
