@@ -21,24 +21,24 @@ Tant qu'une image manque, le site affiche un cadre pointillé avec le nom du fic
 
 ---
 
-## 2. `step-1.jpg` — étape 1 : questionnaire olfactif
-**Format :** portrait 4:5, min. 1000 × 1250 px
+## 2. `step-1` — Parfums originaux
+**Format :** paysage 4:3, min. 1200 × 900 px
 **Prompt Gemini :**
-> Minimalist editorial still life, vertical. An open cream notebook with a fine black pen resting on a beige linen surface, a few dried flower stems beside it. Soft natural light, warm neutral tones, lots of negative space, no text visible. Clean luxury lifestyle photography. Vertical 4:5.
+> Minimalist editorial still life, horizontal. Two sealed original designer perfume bottles in their cellophane-wrapped boxes on a soft cream linen surface, warm beige plaster wall behind. Soft natural window light, gentle shadows, muted neutral tones, premium authentic feel, no visible brand names, lots of negative space. Horizontal 4:3, high resolution.
 
 ---
 
-## 3. `step-2.jpg` — étape 2 : sélection de notes
-**Format :** portrait 4:5, min. 1000 × 1250 px
+## 3. `step-2` — Décantage soigné
+**Format :** paysage 4:3, min. 1200 × 900 px
 **Prompt Gemini :**
-> Minimalist editorial still life, vertical. Perfume raw ingredients arranged on a cream surface: dried orange slices, vanilla pods, oud wood chips, small amber resin pieces and lavender sprigs, in small glass dishes. Soft natural light, warm beige palette, elegant and airy. Vertical 4:5.
+> Minimalist editorial still life, horizontal. Small empty glass decant vials of 5ml and 10ml lined up on a cream marble surface next to a glass pipette and a larger perfume bottle, amber liquid being transferred. Clean, precise, soft natural light, warm neutral palette, luxury apothecary aesthetic. Horizontal 4:3, high resolution.
 
 ---
 
-## 4. `step-3.jpg` — étape 3 : création unique
-**Format :** portrait 4:5, min. 1000 × 1250 px
+## 4. `step-3` — Livraison chez vous
+**Format :** paysage 4:3, min. 1200 × 900 px
 **Prompt Gemini :**
-> Minimalist editorial still life, vertical. A small clear glass perfume bottle with a black cap on a cream marble surface, next to a glass pipette and a folded white card. Soft natural light, subtle shadows, warm neutral luxury tones, lots of empty space. Vertical 4:5.
+> Minimalist editorial still life, horizontal. A small cream kraft parcel box tied with a thin beige ribbon, a 10ml glass decant vial resting beside it, and a folded card, on a soft linen surface. Warm natural light, elegant packaging aesthetic, cream and taupe palette, no text. Horizontal 4:3, high resolution.
 
 ---
 

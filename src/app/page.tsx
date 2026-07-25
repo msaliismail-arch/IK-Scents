@@ -6,7 +6,6 @@ import {
   ShoppingBag,
   Instagram,
   Package,
-  ArrowRight,
   ShieldCheck,
   Truck,
   Sparkles,
@@ -14,6 +13,7 @@ import {
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { Img } from "@/components/site/media";
+import { SideFlorals } from "@/components/site/botanical";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import type { Perfume } from "@/lib/types";
 
@@ -24,15 +24,15 @@ function Hero() {
   return (
     <section id="hero" className="relative pt-[72px] bg-background">
       <div className="grid lg:grid-cols-2 items-stretch">
-        <div className="relative order-1 min-h-[380px] lg:min-h-[620px]">
+        <div className="relative order-1 min-h-[300px] lg:min-h-[500px]">
           <Img
             name="hero-bottle"
             alt={`Flacon ${BRAND}`}
-            ratio="h-full min-h-[380px] lg:min-h-[620px]"
+            ratio="h-full min-h-[300px] lg:min-h-[500px]"
           />
         </div>
 
-        <div className="order-2 flex items-center px-6 sm:px-12 lg:px-16 py-16 lg:py-0">
+        <div className="order-2 flex items-center px-6 sm:px-12 lg:px-16 py-14 lg:py-0">
           <div className="w-full max-w-md mx-auto lg:mx-0">
             <span className="block text-[10px] tracking-[0.4em] uppercase text-gold mb-6">
               Parfumerie conceptuelle
@@ -59,10 +59,10 @@ function Hero() {
                 Découvrir les collections
               </Link>
               <Link
-                href="/#experience"
+                href="/#contact"
                 className="px-7 py-3.5 border border-foreground text-foreground font-medium tracking-[0.12em] uppercase text-[11px] hover:bg-foreground hover:text-background transition-colors duration-300"
               >
-                Créer votre parfum
+                Nous contacter
               </Link>
             </div>
           </div>
@@ -103,39 +103,58 @@ function TrustBar() {
 }
 
 // ==========================================
-// EXPÉRIENCE PERSONNALISÉE (photos)
+// NOTRE MÉTHODE — 3 étapes réelles
 // ==========================================
-function Experience() {
+function Method() {
   const steps = [
-    { n: "01", img: "step-1", t: "Questionnaire olfactif", d: "Quelques questions pour cerner vos goûts." },
-    { n: "02", img: "step-2", t: "Sélection de notes", d: "Nous composons votre palette de notes." },
-    { n: "03", img: "step-3", t: "Création unique", d: "Votre fragrance, faite pour vous seul." },
+    {
+      n: "01",
+      img: "step-1",
+      t: "Parfums originaux",
+      d: "Nous achetons uniquement des flacons authentiques, scellés, chez des distributeurs vérifiés.",
+    },
+    {
+      n: "02",
+      img: "step-2",
+      t: "Décantage soigné",
+      d: "Chaque flacon est décanté dans des formats 5ml, 10ml ou plus, dans un environnement propre.",
+    },
+    {
+      n: "03",
+      img: "step-3",
+      t: "Livraison chez vous",
+      d: "Votre décant est emballé et livré partout au Maroc. Vous payez à la réception.",
+    },
   ];
 
   return (
-    <section id="experience" className="py-20 sm:py-28 bg-surface-alt border-y border-border">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center max-w-xl mx-auto mb-14">
+    <section
+      id="methode"
+      className="relative py-20 sm:py-24 bg-surface-alt border-y border-border overflow-hidden"
+    >
+      <SideFlorals />
+      <div className="relative z-10 max-w-6xl mx-auto px-6">
+        <div className="text-center max-w-xl mx-auto mb-12">
           <span className="block text-[10px] tracking-[0.4em] uppercase text-gold mb-4">
-            Sur-mesure
+            Notre méthode
           </span>
-          <h2 className="font-serif font-semibold uppercase text-foreground text-3xl sm:text-[2.4rem] tracking-[0.03em] leading-tight">
-            L&apos;expérience personnalisée
+          <h2 className="font-serif font-semibold uppercase text-foreground text-2xl sm:text-[2.1rem] tracking-[0.03em] leading-tight">
+            De l&apos;original à votre porte
           </h2>
-          <div className="w-12 h-px bg-[#8a7a63] mx-auto mt-6" />
+          <div className="w-12 h-px bg-[#8a7a63] mx-auto mt-5" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-7 lg:gap-9">
           {steps.map((s, i) => (
             <div key={i} className="group">
-              <div className="overflow-hidden">
-                <Img name={s.img} alt={s.t} ratio="aspect-[4/5]" />
+              <Img name={s.img} alt={s.t} ratio="aspect-[4/3]" />
+              <div className="mt-4 flex items-baseline gap-3">
+                <span className="font-serif text-[#c0b299] text-base leading-none">
+                  {s.n}
+                </span>
+                <h3 className="font-serif text-[17px] text-foreground">{s.t}</h3>
               </div>
-              <div className="mt-5 flex items-baseline gap-3">
-                <span className="font-serif text-[#c0b299] text-lg leading-none">{s.n}</span>
-                <h3 className="font-serif text-lg text-foreground">{s.t}</h3>
-              </div>
-              <p className="mt-2 text-muted-foreground text-sm font-light leading-relaxed">
+              <p className="mt-2 text-muted-foreground text-[13px] font-light leading-relaxed">
                 {s.d}
               </p>
             </div>
@@ -185,21 +204,39 @@ function PerfumeCard({ perfume }: { perfume: Perfume }) {
           {perfume.description}
         </p>
 
-        <div className="mt-3 flex items-center justify-between">
-          <span className="text-[13px] text-foreground">
-            {from && Number.isFinite(from) ? `À partir de ${from} MAD` : "—"}
-          </span>
-          <span className="text-[11px] text-muted-foreground">
-            {sizes.map((s) => s.label).join(" · ")}
-          </span>
-        </div>
+        {from && Number.isFinite(from) && (
+          <p className="mt-3 text-[13px] text-foreground">
+            À partir de <span className="font-medium">{from} MAD</span>
+          </p>
+        )}
+
+        {/* Décants disponibles */}
+        {sizes.length > 0 && (
+          <div className="mt-3">
+            <span className="block text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-2">
+              Décants disponibles
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {sizes.map((s, i) => (
+                <Link
+                  key={i}
+                  href={`/commander/${perfume.id}?taille=${encodeURIComponent(s.label)}`}
+                  className="px-3 py-1.5 border border-gold-border bg-gold-soft text-[12px] text-foreground hover:border-foreground transition-colors"
+                >
+                  <span className="font-medium">{s.label}</span>
+                  <span className="text-muted-foreground"> — {s.price} MAD</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         <Link
           href={`/commander/${perfume.id}`}
-          className="mt-4 inline-flex items-center gap-2 text-[11px] tracking-[0.16em] uppercase text-foreground border-b border-foreground/30 pb-1 hover:border-gold hover:text-gold transition-colors"
+          className="btn-gold mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-300"
         >
+          <ShoppingBag className="w-4 h-4" />
           Commander
-          <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
     </article>
@@ -214,6 +251,7 @@ function Collection({ perfumes }: { perfumes: Perfume[] }) {
         style={{ backgroundImage: "url('/collection-bg.png')" }}
       />
       <div className="absolute inset-0 bg-background/70" />
+      <SideFlorals />
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-12">
           <div>
@@ -257,10 +295,11 @@ function Collection({ perfumes }: { perfumes: Perfume[] }) {
 // ==========================================
 function Concept() {
   return (
-    <section id="about" className="bg-surface-alt border-y border-border">
+    <section id="about" className="relative bg-surface-alt border-y border-border overflow-hidden">
       <div className="grid lg:grid-cols-2 items-stretch">
-        <div className="order-2 lg:order-1 flex items-center px-6 sm:px-12 lg:px-16 py-16 lg:py-24">
-          <div className="max-w-md mx-auto lg:mx-0">
+        <div className="relative order-2 lg:order-1 flex items-center px-6 sm:px-12 lg:px-16 py-14 lg:py-20">
+          <SideFlorals />
+          <div className="relative z-10 max-w-md mx-auto lg:mx-0">
             <span className="block text-[10px] tracking-[0.4em] uppercase text-gold mb-5">
               Le Concept
             </span>
@@ -296,11 +335,11 @@ function Concept() {
           </div>
         </div>
 
-        <div className="order-1 lg:order-2 min-h-[360px] lg:min-h-[620px]">
+        <div className="order-1 lg:order-2 min-h-[280px] lg:min-h-[440px]">
           <Img
             name="concept"
             alt="L'art du parfum"
-            ratio="h-full min-h-[360px] lg:min-h-[620px]"
+            ratio="h-full min-h-[280px] lg:min-h-[440px]"
           />
         </div>
       </div>
@@ -317,7 +356,7 @@ function Showcase() {
       <Img
         name="showcase"
         alt={`Coffret ${BRAND}`}
-        ratio="h-[300px] sm:h-[420px]"
+        ratio="h-[200px] sm:h-[300px]"
       />
     </section>
   );
@@ -328,8 +367,9 @@ function Showcase() {
 // ==========================================
 function Contact() {
   return (
-    <section id="contact" className="py-20 sm:py-28 bg-background">
-      <div className="max-w-2xl mx-auto px-6 text-center">
+    <section id="contact" className="relative py-20 sm:py-28 bg-background overflow-hidden">
+      <SideFlorals />
+      <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
         <span className="block text-[10px] tracking-[0.4em] uppercase text-gold mb-5">
           Contact
         </span>
@@ -391,7 +431,7 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         <TrustBar />
-        <Experience />
+        <Method />
         <Collection perfumes={perfumes} />
         <Concept />
         <Showcase />

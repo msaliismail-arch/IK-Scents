@@ -8,7 +8,6 @@ import { BRAND } from "@/lib/site";
 const links = [
   { href: "/#about", label: "Le Concept" },
   { href: "/#collection", label: "Nos Essences" },
-  { href: "/#experience", label: "Personnalisation" },
   { href: "/#collection", label: "Boutique" },
   { href: "/#contact", label: "Contact" },
 ];
