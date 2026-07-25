@@ -41,7 +41,8 @@ export function Img({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={`/${name}.${EXTS[i]}`}
-          alt={alt}
+          alt=""
+          aria-label={alt}
           onError={() => setI((v) => v + 1)}
           className="relative w-full h-full object-cover transition-transform duration-[1.2s] ease-out hover:scale-[1.04]"
         />
