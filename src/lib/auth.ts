@@ -68,14 +68,20 @@ export const authOptions: NextAuthOptions = {
   /**
    * Aucun secret de repli : une valeur codée en dur et publiée sur GitHub
    * permettrait à n'importe qui de fabriquer un jeton de session admin.
-   * NEXTAUTH_SECRET est obligatoire (voir .env.example).
+   *
+   * On ne lève PAS d'erreur ici : ce fichier est évalué pendant `next build`,
+   * où les variables d'environnement de production ne sont pas toujours
+   * disponibles — cela ferait échouer le déploiement entier.
+   * NextAuth refuse déjà de signer une session sans secret en production :
+   * l'espace admin devient inaccessible, mais la boutique reste en ligne.
    */
   secret: process.env.NEXTAUTH_SECRET,
   debug: false,
 };
 
 if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error(
-    "NEXTAUTH_SECRET est manquant. Ajoutez-le dans .env — voir .env.example."
+  console.error(
+    "[auth] NEXTAUTH_SECRET est absent — la connexion admin ne fonctionnera pas. " +
+      "Ajoutez-le dans .env en local, et dans les variables d'environnement de l'hébergeur en production."
   );
 }
