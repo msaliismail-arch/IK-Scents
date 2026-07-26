@@ -30,15 +30,24 @@ export function Brandmark({
       className={`inline-flex items-center ${className}`}
       style={{ gap: Math.round(size * 0.34) }}
     >
+      {/*
+        Disque clair, lettre sombre — comme l'avatar Instagram.
+        L'inverse (A blanc sur disque noir) ferme optiquement la lettre : le
+        contrepoinçon devient noir et se confond avec le disque, la lettre
+        paraît pleine. Sur la navbar blanche, un filet fin suffit à détacher
+        le disque du fond.
+      */}
       <span
-        className={`rounded-full flex items-center justify-center shrink-0 ${
-          dark ? "bg-[#f7f4ee]" : "bg-[#171717]"
-        }`}
-        style={{ width: size, height: size }}
+        className="rounded-full flex items-center justify-center shrink-0 bg-white"
+        style={{
+          width: size,
+          height: size,
+          boxShadow: dark ? "none" : "inset 0 0 0 1px #171717",
+        }}
       >
         <AMark
-          className={dark ? "text-[#171717]" : "text-white"}
-          style={{ width: size * 0.46, height: size * 0.46 }}
+          className="text-[#171717]"
+          style={{ width: size * 0.5, height: size * 0.5 }}
         />
       </span>
 
