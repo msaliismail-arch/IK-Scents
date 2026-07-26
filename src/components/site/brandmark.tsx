@@ -1,4 +1,4 @@
-import { AMark } from "@/components/site/mark";
+import { ADisc } from "@/components/site/mark";
 import { BRAND } from "@/lib/site";
 
 /**
@@ -31,25 +31,14 @@ export function Brandmark({
       style={{ gap: Math.round(size * 0.34) }}
     >
       {/*
-        Disque clair, lettre sombre — comme l'avatar Instagram.
-        L'inverse (A blanc sur disque noir) ferme optiquement la lettre : le
-        contrepoinçon devient noir et se confond avec le disque, la lettre
-        paraît pleine. Sur la navbar blanche, un filet fin suffit à détacher
-        le disque du fond.
+        Le A est découpé dans le disque — un vrai trou, pas une lettre posée
+        dessus. Le fond de la page se voit au travers, donc le monogramme
+        reste juste quel que soit ce qu'il y a derrière.
       */}
-      <span
-        className="rounded-full flex items-center justify-center shrink-0 bg-white"
-        style={{
-          width: size,
-          height: size,
-          boxShadow: dark ? "none" : "inset 0 0 0 1px #171717",
-        }}
-      >
-        <AMark
-          className="text-[#171717]"
-          style={{ width: size * 0.5, height: size * 0.5 }}
-        />
-      </span>
+      <ADisc
+        className={`shrink-0 ${dark ? "text-[#f7f4ee]" : "text-[#171717]"}`}
+        style={{ width: size, height: size }}
+      />
 
       {showName && (
         <span
