@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, description, image, published } = body;
+    const { name, description, image, published, family, notes } = body;
     const sizes = cleanSizes(body.sizes);
 
     if (!name || !description || !image || sizes.length === 0) {
@@ -66,6 +66,8 @@ export async function POST(request: NextRequest) {
         name,
         description,
         image,
+        family: String(family ?? "").trim(),
+        notes: String(notes ?? "").trim(),
         published: published ?? false,
         sizes: { create: sizes },
       },

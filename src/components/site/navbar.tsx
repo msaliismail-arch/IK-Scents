@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
-import { BRAND } from "@/lib/site";
+import { Brandmark } from "@/components/site/brandmark";
 
 const links = [
   { href: "/#about", label: "Le Concept" },
   { href: "/#collection", label: "Nos Essences" },
-  { href: "/#experience", label: "Personnalisation" },
   { href: "/#collection", label: "Boutique" },
   { href: "/#contact", label: "Contact" },
 ];
@@ -18,7 +17,7 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
@@ -34,83 +33,85 @@ export function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out ${
-        scrolled
-          ? "py-3 bg-background/92 backdrop-blur-md border-b border-champagne"
-          : "py-5 bg-transparent border-b border-transparent"
+      className={`fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#e6ded0] transition-shadow duration-500 ${
+        scrolled ? "shadow-[0_1px_20px_rgba(23,23,23,0.06)]" : ""
       }`}
     >
-      <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 flex items-center justify-between gap-6">
-        <Link
-          href="/"
-          className="font-serif text-xl sm:text-2xl font-light tracking-[0.42em] text-foreground shrink-0"
-        >
-          {BRAND}
-        </Link>
-
-        <div className="hidden lg:flex items-center gap-8 xl:gap-10">
-          {links.map((l, i) => (
-            <Link
-              key={`${l.label}-${i}`}
-              href={l.href}
-              className="relative text-[10px] text-foreground/65 hover:text-foreground transition-colors duration-500 tracking-[0.26em] uppercase font-medium after:absolute after:-bottom-1.5 after:left-0 after:h-px after:w-0 after:bg-foreground after:transition-all after:duration-500 hover:after:w-full"
-            >
-              {l.label}
-            </Link>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-3">
+      <div className="max-w-[1500px] mx-auto pl-4 pr-4 sm:pl-6 sm:pr-8 lg:pl-8 lg:pr-12">
+        <div className="h-[76px] lg:h-[92px] flex items-center justify-between gap-6">
+          {/* Logo — premier élément, à l'extrême gauche */}
           <Link
-            href="/#collection"
-            className="hidden sm:inline-flex btn-gold px-6 py-3 text-[10px] font-medium tracking-[0.22em] uppercase transition-colors duration-500"
+            href="/"
+            aria-label="ASSIL — accueil"
+            className="shrink-0 mr-4 lg:mr-14 transition-opacity duration-300 hover:opacity-75"
           >
-            Commander
+            <Brandmark height={42} className="lg:hidden" />
+            <Brandmark height={54} className="hidden lg:block" />
           </Link>
 
-          <button
-            className="lg:hidden w-10 h-10 flex items-center justify-center text-foreground"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Menu"
-            aria-expanded={mobileOpen}
-          >
-            {mobileOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
-          </button>
+          {/* Navigation + CTA, groupés à droite */}
+          <div className="flex items-center gap-8 xl:gap-12 ml-auto">
+            <div className="hidden lg:flex items-center gap-9 xl:gap-11">
+              {links.map((l, i) => (
+                <Link
+                  key={`${l.label}-${i}`}
+                  href={l.href}
+                  className="relative text-[12px] font-semibold text-[#171717] tracking-[0.18em] uppercase transition-opacity duration-300 hover:opacity-60 after:absolute after:-bottom-2 after:left-0 after:h-[1.5px] after:w-0 after:bg-[#171717] after:transition-all after:duration-500 hover:after:w-full"
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+
+            <Link
+              href="/#collection"
+              className="hidden sm:inline-flex items-center bg-[#171717] text-white px-8 py-4 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#3a3a3a]"
+            >
+              Commander
+            </Link>
+
+            <button
+              className="lg:hidden w-11 h-11 -mr-2 flex items-center justify-center text-[#171717]"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Menu"
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Menu mobile — plein écran, éditorial */}
       <div
-        className={`lg:hidden fixed inset-0 bg-background transition-opacity duration-500 ${
+        className={`lg:hidden fixed inset-0 bg-white transition-opacity duration-500 ${
           mobileOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         }`}
       >
-        <div className="flex items-center justify-between px-5 sm:px-8 h-[76px]">
-          <span className="font-serif text-xl tracking-[0.42em] text-foreground">
-            {BRAND}
-          </span>
+        <div className="h-[76px] px-4 flex items-center justify-between border-b border-[#e6ded0]">
+          <Brandmark height={42} />
           <button
-            className="w-10 h-10 flex items-center justify-center text-foreground"
+            className="w-11 h-11 flex items-center justify-center text-[#171717]"
             onClick={() => setMobileOpen(false)}
             aria-label="Fermer le menu"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </button>
         </div>
 
-        <div className="px-7 pt-6 flex flex-col">
+        <div className="px-6 pt-6 flex flex-col">
           {links.map((l, i) => (
             <Link
               key={`m-${l.label}-${i}`}
               href={l.href}
               onClick={() => setMobileOpen(false)}
-              className="font-serif text-3xl uppercase tracking-[0.05em] font-light text-foreground/85 hover:text-foreground py-3.5 border-b border-champagne transition-colors"
+              className="font-serif text-[2rem] uppercase tracking-[0.04em] font-light text-[#171717] py-4 border-b border-[#e6ded0]"
             >
               {l.label}
             </Link>
@@ -119,7 +120,7 @@ export function Navbar() {
           <Link
             href="/#collection"
             onClick={() => setMobileOpen(false)}
-            className="btn-gold mt-9 w-full text-center px-6 py-4 text-[11px] font-medium tracking-[0.24em] uppercase"
+            className="mt-9 w-full text-center bg-[#171717] text-white px-6 py-5 text-[12px] font-bold tracking-[0.22em] uppercase"
           >
             Commander
           </Link>

@@ -8,31 +8,31 @@ import { Footer } from "@/components/site/footer";
 import { Img } from "@/components/site/media";
 import { SideFlorals, FloralDivider } from "@/components/site/botanical";
 import { Reveal, RevealLines, Parallax } from "@/components/site/reveal";
+import { PerfumeRequestModal } from "@/components/site/perfume-request-modal";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import type { Perfume } from "@/lib/types";
 
 /* ══════════════════════════════════════════════
-   02 — HERO
-   [ grande image ASSIL ]  [ texte + CTA ]
+   HERO — [ grande image ASSIL ]  [ texte + CTA ]
    ══════════════════════════════════════════════ */
-function Hero() {
+function Hero({ onRequest }: { onRequest: () => void }) {
   return (
     <section
       id="hero"
-      className="relative bg-background overflow-hidden pt-[96px] lg:pt-[104px]"
+      className="relative bg-background overflow-hidden pt-[100px] lg:pt-[124px]"
     >
       <SideFlorals spots={["tl", "tr", "br", "mr", "bl"]} opacity="opacity-40" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 pb-16 lg:pb-24">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-          {/* Image — pièce maîtresse */}
-          <div className="lg:col-span-6 xl:col-span-6 order-1">
+          {/* Image — pièce maîtresse, jamais recadrée */}
+          <div className="lg:col-span-6 order-1">
             <Parallax strength={22}>
               <Img
                 name="hero-bottle"
                 alt={`Flacon de parfum ${BRAND}`}
-                ratio="aspect-[4/5] sm:aspect-[4/5] lg:aspect-[4/5]"
-                className="lg:max-h-[78vh]"
+                ratio="aspect-[4/5]"
+                className="lg:max-h-[76vh]"
                 position="center 45%"
                 priority
               />
@@ -54,10 +54,9 @@ function Hero() {
 
             <Reveal delay={180}>
               <span className="rule mb-8" />
-              <p className="text-muted-foreground text-[15px] sm:text-base font-light leading-[1.9] max-w-md mb-10">
-                Chaque fragrance raconte une histoire.
-                <br className="hidden sm:block" /> Une émotion. Une présence.
-                Une signature.
+              <p className="text-[#4a4236] text-[16px] sm:text-[17px] font-light leading-[1.85] max-w-md mb-10">
+                Des parfums originaux, sélectionnés avec soin et proposés dans
+                des formats accessibles.
               </p>
             </Reveal>
 
@@ -65,16 +64,17 @@ function Hero() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/#collection"
-                  className="btn-gold px-8 py-4 text-[10px] font-medium tracking-[0.22em] uppercase text-center transition-colors duration-500"
+                  className="bg-[#171717] text-white px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase text-center transition-colors duration-500 hover:bg-[#3a3a3a]"
                 >
                   Découvrir les essences
                 </Link>
-                <Link
-                  href="/#experience"
-                  className="btn-outline-ink px-8 py-4 text-[10px] font-medium tracking-[0.22em] uppercase text-center"
+                <button
+                  type="button"
+                  onClick={onRequest}
+                  className="border border-[#171717] text-[#171717] px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase text-center transition-colors duration-500 hover:bg-[#171717] hover:text-white"
                 >
-                  Créer votre parfum
-                </Link>
+                  Votre parfum préféré
+                </button>
               </div>
             </Reveal>
           </div>
@@ -85,53 +85,55 @@ function Hero() {
 }
 
 /* ══════════════════════════════════════════════
-   03 — L'EXPÉRIENCE PERSONNALISÉE
+   DE L'ORIGINAL À VOTRE PORTE — les 3 étapes
    ══════════════════════════════════════════════ */
 const STEPS = [
   {
     n: "01",
     img: "step-1",
-    t: "Questionnaire olfactif",
-    d: "Dites-nous ce qui vous ressemble : les matières que vous aimez, les moments que vous voulez habiller.",
+    t: "Parfums originaux",
+    d: "Nous sélectionnons des parfums originaux et authentiques avec soin.",
   },
   {
     n: "02",
     img: "step-2",
-    t: "Sélection de notes",
-    d: "Nous composons une sélection de parfums originaux dont les accords répondent à votre profil.",
+    t: "Votre format",
+    d: "Nous décomposons les parfums originaux en formats 10 ml ou 20 ml, selon votre choix.",
   },
   {
     n: "03",
     img: "step-3",
-    t: "Création unique",
-    d: "Votre flacon est préparé au format choisi, emballé avec soin, puis livré chez vous.",
+    t: "Livraison",
+    d: "Votre parfum est soigneusement préparé puis livré directement chez vous.",
   },
 ];
 
-function Experience() {
+function Steps() {
   return (
     <section
-      id="experience"
+      id="methode"
       className="relative bg-surface-alt border-y border-champagne overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      <SideFlorals spots={["tl", "tr", "bl", "br", "ml", "mr"]} opacity="opacity-40" />
+      <SideFlorals
+        spots={["tl", "tr", "bl", "br", "ml", "mr"]}
+        opacity="opacity-40"
+      />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-end mb-14 lg:mb-20">
           <div className="lg:col-span-7">
             <Reveal>
-              <span className="label-xs block mb-6">Sur mesure</span>
+              <span className="label-xs block mb-6">Notre méthode</span>
             </Reveal>
             <RevealLines
-              className="display text-[2.4rem] sm:text-[3.4rem] lg:text-[4rem]"
-              lines={["L’expérience", "personnalisée"]}
+              className="display font-normal text-[2.4rem] sm:text-[3.4rem] lg:text-[4rem]"
+              lines={["De l’original", "à votre porte"]}
             />
           </div>
           <Reveal delay={200} className="lg:col-span-5">
-            <p className="text-muted-foreground text-[15px] font-light leading-[1.9] max-w-md">
-              Trois temps, pensés comme une conversation. Le résultat n’est pas
-              un produit choisi au hasard — c’est une signature qui vous
-              appartient.
+            <p className="text-[#4a4236] text-[16px] font-light leading-[1.85] max-w-md">
+              Trois étapes, sans intermédiaire. Du flacon original scellé jusqu’à
+              votre porte, au format que vous choisissez.
             </p>
           </Reveal>
         </div>
@@ -148,14 +150,14 @@ function Experience() {
                 />
 
                 <div className="mt-7 flex items-start gap-5">
-                  <span className="font-serif text-[#b3a58c] text-[1.7rem] font-light leading-none pt-0.5">
+                  <span className="font-serif text-[#8a7a63] text-[1.7rem] font-light leading-none pt-0.5">
                     {s.n}
                   </span>
                   <div>
-                    <h3 className="font-serif text-[1.35rem] font-light uppercase tracking-[0.06em] text-foreground leading-tight">
+                    <h3 className="font-serif text-[1.5rem] font-normal uppercase tracking-[0.05em] text-foreground leading-tight">
                       {s.t}
                     </h3>
-                    <p className="mt-3 text-muted-foreground text-[13.5px] font-light leading-[1.8]">
+                    <p className="mt-3 text-[#4a4236] text-[14.5px] font-light leading-[1.8]">
                       {s.d}
                     </p>
                   </div>
@@ -170,8 +172,50 @@ function Experience() {
 }
 
 /* ══════════════════════════════════════════════
-   04 — NOS ESSENCES (grandes compositions)
+   NOS ESSENCES
    ══════════════════════════════════════════════ */
+
+/**
+ * Cadre noir fin autour du produit.
+ *
+ * Aucun ratio n'est imposé et aucun `object-fit` n'est appliqué : l'image garde
+ * exactement les proportions du fichier envoyé par l'admin. Le noir n'est donc
+ * qu'une bordure de quelques pixels — jamais une bande qui comble un vide.
+ * Carrée, portrait ou paysage, la photo s'affiche entière et sans déformation.
+ */
+function ProductFrame({
+  src,
+  alt,
+  onError,
+  failed,
+}: {
+  src: string;
+  alt: string;
+  onError: () => void;
+  failed: boolean;
+}) {
+  return (
+    <div className="bg-[#171717] p-2 sm:p-2.5 overflow-hidden">
+      {!failed ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onError={onError}
+          className="block w-full h-auto transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+        />
+      ) : (
+        <div className="aspect-[4/5] w-full flex items-center justify-center">
+          <span className="font-serif text-xl uppercase tracking-[0.2em] text-[#d8cbb8] text-center px-4">
+            {alt}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PerfumeRow({ perfume, index }: { perfume: Perfume; index: number }) {
   const [imgError, setImgError] = useState(false);
   const imageUrl = resolveImg(perfume.image);
@@ -183,89 +227,94 @@ function PerfumeRow({ perfume, index }: { perfume: Perfume; index: number }) {
 
   return (
     <article className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center">
-      {/* Image — format 9:16 (portrait vertical) */}
+      {/* Image dans son cadre noir */}
       <Reveal
-        className={`lg:col-span-5 ${flipped ? "lg:col-start-8 lg:row-start-1" : ""}`}
+        className={`lg:col-span-5 group ${flipped ? "lg:col-start-8 lg:row-start-1" : ""}`}
       >
         <Link
           href={`/commander/${perfume.id}`}
-          className="block zoom-hover overflow-hidden bg-[#efe8dc] aspect-[9/16] mx-auto max-w-[320px] sm:max-w-[380px] lg:max-w-[430px] lg:mx-0"
+          className="block"
           aria-label={`Découvrir ${perfume.name}`}
         >
-          {!imgError ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageUrl}
-              alt={perfume.name}
-              loading="lazy"
-              onError={() => setImgError(true)}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center font-serif text-2xl uppercase tracking-[0.2em] text-[#8a7a63]">
-              {perfume.name}
-            </div>
-          )}
+          <ProductFrame
+            src={imageUrl}
+            alt={perfume.name}
+            failed={imgError}
+            onError={() => setImgError(true)}
+          />
         </Link>
       </Reveal>
 
-      {/* Texte */}
+      {/* Informations produit */}
       <Reveal
         delay={140}
         className={`lg:col-span-6 ${flipped ? "lg:col-start-1 lg:row-start-1" : "lg:col-start-7"}`}
       >
-        <span className="font-serif text-[#b3a58c] text-[1.4rem] font-light block mb-4">
+        <span className="font-serif text-[#8a7a63] text-[1.4rem] font-light block mb-4">
           {String(index + 1).padStart(2, "0")}
         </span>
 
-        <h3 className="display text-[2.2rem] sm:text-[2.8rem] lg:text-[3rem] leading-[1.05]">
+        <h3 className="font-serif font-semibold uppercase tracking-[0.015em] leading-[1.05] text-foreground text-[2.4rem] sm:text-[3rem] lg:text-[3.3rem]">
           <Link href={`/commander/${perfume.id}`}>{perfume.name}</Link>
         </h3>
 
+        {perfume.family && (
+          <p className="mt-4 text-[11px] font-semibold tracking-[0.26em] uppercase text-[#8a7a63]">
+            {perfume.family}
+          </p>
+        )}
+
         <span className="rule my-6" />
 
-        <p className="text-muted-foreground text-[14.5px] font-light leading-[1.9] max-w-md">
+        <p className="text-[#4a4236] text-[15.5px] font-light leading-[1.85] max-w-lg">
           {perfume.description}
         </p>
 
+        {perfume.notes && (
+          <p className="mt-4 text-[14px] text-[#4a4236] font-light leading-[1.8] max-w-lg">
+            <span className="text-[10px] font-semibold tracking-[0.24em] uppercase text-[#8a7a63] block mb-1.5">
+              Notes principales
+            </span>
+            {perfume.notes}
+          </p>
+        )}
+
         {sizes.length > 0 && (
           <div className="mt-8">
-            <span className="block text-[10px] tracking-[0.28em] uppercase text-muted-foreground/80 mb-3">
+            <span className="block text-[10px] font-semibold tracking-[0.26em] uppercase text-[#8a7a63] mb-3">
               Formats disponibles
             </span>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2.5">
               {sizes.map((s, i) => (
                 <Link
                   key={s.id ?? i}
                   href={`/commander/${perfume.id}?taille=${encodeURIComponent(s.label)}`}
-                  className="px-4 py-2 border border-champagne bg-white/60 text-[12px] text-foreground hover:border-foreground transition-colors duration-500"
+                  className="px-5 py-3 border border-champagne bg-white text-[14px] text-foreground hover:border-[#171717] transition-colors duration-500"
                 >
-                  <span className="font-medium">{s.label}</span>
-                  <span className="text-muted-foreground"> · {s.price} MAD</span>
+                  <span className="font-semibold uppercase">{s.label}</span>
+                  <span className="text-[#6b6255]"> · {s.price} MAD</span>
                 </Link>
               ))}
             </div>
           </div>
         )}
 
-        <div className="mt-9 flex flex-wrap items-center gap-7">
-          <Link
-            href={`/commander/${perfume.id}`}
-            className="group inline-flex items-center gap-3 text-[10px] font-medium tracking-[0.26em] uppercase text-foreground border-b border-foreground pb-2 transition-colors duration-500 hover:text-[#5c5344] hover:border-[#5c5344]"
-          >
-            Découvrir
-            <ArrowRight className="w-3.5 h-3.5 transition-transform duration-500 group-hover:translate-x-1.5" />
-          </Link>
-
-          {from && Number.isFinite(from) && (
-            <span className="text-[13px] text-muted-foreground font-light">
-              À partir de{" "}
-              <span className="font-serif text-lg text-foreground">
-                {from} MAD
-              </span>
+        {from && Number.isFinite(from) && (
+          <p className="mt-6 text-[14px] text-[#6b6255] font-light">
+            À partir de{" "}
+            <span className="font-serif text-[1.9rem] font-medium text-foreground align-middle">
+              {from} MAD
             </span>
-          )}
-        </div>
+          </p>
+        )}
+
+        <Link
+          href={`/commander/${perfume.id}`}
+          className="mt-8 inline-flex items-center justify-center gap-3 bg-[#171717] text-white px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#3a3a3a]"
+        >
+          <ShoppingBag className="w-4 h-4" />
+          Commander
+        </Link>
       </Reveal>
     </article>
   );
@@ -277,23 +326,35 @@ function Collection({ perfumes }: { perfumes: Perfume[] }) {
       id="collection"
       className="relative bg-background overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      <SideFlorals spots={["tl", "tr", "bl", "br", "ml", "mr"]} opacity="opacity-35" />
+      {/* Photo d'ambiance de l'admin, en fond très atténué :
+          elle habille la section sans jamais gêner la lecture. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-[0.16]"
+        style={{ backgroundImage: "url('/collection-bg.png')" }}
+      />
+      <div aria-hidden="true" className="absolute inset-0 bg-background/75" />
+
+      <SideFlorals spots={["tl", "br", "ml"]} opacity="opacity-30" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-end mb-16 lg:mb-24">
           <div className="lg:col-span-7">
             <Reveal>
-              <span className="label-xs block mb-6">La collection</span>
+              <span className="block text-[11px] font-bold tracking-[0.4em] uppercase text-[#171717] mb-6">
+                La collection
+              </span>
             </Reveal>
             <RevealLines
-              className="display text-[2.6rem] sm:text-[3.6rem] lg:text-[4.4rem]"
+              className="font-serif font-semibold uppercase tracking-[0.01em] leading-[1] text-foreground text-[3.2rem] sm:text-[4.6rem] lg:text-[5.6rem]"
               lines={["Nos essences"]}
             />
           </div>
           <Reveal delay={200} className="lg:col-span-5">
-            <p className="text-muted-foreground text-[15px] font-light leading-[1.9] max-w-md">
-              Des parfums originaux, sélectionnés un à un. Choisissez votre
-              format, commandez en ligne, payez à la réception.
+            <p className="text-[#2e2a22] text-[17px] font-normal leading-[1.8] max-w-md">
+              Des parfums <strong className="font-semibold">100 % originaux</strong>,
+              sélectionnés un à un. Choisissez votre format 10 ml ou 20 ml,
+              commandez en ligne, payez à la réception.
             </p>
           </Reveal>
         </div>
@@ -328,45 +389,7 @@ function Collection({ perfumes }: { perfumes: Perfume[] }) {
 }
 
 /* ══════════════════════════════════════════════
-   05 — STORYTELLING (pleine largeur)
-   ══════════════════════════════════════════════ */
-function Storytelling() {
-  return (
-    <section className="relative w-full overflow-hidden">
-      <div className="relative h-[62vh] min-h-[380px] sm:h-[70vh] lg:h-[78vh] w-full">
-        <Img
-          name="collection-bg"
-          alt={`Univers ${BRAND}`}
-          ratio="h-full"
-          position="center 40%"
-        />
-        {/* voile très léger, la photo reste lisible */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-black/15" />
-
-        <div className="absolute inset-0 flex items-end">
-          <div className="w-full max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 pb-12 sm:pb-16 lg:pb-20">
-            <RevealLines
-              className="display text-white text-[2.1rem] sm:text-[3.2rem] lg:text-[4rem] drop-shadow-sm"
-              lines={["Votre voyage olfactif", "commence ici."]}
-            />
-            <Reveal delay={280}>
-              <Link
-                href="/#collection"
-                className="mt-9 inline-flex items-center gap-3 border border-white/80 text-white px-8 py-4 text-[10px] font-medium tracking-[0.22em] uppercase transition-colors duration-500 hover:bg-white hover:text-foreground"
-              >
-                Explorer la collection
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </Reveal>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ══════════════════════════════════════════════
-   06 — L'ART DU PARFUM, ACCESSIBLE
+   L'ART DU PARFUM, ACCESSIBLE
    ══════════════════════════════════════════════ */
 function Concept() {
   return (
@@ -374,7 +397,10 @@ function Concept() {
       id="about"
       className="relative bg-surface-alt border-y border-champagne overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      <SideFlorals spots={["tl", "tr", "bl", "br", "ml", "mr"]} opacity="opacity-40" />
+      <SideFlorals
+        spots={["tl", "tr", "bl", "br", "ml", "mr"]}
+        opacity="opacity-40"
+      />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -385,35 +411,31 @@ function Concept() {
             </Reveal>
 
             <RevealLines
-              className="display text-[2.3rem] sm:text-[3.1rem] lg:text-[3.6rem]"
+              className="display font-normal text-[2.4rem] sm:text-[3.2rem] lg:text-[3.7rem]"
               lines={["L’art du parfum,", "accessible."]}
             />
 
             <Reveal delay={200}>
               <span className="rule my-7" />
-              <p className="text-muted-foreground text-[15px] font-light leading-[1.9] mb-5 max-w-md">
-                Chez {BRAND}, nous croyons que chaque personne mérite de porter
-                une fragrance d’exception — authentique, et à un prix juste.
-              </p>
-              <p className="text-muted-foreground text-[15px] font-light leading-[1.9] max-w-md">
-                Nous sélectionnons uniquement des parfums originaux, et nous les
-                proposons dans le format qui vous convient, du décant au grand
-                flacon.
+              <p className="text-[#4a4236] text-[16px] font-light leading-[1.85] max-w-md">
+                Chez {BRAND}, nous sélectionnons des parfums originaux et
+                authentiques pour vous permettre de découvrir vos fragrances
+                préférées dans des formats accessibles.
               </p>
             </Reveal>
 
             <Reveal delay={340}>
-              <div className="grid grid-cols-3 gap-5 sm:gap-8 border-t border-champagne pt-9 mt-10">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-7 sm:gap-6 border-t border-champagne pt-9 mt-10">
                 {[
                   { v: "100%", l: "Original" },
-                  { v: "48h", l: "Livraison" },
-                  { v: "7j/7", l: "Service" },
+                  { v: "10 / 20 ml", l: "Formats accessibles" },
+                  { v: "Livraison", l: "Partout au Maroc" },
                 ].map((s) => (
                   <div key={s.l}>
-                    <div className="font-serif text-[1.9rem] sm:text-[2.3rem] font-light text-foreground leading-none">
+                    <div className="font-serif text-[1.7rem] sm:text-[1.9rem] font-medium text-foreground leading-none">
                       {s.v}
                     </div>
-                    <div className="text-[9.5px] tracking-[0.24em] uppercase text-muted-foreground mt-3">
+                    <div className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#6b6255] mt-3">
                       {s.l}
                     </div>
                   </div>
@@ -428,7 +450,7 @@ function Concept() {
               <Img
                 name="concept"
                 alt="L’art du parfum"
-                ratio="aspect-[4/5] lg:aspect-[4/5]"
+                ratio="aspect-[4/5]"
                 position="center 45%"
                 zoomOnHover
               />
@@ -441,115 +463,33 @@ function Concept() {
 }
 
 /* ══════════════════════════════════════════════
-   07 — NOTES OLFACTIVES
-   ══════════════════════════════════════════════ */
-const NOTES = [
-  {
-    n: "I",
-    t: "Notes de tête",
-    s: "Les premières minutes",
-    d: "L’ouverture. Vives et lumineuses, elles s’évaporent vite — agrumes, poivre, bergamote, notes vertes.",
-  },
-  {
-    n: "II",
-    t: "Notes de cœur",
-    s: "Une à trois heures",
-    d: "L’âme du parfum. Florales et rondes, elles installent le caractère — jasmin, rose, iris, épices douces.",
-  },
-  {
-    n: "III",
-    t: "Notes de fond",
-    s: "Jusqu’au soir",
-    d: "La trace. Profondes et tenaces, elles restent sur la peau — bois, ambre, musc, vanille, cuir.",
-  },
-];
-
-function Notes() {
-  return (
-    <section className="relative bg-[#171717] text-[#f7f4ee] overflow-hidden py-20 sm:py-28 lg:py-32">
-      <SideFlorals
-        spots={["tl", "tr", "bl", "br"]}
-        opacity="opacity-25 invert brightness-150"
-      />
-
-      <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
-        <div className="max-w-2xl mb-16 lg:mb-24">
-          <Reveal>
-            <span className="block text-[10px] tracking-[0.42em] uppercase font-medium text-[#d8cbb8] mb-6">
-              La pyramide
-            </span>
-          </Reveal>
-          <RevealLines
-            className="font-serif font-light uppercase tracking-[0.02em] leading-[1.04] text-[2.4rem] sm:text-[3.4rem] lg:text-[4rem] text-[#f7f4ee]"
-            lines={["Notes", "olfactives"]}
-          />
-          <Reveal delay={200}>
-            <p className="mt-8 text-[#f7f4ee]/60 text-[15px] font-light leading-[1.9]">
-              Un parfum se lit en trois temps. Comprendre sa structure, c’est
-              savoir ce que l’on porte.
-            </p>
-          </Reveal>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#f7f4ee]/12">
-          {NOTES.map((note, i) => (
-            <Reveal key={note.n} delay={i * 160}>
-              <div className="h-full bg-[#171717] py-9 md:py-10 md:px-8 lg:px-10">
-                <div className="flex items-baseline gap-4 mb-7">
-                  <span className="font-serif text-[#d8cbb8] text-[1.6rem] font-light leading-none">
-                    {note.n}
-                  </span>
-                  <span className="text-[9.5px] tracking-[0.24em] uppercase text-[#f7f4ee]/40">
-                    {note.s}
-                  </span>
-                </div>
-
-                <h3 className="font-serif text-[1.6rem] lg:text-[1.9rem] font-light uppercase tracking-[0.05em] text-[#f7f4ee] leading-tight">
-                  {note.t}
-                </h3>
-
-                <span className="block w-10 h-px bg-[#d8cbb8]/60 my-6" />
-
-                <p className="text-[#f7f4ee]/55 text-[13.5px] font-light leading-[1.9] pb-2">
-                  {note.d}
-                </p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ══════════════════════════════════════════════
-   08 — GRANDE IMAGE FINALE
+   SECTION VISUELLE — grande image immersive
    ══════════════════════════════════════════════ */
 function Signature() {
   return (
     <section className="relative w-full overflow-hidden">
-      <div className="relative h-[72vh] min-h-[440px] lg:h-[88vh] w-full">
+      <div className="relative h-[72vh] min-h-[440px] lg:h-[86vh] w-full">
         <Img
           name="showcase"
-          alt={`Coffret ${BRAND}`}
+          alt={`Univers ${BRAND}`}
           ratio="h-full"
           position="center 50%"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/5 to-black/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/55" />
 
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center px-6">
             <RevealLines
-              className="display text-white text-[2.2rem] sm:text-[3.4rem] lg:text-[4.4rem]"
-              lines={["Une signature.", "Une émotion.", BRAND + "."]}
+              className="font-serif font-normal uppercase tracking-[0.02em] leading-[1.05] text-white text-[2.1rem] sm:text-[3.3rem] lg:text-[4.2rem] drop-shadow-sm"
+              lines={["Une fragrance.", "Une présence.", "Une signature."]}
             />
             <Reveal delay={360}>
               <Link
-                href="/#about"
-                className="mt-10 inline-flex items-center gap-3 bg-white text-foreground px-9 py-4 text-[10px] font-medium tracking-[0.22em] uppercase transition-colors duration-500 hover:bg-[#efe8dc]"
+                href="/#collection"
+                className="mt-10 inline-flex items-center gap-3 bg-white text-[#171717] px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#efe8dc]"
               >
-                Découvrir {BRAND}
-                <ArrowRight className="w-3.5 h-3.5" />
+                Découvrir la boutique
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </Reveal>
           </div>
@@ -562,25 +502,28 @@ function Signature() {
 /* ══════════════════════════════════════════════
    CONTACT
    ══════════════════════════════════════════════ */
-function Contact() {
+function Contact({ onRequest }: { onRequest: () => void }) {
   return (
     <section
       id="contact"
       className="relative bg-background overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      <SideFlorals spots={["tl", "tr", "bl", "br", "ml", "mr"]} opacity="opacity-40" />
+      <SideFlorals
+        spots={["tl", "tr", "bl", "br", "ml", "mr"]}
+        opacity="opacity-40"
+      />
 
       <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
         <Reveal>
           <span className="label-xs block mb-6">Contact</span>
         </Reveal>
         <RevealLines
-          className="display text-[2.2rem] sm:text-[3rem] lg:text-[3.4rem]"
+          className="display font-normal text-[2.3rem] sm:text-[3.1rem] lg:text-[3.5rem]"
           lines={["Votre parfum", "vous attend"]}
         />
         <Reveal delay={200}>
           <FloralDivider className="my-9" />
-          <p className="text-muted-foreground text-[15px] font-light leading-[1.9] mb-11">
+          <p className="text-[#4a4236] text-[16px] font-light leading-[1.85] mb-11">
             Parcourez la collection, choisissez votre format et commandez
             directement sur le site. Paiement à la livraison, partout au Maroc.
           </p>
@@ -588,19 +531,26 @@ function Contact() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/#collection"
-              className="btn-gold px-8 py-4 text-[10px] font-medium tracking-[0.22em] uppercase flex items-center justify-center gap-2.5 transition-colors duration-500"
+              className="bg-[#171717] text-white px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-2.5 transition-colors duration-500 hover:bg-[#3a3a3a]"
             >
-              <ShoppingBag className="w-3.5 h-3.5" />
+              <ShoppingBag className="w-4 h-4" />
               Voir la collection
             </Link>
+            <button
+              type="button"
+              onClick={onRequest}
+              className="border border-[#171717] text-[#171717] px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#171717] hover:text-white"
+            >
+              Votre parfum préféré
+            </button>
             <a
               href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-outline-ink px-8 py-4 text-[10px] font-medium tracking-[0.22em] uppercase flex items-center justify-center gap-2.5"
+              className="border border-champagne text-[#4a4236] px-8 py-[18px] text-[11px] font-semibold tracking-[0.2em] uppercase flex items-center justify-center gap-2.5 transition-colors duration-500 hover:border-[#171717] hover:text-[#171717]"
             >
-              <Instagram className="w-3.5 h-3.5" />
-              @assill.parfums
+              <Instagram className="w-4 h-4" />
+              Instagram
             </a>
           </div>
         </Reveal>
@@ -614,6 +564,7 @@ function Contact() {
    ══════════════════════════════════════════════ */
 export default function Home() {
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
+  const [requestOpen, setRequestOpen] = useState(false);
 
   const fetchPerfumes = useCallback(async () => {
     try {
@@ -629,20 +580,23 @@ export default function Home() {
     fetchPerfumes();
   }, [fetchPerfumes]);
 
+  const openRequest = useCallback(() => setRequestOpen(true), []);
+  const closeRequest = useCallback(() => setRequestOpen(false), []);
+
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
       <Navbar />
       <main className="flex-1">
-        <Hero />
-        <Experience />
+        <Hero onRequest={openRequest} />
+        <Steps />
         <Collection perfumes={perfumes} />
-        <Storytelling />
         <Concept />
-        <Notes />
         <Signature />
-        <Contact />
+        <Contact onRequest={openRequest} />
       </main>
       <Footer />
+
+      <PerfumeRequestModal open={requestOpen} onClose={closeRequest} />
     </div>
   );
 }

@@ -10,8 +10,28 @@ export interface Perfume {
   name: string;
   description: string;
   image: string;
+  /** Famille olfactive saisie par l'admin, ex. "Boisé oriental". */
+  family?: string;
+  /** Notes principales, ex. "Bergamote · Rose · Ambre". */
+  notes?: string;
   published: boolean;
   sizes: Size[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Parfum recherché par un client (« Votre parfum préféré »).
+ * Ce n'est pas une commande : c'est un signal de demande pour le stock.
+ */
+export interface PerfumeRequest {
+  id: string;
+  name: string;
+  brand: string;
+  gender: string;
+  format: string;
+  phone: string;
+  status: string;
   createdAt: string;
   updatedAt: string;
 }

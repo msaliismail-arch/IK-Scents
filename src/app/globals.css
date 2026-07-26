@@ -147,7 +147,13 @@
     @apply bg-background text-foreground;
   }
   section[id] {
-    scroll-margin-top: 84px;
+    /* hauteur de la navbar fixe (76px mobile / 92px desktop) + respiration */
+    scroll-margin-top: 92px;
+  }
+  @media (min-width: 1024px) {
+    section[id] {
+      scroll-margin-top: 110px;
+    }
   }
 }
 

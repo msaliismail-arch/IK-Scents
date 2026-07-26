@@ -18,6 +18,8 @@ import {
   Loader2,
   ArrowLeft,
   Truck,
+  Sparkles,
+  Phone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,9 +30,22 @@ import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/site/logo";
 import { resolveImg } from "@/lib/site";
 import { DEFAULT_SETTINGS } from "@/lib/delivery";
-import type { Perfume, Order, Settings, DeliveryCity } from "@/lib/types";
+import type {
+  Perfume,
+  Order,
+  Settings,
+  DeliveryCity,
+  PerfumeRequest,
+} from "@/lib/types";
 
 type SizeRow = { label: string; price: string };
+
+const REQUEST_STATUS_LABELS: Record<string, string> = {
+  new: "Nouvelle",
+  contacted: "Client contacté",
+  available: "Parfum disponible",
+  closed: "Clôturée",
+};
 
 const STATUS_LABELS: Record<string, string> = {
   new: "Nouveau",
@@ -156,9 +171,9 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
 
 // ---------- DASHBOARD ----------
 function Dashboard({ onLogout }: { onLogout: () => void }) {
-  const [tab, setTab] = useState<"products" | "orders" | "delivery">(
-    "products"
-  );
+  const [tab, setTab] = useState<
+    "products" | "orders" | "requests" | "delivery"
+  >("products");
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
@@ -166,11 +181,21 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const emptyForm = { name: "", description: "", image: "", published: true };
+  const emptyForm = {
+    name: "",
+    description: "",
+    image: "",
+    family: "",
+    notes: "",
+    published: true,
+  };
   const [formData, setFormData] = useState(emptyForm);
   const [sizes, setSizes] = useState<SizeRow[]>([{ label: "", price: "" }]);
 
   // --- Réglages de livraison ---
+  const [requests, setRequests] = useState<PerfumeRequest[]>([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
+
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
@@ -209,11 +234,38 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     }
   };
 
+  const fetchRequests = async () => {
+    setRequestsLoading(true);
+    try {
+      const res = await fetch("/api/requests");
+      const data = await res.json();
+      setRequests(Array.isArray(data) ? data : []);
+    } finally {
+      setRequestsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchPerfumes();
     fetchOrders();
+    fetchRequests();
     fetchSettings();
   }, []);
+
+  const updateRequestStatus = async (id: string, status: string) => {
+    await fetch(`/api/requests/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    fetchRequests();
+  };
+
+  const deleteRequest = async (id: string) => {
+    if (!confirm("Supprimer cette demande ?")) return;
+    await fetch(`/api/requests/${id}`, { method: "DELETE" });
+    fetchRequests();
+  };
 
   const updateCity = (i: number, key: keyof DeliveryCity, value: string) =>
     setSettings((prev) => ({
@@ -329,6 +381,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       name: perfume.name,
       description: perfume.description,
       image: perfume.image,
+      family: perfume.family ?? "",
+      notes: perfume.notes ?? "",
       published: perfume.published,
     });
     setSizes(
@@ -372,6 +426,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   };
 
   const newOrdersCount = orders.filter((o) => o.status === "new").length;
+  const newRequestsCount = requests.filter((r) => r.status === "new").length;
 
   return (
     <div className="min-h-screen bg-surface-alt relative">
@@ -433,6 +488,22 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             )}
           </button>
           <button
+            onClick={() => setTab("requests")}
+            className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+              tab === "requests"
+                ? "text-gold border-b-2 border-gold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            Demandes
+            {newRequestsCount > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-[#b8935a] text-white font-semibold">
+                {newRequestsCount}
+              </span>
+            )}
+          </button>
+          <button
             onClick={() => setTab("delivery")}
             className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "delivery"
@@ -444,6 +515,107 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             Livraison
           </button>
         </div>
+
+        {tab === "requests" && (
+          <div>
+            <div className="mb-6 bg-card border border-border rounded-lg p-5">
+              <h2 className="font-serif text-xl text-foreground">
+                Parfums recherchés par les clients
+              </h2>
+              <p className="text-muted-foreground text-sm font-light mt-1.5 leading-relaxed">
+                Envoyés depuis « Votre parfum préféré » sur la page d&apos;accueil.
+                Ce ne sont pas des commandes : c&apos;est ce que vos clients
+                aimeraient trouver chez vous. Le parfum qui revient le plus
+                souvent est celui à mettre en stock en priorité.
+              </p>
+            </div>
+
+            {requestsLoading ? (
+              <div className="flex justify-center py-16">
+                <Loader2 className="w-7 h-7 text-gold animate-spin" />
+              </div>
+            ) : requests.length === 0 ? (
+              <div className="text-center py-16 border border-dashed border-border rounded-lg">
+                <Sparkles className="w-10 h-10 text-[#cfc4b0] mx-auto mb-4" />
+                <p className="text-muted-foreground font-light">
+                  Aucune demande pour le moment
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {requests.map((r) => (
+                  <div
+                    key={r.id}
+                    className="bg-card border border-border rounded-lg p-4 flex flex-col sm:flex-row sm:items-start justify-between gap-4"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <h4 className="font-serif text-lg text-foreground">
+                          {r.name}
+                        </h4>
+                        {r.brand && (
+                          <span className="text-muted-foreground text-sm">
+                            {r.brand}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {r.gender && (
+                          <span className="px-2.5 py-1 text-[11px] tracking-wider uppercase border border-gold-border bg-gold-soft text-foreground rounded-sm">
+                            {r.gender}
+                          </span>
+                        )}
+                        {r.format && (
+                          <span className="px-2.5 py-1 text-[11px] tracking-wider uppercase border border-gold-border bg-gold-soft text-foreground rounded-sm">
+                            {r.format}
+                          </span>
+                        )}
+                      </div>
+
+                      <a
+                        href={`tel:${r.phone}`}
+                        className="mt-3 inline-flex items-center gap-1.5 text-gold text-sm hover:underline"
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                        {r.phone}
+                      </a>
+
+                      <p className="text-muted-foreground/50 text-[10px] mt-2">
+                        {new Date(r.createdAt).toLocaleString("fr-FR")}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col items-stretch sm:items-end gap-2 shrink-0">
+                      <select
+                        value={r.status}
+                        onChange={(e) =>
+                          updateRequestStatus(r.id, e.target.value)
+                        }
+                        className="bg-background border border-border rounded px-2 py-1.5 text-sm text-foreground"
+                      >
+                        {Object.entries(REQUEST_STATUS_LABELS).map(([v, l]) => (
+                          <option key={v} value={v}>
+                            {l}
+                          </option>
+                        ))}
+                      </select>
+                      <Button
+                        onClick={() => deleteRequest(r.id)}
+                        size="sm"
+                        variant="ghost"
+                        className="text-muted-foreground hover:text-red-500"
+                      >
+                        <Trash2 className="w-4 h-4 mr-1.5" />
+                        Supprimer
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {tab === "delivery" && (
           <form
@@ -658,6 +830,40 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     rows={3}
                     className="resize-none"
                   />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Famille olfactive
+                    </Label>
+                    <Input
+                      value={formData.family}
+                      onChange={(e) =>
+                        setFormData({ ...formData, family: e.target.value })
+                      }
+                      placeholder="Ex : Boisé oriental"
+                    />
+                    <p className="text-muted-foreground/70 text-xs">
+                      Affichée sous le nom du parfum. Laissez vide si vous ne la
+                      connaissez pas — mieux vaut rien qu&apos;une approximation.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Notes principales
+                    </Label>
+                    <Input
+                      value={formData.notes}
+                      onChange={(e) =>
+                        setFormData({ ...formData, notes: e.target.value })
+                      }
+                      placeholder="Ex : Bergamote · Rose · Ambre"
+                    />
+                    <p className="text-muted-foreground/70 text-xs">
+                      Séparez les notes par « · ».
+                    </p>
+                  </div>
                 </div>
 
                 <div className="space-y-2">

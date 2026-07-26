@@ -11,6 +11,10 @@ npx prisma generate
 npm run set-admin
 ```
 
+> À relancer **à chaque fois** que le schéma change (`prisma/schema.prisma`).
+> Dernier changement : champs `family` / `notes` sur les parfums et table
+> `PerfumeRequest` pour « Votre parfum préféré ».
+
 `set-admin` crée ou met à jour ton compte administrateur à partir des
 identifiants écrits dans `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`).
 Le mot de passe n'est jamais stocké en clair — seul son hachage part en base.
@@ -106,6 +110,29 @@ affiche aussi combien il lui manque pour l'obtenir.
 Le montant est **recalculé sur le serveur** au moment de la commande — personne
 ne peut le trafiquer depuis son navigateur. Il est ensuite enregistré avec la
 commande et visible dans l'onglet **Commandes**.
+
+---
+
+## 4 bis. « Votre parfum préféré »
+
+Le bouton du Hero ouvre un formulaire où le client indique le parfum qu'il
+**recherche** — ce n'est ni une commande ni une création de parfum.
+
+Les demandes arrivent dans l'admin, onglet **Demandes** : nom du parfum, marque,
+homme/femme/unisexe, format 10 ou 20 ml, téléphone.
+
+**C'est ta meilleure source d'information pour le stock.** Le parfum qui revient
+le plus souvent est celui à acheter en premier — tu sais qu'il est déjà demandé
+avant de sortir un dirham.
+
+### Numéro WhatsApp
+
+Le lien WhatsApp du footer n'apparaît que si tu renseignes le numéro dans
+`src/lib/site.ts` :
+
+```ts
+export const WHATSAPP_NUMBER = "2126XXXXXXXX"; // sans + ni espaces
+```
 
 ---
 

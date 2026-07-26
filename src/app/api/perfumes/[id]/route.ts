@@ -52,7 +52,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, description, image, published } = body;
+    const { name, description, image, published, family, notes } = body;
     const hasSizes = Array.isArray(body.sizes);
     const sizes = cleanSizes(body.sizes);
 
@@ -62,6 +62,8 @@ export async function PUT(
         ...(name !== undefined && { name }),
         ...(description !== undefined && { description }),
         ...(image !== undefined && { image }),
+        ...(family !== undefined && { family: String(family).trim() }),
+        ...(notes !== undefined && { notes: String(notes).trim() }),
         ...(published !== undefined && { published }),
         ...(hasSizes && {
           sizes: {
