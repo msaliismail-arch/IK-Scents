@@ -4,13 +4,36 @@
 Le nom doit être **exactement** celui indiqué. L'extension peut être `.png`, `.jpg`, `.jpeg` ou `.webp` — le site les teste automatiquement.
 Tant qu'une image manque, le site affiche un cadre pointillé avec le nom du fichier attendu.
 
-### ✅ Déjà en place
-- `hero-bottle.png`
-- `collection-bg.png`
-- `showcase.png`
+### ✅ Déjà en place — et où chaque photo est utilisée
 
-### ⏳ Encore à générer
-- `step-1` · `step-2` · `step-3` · `concept`
+| Fichier | Section du site |
+|---|---|
+| `hero-bottle` | 02 — Hero (grande image d'accueil, format portrait) |
+| `step-1` / `step-2` / `step-3` | 03 — L'expérience personnalisée (3 étapes) |
+| `collection-bg` | 05 — Storytelling pleine largeur |
+| `concept` | 06 — L'art du parfum, accessible |
+| `showcase` | 08 — Grande image finale « Une signature » |
+
+Les photos des parfums de la section **04 — Nos essences** viennent de la base
+de données (espace admin), pas de `public/`.
+
+**Pour remplacer une photo :** déposez le nouveau fichier dans `public/` avec
+exactement le même nom (l'extension peut changer). Aucune modification de code
+n'est nécessaire.
+
+### ⏳ Optionnel
+- `floral` — décoration botanique des coins (**fond transparent obligatoire**).
+  En son absence, le site affiche une brindille dessinée au trait, générée en
+  SVG. Rien n'est cassé tant que le fichier n'existe pas.
+
+---
+
+## 0. `floral.png` — décoration botanique des coins
+**Format :** carré 1:1, **fond transparent (PNG)**, min. 800 × 800 px
+**Prompt Gemini :**
+> Elegant minimal botanical line art illustration. A delicate branch with fine leaves, small dried flowers and slender stems, drawn in thin single-weight lines, muted taupe brown color (#8a7a63), refined and airy, luxury editorial style, arranged as a corner ornament flowing from the top-left. Transparent background, PNG, no text, no frame, no background color. Square 1:1, high resolution.
+
+*La même image sert pour les deux coins (elle est retournée automatiquement).*
 
 ---
 

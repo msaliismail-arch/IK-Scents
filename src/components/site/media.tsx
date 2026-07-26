@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useInView } from "@/components/site/reveal";
 
 const EXTS = ["png", "jpg", "jpeg", "webp"];
 
 /**
- * Image slot. `name` = base filename without extension (e.g. "hero-bottle").
- * Tries .png / .jpg / .jpeg / .webp automatically.
- * If none load, a labelled placeholder stays visible behind showing what to add.
+ * Slot image éditorial. `name` = nom de fichier sans extension (ex. "hero-bottle"),
+ * le fichier vit dans /public. Les extensions png / jpg / jpeg / webp sont testées
+ * automatiquement — déposer une nouvelle photo avec le même nom suffit à la remplacer.
+ *
+ * La photo d'origine n'est jamais altérée : seuls `fit`, `position` et le ratio
+ * du cadre changent le cadrage.
  */
 export function Img({
   name,
@@ -15,22 +19,36 @@ export function Img({
   className = "",
   ratio = "aspect-[4/5]",
   fit = "cover",
+  position = "center",
+  reveal = true,
+  zoomOnHover = false,
+  priority = false,
 }: {
   name: string;
   alt: string;
   className?: string;
   ratio?: string;
   fit?: "cover" | "contain";
+  /** valeur CSS object-position, ex. "center 30%" */
+  position?: string;
+  reveal?: boolean;
+  zoomOnHover?: boolean;
+  priority?: boolean;
 }) {
   const [i, setI] = useState(0);
+  const { ref, inView } = useInView<HTMLDivElement>(0.12);
   const exhausted = i >= EXTS.length;
+
+  const anim = reveal ? `img-reveal ${inView ? "is-in" : ""}` : "";
+  const zoom = zoomOnHover ? "zoom-hover" : "";
 
   return (
     <div
-      className={`${ratio} ${className} relative w-full overflow-hidden bg-[#efeae1]`}
+      ref={ref}
+      className={`${ratio} ${className} ${anim} ${zoom} relative w-full overflow-hidden bg-[#efe8dc]`}
     >
-      {/* Placeholder layer (visible only if no image loads) */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-3 text-center border border-dashed border-[#cfc4b0]">
+      {/* Repère visible uniquement si aucun fichier ne charge */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-3 text-center border border-dashed border-champagne">
         <span className="text-[10px] tracking-[0.22em] uppercase text-[#8a7a63]">
           Image à ajouter
         </span>
@@ -43,9 +61,10 @@ export function Img({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={`/${name}.${EXTS[i]}`}
-          alt=""
-          aria-label={alt}
+          alt={alt}
+          loading={priority ? "eager" : "lazy"}
           onError={() => setI((v) => v + 1)}
+          style={{ objectPosition: position }}
           className={`relative w-full h-full ${
             fit === "contain" ? "object-contain" : "object-cover"
           }`}
