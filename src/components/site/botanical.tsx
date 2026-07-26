@@ -17,7 +17,7 @@ function Sprig({ className }: { className?: string }) {
       className={className}
     >
       <g
-        stroke="#8a7a63"
+        stroke="currentColor"
         strokeWidth="0.9"
         strokeLinecap="round"
         fill="none"
@@ -54,19 +54,22 @@ function Sprig({ className }: { className?: string }) {
   );
 }
 
-/** Angle botanique : photo /public/floral.* si présente, sinon le trait dessiné. */
+/** Une brindille : photo /public/floral.* si présente, sinon le trait dessiné. */
 function Corner({
   className,
-  flip = false,
+  flipX = false,
+  flipY = false,
 }: {
   className: string;
-  flip?: boolean;
+  flipX?: boolean;
+  flipY?: boolean;
 }) {
   const [i, setI] = useState(0);
   const exhausted = i >= EXTS.length;
-  const base = `${className} ${flip ? "-scale-x-100" : ""} absolute pointer-events-none select-none`;
+  const flip = `${flipX ? "-scale-x-100" : ""} ${flipY ? "-scale-y-100" : ""}`;
+  const base = `${className} ${flip} absolute pointer-events-none select-none`;
 
-  if (exhausted) return <Sprig className={base} />;
+  if (exhausted) return <Sprig className={`${base} text-[#8a7a63]`} />;
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
@@ -80,36 +83,97 @@ function Corner({
   );
 }
 
+export type Spot = "tl" | "tr" | "bl" | "br" | "ml" | "mr";
+
+const PLACEMENTS: Record<
+  Spot,
+  { pos: string; size: string; flipX: boolean; flipY: boolean }
+> = {
+  tl: {
+    pos: "-top-6 -left-10",
+    size: "w-36 h-36 lg:w-56 lg:h-56",
+    flipX: true,
+    flipY: false,
+  },
+  tr: {
+    pos: "-top-6 -right-10",
+    size: "w-36 h-36 lg:w-56 lg:h-56",
+    flipX: false,
+    flipY: false,
+  },
+  bl: {
+    pos: "-bottom-6 -left-10",
+    size: "w-36 h-36 lg:w-56 lg:h-56",
+    flipX: true,
+    flipY: true,
+  },
+  br: {
+    pos: "-bottom-6 -right-10",
+    size: "w-36 h-36 lg:w-56 lg:h-56",
+    flipX: false,
+    flipY: true,
+  },
+  ml: {
+    pos: "top-1/3 -left-16",
+    size: "w-24 h-24 lg:w-40 lg:h-40",
+    flipX: true,
+    flipY: true,
+  },
+  mr: {
+    pos: "bottom-1/3 -right-16",
+    size: "w-24 h-24 lg:w-40 lg:h-40",
+    flipX: false,
+    flipY: false,
+  },
+};
+
 /**
- * Décoration botanique dans les angles d'une section.
- * Volontairement discrète — elle ne doit jamais passer devant un produit.
+ * Décoration botanique d'une section.
+ * `spots` choisit les emplacements — elle reste toujours en arrière-plan (z-0)
+ * et ne doit jamais passer devant un produit.
  */
 export function SideFlorals({
-  variant = "both",
+  spots = ["tl", "br"],
   opacity = "opacity-60",
 }: {
-  variant?: "both" | "top-left" | "bottom-right";
+  spots?: Spot[];
   opacity?: string;
 }) {
-  const showTop = variant === "both" || variant === "top-left";
-  const showBottom = variant === "both" || variant === "bottom-right";
-
   return (
     <div
       aria-hidden="true"
       className="pointer-events-none select-none absolute inset-0 overflow-hidden z-0"
     >
-      {showTop && (
-        <Corner
-          flip
-          className={`-top-6 -left-10 w-36 h-36 lg:w-56 lg:h-56 ${opacity}`}
-        />
-      )}
-      {showBottom && (
-        <Corner
-          className={`-bottom-6 -right-10 w-36 h-36 lg:w-56 lg:h-56 ${opacity}`}
-        />
-      )}
+      {spots.map((s) => {
+        const p = PLACEMENTS[s];
+        return (
+          <Corner
+            key={s}
+            flipX={p.flipX}
+            flipY={p.flipY}
+            className={`${p.pos} ${p.size} ${opacity}`}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Petite brindille centrée, utilisée comme séparateur entre deux blocs.
+ * Décor pur, aucune information.
+ */
+export function FloralDivider({ className = "" }: { className?: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={`relative flex items-center justify-center gap-6 ${className}`}
+    >
+      <span className="h-px w-16 sm:w-28 bg-champagne" />
+      <span className="relative w-14 h-14 lg:w-16 lg:h-16 shrink-0 opacity-70">
+        <Corner className="inset-0 w-full h-full" />
+      </span>
+      <span className="h-px w-16 sm:w-28 bg-champagne" />
     </div>
   );
 }

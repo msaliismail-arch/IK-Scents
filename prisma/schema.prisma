@@ -41,20 +41,37 @@ model Size {
 }
 
 model Order {
-  id           String   @id @default(cuid())
-  customerName String
-  phone        String
-  address      String
-  city         String?
-  perfumeId    String?
-  perfumeName  String
-  sizeLabel    String
-  price        String
-  quantity     Int      @default(1)
-  note         String?
-  status       String   @default("new")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String   @id @default(cuid())
+  customerName  String
+  phone         String
+  address       String
+  city          String?
+  perfumeId     String?
+  perfumeName   String
+  sizeLabel     String
+  price         String
+  quantity      Int      @default(1)
+  deliveryPrice String   @default("0")
+  note          String?
+  status        String   @default("new")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([status])
+}
+
+/// Réglages du site — une seule ligne, id fixe "main".
+model Settings {
+  id String @id @default("main")
+
+  /// Prix de livraison par défaut, valable partout au Maroc (en MAD, "0" = gratuit)
+  deliveryPrice String @default("0")
+
+  /// Livraison offerte à partir de ce montant de commande. Vide = désactivé.
+  freeDeliveryFrom String @default("")
+
+  /// Exceptions par ville : JSON [{ "city": "Oujda", "price": "20" }]
+  deliveryCitiesJson String @default("[]")
+
+  updatedAt DateTime @updatedAt
 }

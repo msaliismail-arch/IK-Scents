@@ -17,6 +17,7 @@ import {
   ClipboardList,
   Loader2,
   ArrowLeft,
+  Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,8 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/site/logo";
 import { resolveImg } from "@/lib/site";
-import type { Perfume, Order } from "@/lib/types";
+import { DEFAULT_SETTINGS } from "@/lib/delivery";
+import type { Perfume, Order, Settings, DeliveryCity } from "@/lib/types";
 
 type SizeRow = { label: string; price: string };
 
@@ -153,7 +155,9 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
 
 // ---------- DASHBOARD ----------
 function Dashboard({ onLogout }: { onLogout: () => void }) {
-  const [tab, setTab] = useState<"products" | "orders">("products");
+  const [tab, setTab] = useState<"products" | "orders" | "delivery">(
+    "products"
+  );
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
@@ -164,6 +168,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const emptyForm = { name: "", description: "", image: "", published: true };
   const [formData, setFormData] = useState(emptyForm);
   const [sizes, setSizes] = useState<SizeRow[]>([{ label: "", price: "" }]);
+
+  // --- Réglages de livraison ---
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsSaved, setSettingsSaved] = useState(false);
 
   const fetchPerfumes = async () => {
     setLoading(true);
@@ -187,10 +196,73 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     }
   };
 
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch("/api/settings");
+      const data = await res.json();
+      if (data && typeof data === "object") {
+        setSettings({ ...DEFAULT_SETTINGS, ...data });
+      }
+    } catch {
+      /* les réglages par défaut restent en place */
+    }
+  };
+
   useEffect(() => {
     fetchPerfumes();
     fetchOrders();
+    fetchSettings();
   }, []);
+
+  const updateCity = (i: number, key: keyof DeliveryCity, value: string) =>
+    setSettings((prev) => ({
+      ...prev,
+      deliveryCities: prev.deliveryCities.map((c, idx) =>
+        idx === i ? { ...c, [key]: value } : c
+      ),
+    }));
+
+  const addCity = () =>
+    setSettings((prev) => ({
+      ...prev,
+      deliveryCities: [...prev.deliveryCities, { city: "", price: "" }],
+    }));
+
+  const removeCity = (i: number) =>
+    setSettings((prev) => ({
+      ...prev,
+      deliveryCities: prev.deliveryCities.filter((_, idx) => idx !== i),
+    }));
+
+  const saveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    setSettingsSaved(false);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...settings,
+          deliveryCities: settings.deliveryCities.filter(
+            (c) => c.city.trim() !== ""
+          ),
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSettings({ ...DEFAULT_SETTINGS, ...data });
+        setSettingsSaved(true);
+        setTimeout(() => setSettingsSaved(false), 2500);
+      } else {
+        alert("Échec de l'enregistrement des réglages.");
+      }
+    } catch {
+      alert("Erreur de connexion. Réessayez.");
+    } finally {
+      setSavingSettings(false);
+    }
+  };
 
   const resetForm = () => {
     setFormData(emptyForm);
@@ -359,7 +431,154 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
               </span>
             )}
           </button>
+          <button
+            onClick={() => setTab("delivery")}
+            className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+              tab === "delivery"
+                ? "text-gold border-b-2 border-gold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Truck className="w-4 h-4" />
+            Livraison
+          </button>
         </div>
+
+        {tab === "delivery" && (
+          <form
+            onSubmit={saveSettings}
+            className="bg-card border border-border rounded-lg p-5 sm:p-6 space-y-7 max-w-2xl"
+          >
+            <div>
+              <h2 className="font-serif text-xl text-foreground">
+                Frais de livraison
+              </h2>
+              <p className="text-muted-foreground text-sm font-light mt-1.5 leading-relaxed">
+                Ce montant s’ajoute automatiquement au total sur la page de
+                commande. Il est recalculé côté serveur à chaque commande.
+              </p>
+            </div>
+
+            {/* Prix par défaut */}
+            <div className="space-y-2">
+              <Label className="text-muted-foreground text-sm">
+                Prix pour tout le Maroc (MAD)
+              </Label>
+              <Input
+                value={settings.deliveryPrice}
+                onChange={(e) =>
+                  setSettings({ ...settings, deliveryPrice: e.target.value })
+                }
+                placeholder="Ex : 30"
+                inputMode="decimal"
+              />
+              <p className="text-muted-foreground/70 text-xs">
+                Mettez <strong>0</strong> pour offrir la livraison à tout le
+                monde.
+              </p>
+            </div>
+
+            {/* Seuil de gratuité */}
+            <div className="space-y-2">
+              <Label className="text-muted-foreground text-sm">
+                Livraison offerte à partir de (MAD) — optionnel
+              </Label>
+              <Input
+                value={settings.freeDeliveryFrom}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    freeDeliveryFrom: e.target.value,
+                  })
+                }
+                placeholder="Ex : 300 — laissez vide pour désactiver"
+                inputMode="decimal"
+              />
+              <p className="text-muted-foreground/70 text-xs">
+                Au-dessus de ce montant, la livraison passe à 0 MAD et le client
+                voit combien il lui manque pour l’obtenir.
+              </p>
+            </div>
+
+            {/* Exceptions par ville */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-muted-foreground text-sm">
+                  Villes avec un prix différent
+                </Label>
+                <Button
+                  type="button"
+                  onClick={addCity}
+                  size="sm"
+                  variant="ghost"
+                  className="text-gold hover:bg-gold-soft h-7"
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1" />
+                  Ajouter une ville
+                </Button>
+              </div>
+
+              {settings.deliveryCities.length === 0 ? (
+                <p className="text-muted-foreground/70 text-xs py-2">
+                  Aucune exception : toutes les villes paient le prix ci-dessus.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {settings.deliveryCities.map((c, i) => (
+                    <div key={i} className="flex gap-2 items-center">
+                      <Input
+                        value={c.city}
+                        onChange={(e) => updateCity(i, "city", e.target.value)}
+                        placeholder="Ville (ex : Oujda)"
+                        className="flex-1"
+                      />
+                      <Input
+                        value={c.price}
+                        onChange={(e) => updateCity(i, "price", e.target.value)}
+                        placeholder="Prix MAD (0 = gratuit)"
+                        inputMode="decimal"
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => removeCity(i)}
+                        size="icon"
+                        variant="ghost"
+                        className="w-9 h-9 text-muted-foreground hover:text-red-500 shrink-0"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <p className="text-muted-foreground/70 text-xs">
+                Le nom saisi par le client est comparé sans tenir compte des
+                majuscules ni des accents.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 border-t border-border pt-5">
+              <Button
+                type="submit"
+                disabled={savingSettings}
+                className="btn-gold font-semibold tracking-wider uppercase"
+              >
+                {savingSettings ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Enregistrer"
+                )}
+              </Button>
+              {settingsSaved && (
+                <span className="text-green-700 text-sm">
+                  Réglages enregistrés.
+                </span>
+              )}
+            </div>
+          </form>
+        )}
 
         {tab === "products" && (
           <>
@@ -650,6 +869,23 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                           {order.address}
                           {order.city ? `, ${order.city}` : ""}
                         </p>
+                        {(() => {
+                          const unit =
+                            Number.parseFloat(order.price ?? "0") || 0;
+                          const sub = unit * (order.quantity || 1);
+                          const ship =
+                            Number.parseFloat(order.deliveryPrice ?? "0") || 0;
+                          if (sub <= 0) return null;
+                          return (
+                            <p className="text-foreground text-xs mt-1">
+                              Sous-total {sub} MAD · Livraison{" "}
+                              {ship > 0 ? `${ship} MAD` : "offerte"} ·{" "}
+                              <span className="font-medium">
+                                Total {sub + ship} MAD
+                              </span>
+                            </p>
+                          );
+                        })()}
                         {order.note && (
                           <p className="text-muted-foreground/80 text-xs mt-0.5 italic">
                             Note: {order.note}

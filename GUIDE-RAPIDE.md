@@ -1,5 +1,19 @@
 # Guide rapide — ASSIL
 
+## 0. ⚠️ À FAIRE UNE SEULE FOIS — avant de lancer le site
+
+La base de données a changé (frais de livraison). **Tant que ces deux commandes
+ne sont pas passées, le site ne démarrera pas.**
+
+```
+npx prisma db push
+npx prisma generate
+```
+
+Ensuite seulement, passe à l'étape 1.
+
+---
+
 ## 1. Lancer le site
 
 Ouvre un terminal **dans ce dossier** (`prjct 3`) et tape :
@@ -70,7 +84,27 @@ va sur `http://localhost:3000/admin` pour les modifier.
 
 ---
 
-## 4. Si le design ne te plaît pas
+## 4. Frais de livraison (nouveau)
+
+Dans l'admin (`http://localhost:3000/admin`), onglet **Livraison** :
+
+| Champ | À quoi ça sert |
+|---|---|
+| **Prix pour tout le Maroc** | Le tarif par défaut. `0` = livraison offerte partout. |
+| **Livraison offerte à partir de** | Optionnel. Ex. `300` → au-dessus de 300 MAD, livraison gratuite. Vide = désactivé. |
+| **Villes avec un prix différent** | Les exceptions. Ex. Oujda `20`, Casablanca `40`. Une ville à `0` = gratuite. |
+
+Le client voit le détail sur la page de commande :
+**Sous-total → Livraison → Total**. Si un seuil de gratuité est actif, on lui
+affiche aussi combien il lui manque pour l'obtenir.
+
+Le montant est **recalculé sur le serveur** au moment de la commande — personne
+ne peut le trafiquer depuis son navigateur. Il est ensuite enregistré avec la
+commande et visible dans l'onglet **Commandes**.
+
+---
+
+## 5. Si le design ne te plaît pas
 
 Pour revenir à la version d'avant :
 
@@ -80,7 +114,7 @@ git checkout src/app/page.tsx src/app/globals.css src/components/site/
 
 ---
 
-## 5. Publier en ligne
+## 6. Publier en ligne
 
 ```
 git add .

@@ -18,13 +18,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { resolveImg } from "@/lib/site";
-import type { Perfume, Size } from "@/lib/types";
+import { DEFAULT_SETTINGS, computeDelivery } from "@/lib/delivery";
+import type { Perfume, Settings, Size } from "@/lib/types";
 
 export default function CommanderPage() {
   const params = useParams();
   const id = (params?.id as string) ?? "";
 
   const [perfume, setPerfume] = useState<Perfume | null>(null);
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [sizeLabel, setSizeLabel] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -71,10 +73,26 @@ export default function CommanderPage() {
     };
   }, [id]);
 
+  // Réglages de livraison (prix par défaut, exceptions par ville, seuil gratuit)
+  useEffect(() => {
+    let active = true;
+    fetch("/api/settings")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (active && data) setSettings({ ...DEFAULT_SETTINGS, ...data });
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const sizes: Size[] = perfume?.sizes ?? [];
   const selectedSize = sizes.find((s) => s.label === sizeLabel) ?? sizes[0];
   const unitPrice = Number.parseFloat(selectedSize?.price ?? "0") || 0;
-  const total = unitPrice * quantity;
+  const subtotal = unitPrice * quantity;
+  const delivery = computeDelivery(settings, subtotal, form.city);
+  const total = subtotal + delivery.price;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -273,6 +291,11 @@ export default function CommanderPage() {
                         }
                         placeholder="Oujda"
                       />
+                      {settings.deliveryCities.length > 0 && (
+                        <p className="text-muted-foreground/70 text-[11px]">
+                          Les frais de livraison dépendent de la ville.
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -302,13 +325,50 @@ export default function CommanderPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-gold-soft border border-gold-soft rounded-lg">
-                  <span className="text-muted-foreground text-sm">
-                    Total (paiement à la livraison)
-                  </span>
-                  <span className="text-gold font-serif text-lg">
-                    {total > 0 ? `${total} MAD` : "—"}
-                  </span>
+                <div className="p-4 bg-gold-soft border border-gold-soft rounded-lg space-y-2.5">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Sous-total ({selectedSize?.label ?? "—"} × {quantity})
+                    </span>
+                    <span className="text-foreground">
+                      {subtotal > 0 ? `${subtotal} MAD` : "—"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Livraison
+                      {delivery.reason === "city" && form.city
+                        ? ` (${form.city.trim()})`
+                        : ""}
+                    </span>
+                    <span
+                      className={
+                        delivery.free ? "text-green-700" : "text-foreground"
+                      }
+                    >
+                      {delivery.free ? "Offerte" : `${delivery.price} MAD`}
+                    </span>
+                  </div>
+
+                  {delivery.missingForFree > 0 && (
+                    <p className="text-[12px] text-muted-foreground leading-relaxed">
+                      Plus que{" "}
+                      <span className="text-foreground font-medium">
+                        {delivery.missingForFree} MAD
+                      </span>{" "}
+                      pour la livraison offerte.
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-between border-t border-gold-border pt-2.5">
+                    <span className="text-muted-foreground text-sm">
+                      Total (paiement à la livraison)
+                    </span>
+                    <span className="text-gold font-serif text-lg">
+                      {subtotal > 0 ? `${total} MAD` : "—"}
+                    </span>
+                  </div>
                 </div>
 
                 <Button

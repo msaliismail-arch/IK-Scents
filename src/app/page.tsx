@@ -6,7 +6,7 @@ import { ArrowRight, Instagram, Package, ShoppingBag } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { Img } from "@/components/site/media";
-import { SideFlorals } from "@/components/site/botanical";
+import { SideFlorals, FloralDivider } from "@/components/site/botanical";
 import { Reveal, RevealLines, Parallax } from "@/components/site/reveal";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import type { Perfume } from "@/lib/types";
@@ -21,7 +21,7 @@ function Hero() {
       id="hero"
       className="relative bg-background overflow-hidden pt-[96px] lg:pt-[104px]"
     >
-      <SideFlorals variant="bottom-right" opacity="opacity-40" />
+      <SideFlorals spots={["tl", "br", "mr"]} opacity="opacity-45" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 pb-16 lg:pb-24">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
@@ -114,7 +114,7 @@ function Experience() {
       id="experience"
       className="relative bg-surface-alt border-y border-champagne overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      <SideFlorals variant="top-left" opacity="opacity-40" />
+      <SideFlorals spots={["tl", "tr", "bl", "br"]} opacity="opacity-45" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-end mb-14 lg:mb-20">
@@ -183,13 +183,13 @@ function PerfumeRow({ perfume, index }: { perfume: Perfume; index: number }) {
 
   return (
     <article className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center">
-      {/* Image */}
+      {/* Image — format 9:16 (portrait vertical) */}
       <Reveal
-        className={`lg:col-span-7 ${flipped ? "lg:col-start-6 lg:row-start-1" : ""}`}
+        className={`lg:col-span-5 ${flipped ? "lg:col-start-8 lg:row-start-1" : ""}`}
       >
         <Link
           href={`/commander/${perfume.id}`}
-          className="block zoom-hover overflow-hidden bg-[#efe8dc] aspect-[4/5] sm:aspect-[16/11] lg:aspect-[4/3]"
+          className="block zoom-hover overflow-hidden bg-[#efe8dc] aspect-[9/16] mx-auto max-w-[320px] sm:max-w-[380px] lg:max-w-[430px] lg:mx-0"
           aria-label={`Découvrir ${perfume.name}`}
         >
           {!imgError ? (
@@ -212,7 +212,7 @@ function PerfumeRow({ perfume, index }: { perfume: Perfume; index: number }) {
       {/* Texte */}
       <Reveal
         delay={140}
-        className={`lg:col-span-5 ${flipped ? "lg:col-start-1 lg:row-start-1" : ""}`}
+        className={`lg:col-span-6 ${flipped ? "lg:col-start-1 lg:row-start-1" : "lg:col-start-7"}`}
       >
         <span className="font-serif text-[#b3a58c] text-[1.4rem] font-light block mb-4">
           {String(index + 1).padStart(2, "0")}
@@ -277,7 +277,7 @@ function Collection({ perfumes }: { perfumes: Perfume[] }) {
       id="collection"
       className="relative bg-background overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      <SideFlorals variant="bottom-right" opacity="opacity-35" />
+      <SideFlorals spots={["tl", "br", "ml"]} opacity="opacity-40" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-end mb-16 lg:mb-24">
@@ -309,9 +309,16 @@ function Collection({ perfumes }: { perfumes: Perfume[] }) {
             </p>
           </div>
         ) : (
-          <div className="space-y-24 lg:space-y-36">
+          <div>
             {perfumes.map((p, i) => (
-              <PerfumeRow key={p.id} perfume={p} index={i} />
+              <div key={p.id}>
+                {i > 0 && (
+                  <Reveal>
+                    <FloralDivider className="my-16 lg:my-24" />
+                  </Reveal>
+                )}
+                <PerfumeRow perfume={p} index={i} />
+              </div>
             ))}
           </div>
         )}
@@ -367,7 +374,7 @@ function Concept() {
       id="about"
       className="relative bg-surface-alt border-y border-champagne overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      <SideFlorals variant="top-left" opacity="opacity-40" />
+      <SideFlorals spots={["tl", "tr", "bl", "br"]} opacity="opacity-45" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -460,6 +467,11 @@ const NOTES = [
 function Notes() {
   return (
     <section className="relative bg-[#171717] text-[#f7f4ee] overflow-hidden py-20 sm:py-28 lg:py-32">
+      <SideFlorals
+        spots={["tl", "tr", "bl", "br"]}
+        opacity="opacity-25 invert brightness-150"
+      />
+
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
         <div className="max-w-2xl mb-16 lg:mb-24">
           <Reveal>
@@ -556,7 +568,7 @@ function Contact() {
       id="contact"
       className="relative bg-background overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      <SideFlorals opacity="opacity-35" />
+      <SideFlorals spots={["tl", "tr", "bl", "br"]} opacity="opacity-45" />
 
       <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
         <Reveal>
@@ -567,7 +579,7 @@ function Contact() {
           lines={["Votre parfum", "vous attend"]}
         />
         <Reveal delay={200}>
-          <span className="rule mx-auto my-8" />
+          <FloralDivider className="my-9" />
           <p className="text-muted-foreground text-[15px] font-light leading-[1.9] mb-11">
             Parcourez la collection, choisissez votre format et commandez
             directement sur le site. Paiement à la livraison, partout au Maroc.

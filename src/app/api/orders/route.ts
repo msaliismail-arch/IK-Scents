@@ -1,5 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import {
+  DEFAULT_SETTINGS,
+  computeDelivery,
+  parseDeliveryCities,
+} from "@/lib/delivery";
+import type { Settings } from "@/lib/types";
+
+/**
+ * Les frais de livraison sont TOUJOURS recalculés côté serveur à partir des
+ * réglages admin — jamais repris du navigateur, qui peut être modifié.
+ */
+async function loadSettings(): Promise<Settings> {
+  try {
+    const row = await db.settings.findUnique({ where: { id: "main" } });
+    if (!row) return DEFAULT_SETTINGS;
+    return {
+      deliveryPrice: row.deliveryPrice ?? "0",
+      freeDeliveryFrom: row.freeDeliveryFrom ?? "",
+      deliveryCities: parseDeliveryCities(row.deliveryCitiesJson),
+    };
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+}
 
 // GET /api/orders - List all orders (admin)
 export async function GET() {
@@ -42,6 +66,17 @@ export async function POST(request: NextRequest) {
     }
 
     const qty = Number.parseInt(quantity, 10);
+    const safeQty = Number.isFinite(qty) && qty > 0 ? qty : 1;
+
+    const unitPrice = Number.parseFloat(String(price ?? "").replace(",", "."));
+    const subtotal = (Number.isFinite(unitPrice) ? unitPrice : 0) * safeQty;
+
+    const settings = await loadSettings();
+    const delivery = computeDelivery(
+      settings,
+      subtotal,
+      city ? String(city) : ""
+    );
 
     const order = await db.order.create({
       data: {
@@ -53,7 +88,8 @@ export async function POST(request: NextRequest) {
         perfumeName: String(perfumeName).trim(),
         sizeLabel: String(sizeLabel).trim(),
         price: price ? String(price).trim() : "",
-        quantity: Number.isFinite(qty) && qty > 0 ? qty : 1,
+        quantity: safeQty,
+        deliveryPrice: String(delivery.price),
         note: note ? String(note).trim() : null,
         status: "new",
       },

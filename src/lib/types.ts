@@ -27,10 +27,28 @@ export interface Order {
   sizeLabel: string;
   price: string;
   quantity: number;
+  /** Frais de livraison appliqués à cette commande, en MAD */
+  deliveryPrice?: string;
   note?: string | null;
   status: string;
   createdAt: string;
   updatedAt: string;
+}
+
+/** Exception de prix de livraison pour une ville précise. */
+export interface DeliveryCity {
+  city: string;
+  price: string;
+}
+
+/** Réglages du site, modifiables depuis l'espace admin. */
+export interface Settings {
+  /** Prix appliqué partout au Maroc. "0" = livraison gratuite. */
+  deliveryPrice: string;
+  /** Livraison offerte à partir de ce montant. "" = désactivé. */
+  freeDeliveryFrom: string;
+  /** Villes qui ne suivent pas le prix par défaut. */
+  deliveryCities: DeliveryCity[];
 }
 
 export interface AdminUser {
