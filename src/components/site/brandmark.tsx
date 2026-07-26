@@ -1,55 +1,62 @@
-"use client";
-
-import { useState } from "react";
+import { AMark } from "@/components/site/mark";
 import { BRAND } from "@/lib/site";
 
-const SOURCES = ["/logo.svg", "/logo.png", "/logo.webp"];
-
 /**
- * Logotype ASSIL pour la navbar et le footer.
+ * Signature ASSIL : le monogramme A dans un disque, suivi du nom.
  *
- * Contrairement à <Logo />, il n'enferme pas l'image dans un cercle :
- * `public/logo.svg` est un logotype large (ratio ≈ 4.9:1) et le recadrer
- * en rond le détruit. Ici la hauteur est imposée, la largeur suit.
- *
- * Si aucun fichier ne charge, on retombe sur le mot ASSIL en serif —
- * jamais sur un carré vide.
+ * L'écart entre le disque et le nom est volontairement proportionnel au
+ * diamètre (0,34×) et non fixé en centimètres : un logo n'a pas de taille
+ * physique sur un écran, et un écart figé à 1,5 cm dissocierait les deux
+ * éléments au lieu de les lier. Ici ils restent lus comme un seul bloc,
+ * quelle que soit la taille d'affichage.
  */
 export function Brandmark({
-  height = 40,
+  size = 48,
+  showName = true,
+  variant = "light",
   className = "",
-  invert = false,
 }: {
-  /** hauteur en px du logotype */
-  height?: number;
+  /** diamètre du disque en px — tout le reste s'y accorde */
+  size?: number;
+  showName?: boolean;
+  /** "light" : sur fond clair · "dark" : sur fond sombre */
+  variant?: "light" | "dark";
   className?: string;
-  /** true sur fond sombre : le logotype est éclairci */
-  invert?: boolean;
 }) {
-  const [i, setI] = useState(0);
-  const exhausted = i >= SOURCES.length;
-
-  if (exhausted) {
-    return (
-      <span
-        className={`font-serif font-semibold tracking-[0.34em] leading-none ${className}`}
-        style={{ fontSize: height * 0.62 }}
-      >
-        {BRAND}
-      </span>
-    );
-  }
+  const dark = variant === "dark";
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={SOURCES[i]}
-      alt={BRAND}
-      onError={() => setI((v) => v + 1)}
-      style={{ height }}
-      className={`w-auto object-contain shrink-0 ${
-        invert ? "invert brightness-200" : ""
-      } ${className}`}
-    />
+    <span
+      className={`inline-flex items-center ${className}`}
+      style={{ gap: Math.round(size * 0.34) }}
+    >
+      <span
+        className={`rounded-full flex items-center justify-center shrink-0 ${
+          dark ? "bg-[#f7f4ee]" : "bg-[#171717]"
+        }`}
+        style={{ width: size, height: size }}
+      >
+        <AMark
+          className={dark ? "text-[#171717]" : "text-white"}
+          style={{ width: size * 0.46, height: size * 0.46 }}
+        />
+      </span>
+
+      {showName && (
+        <span
+          className={`font-serif font-semibold leading-none ${
+            dark ? "text-[#f7f4ee]" : "text-[#171717]"
+          }`}
+          style={{
+            fontSize: Math.round(size * 0.56),
+            letterSpacing: "0.24em",
+            // compense l'espacement ajouté après la dernière lettre
+            marginRight: `-0.24em`,
+          }}
+        >
+          {BRAND}
+        </span>
+      )}
+    </span>
   );
 }

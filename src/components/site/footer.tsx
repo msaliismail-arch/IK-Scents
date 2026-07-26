@@ -23,7 +23,7 @@ export function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10">
           {/* Marque */}
           <div className="lg:col-span-5">
-            <Brandmark height={52} invert />
+            <Brandmark size={52} variant="dark" />
             <p className="mt-7 font-serif text-xl font-light leading-snug text-[#f7f4ee]/80 max-w-xs">
               Une signature olfactive accessible.
             </p>

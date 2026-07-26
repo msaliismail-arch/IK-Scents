@@ -45,8 +45,8 @@ export function Navbar() {
             aria-label="ASSIL — accueil"
             className="shrink-0 mr-4 lg:mr-14 transition-opacity duration-300 hover:opacity-75"
           >
-            <Brandmark height={42} className="lg:hidden" />
-            <Brandmark height={54} className="hidden lg:block" />
+            <Brandmark size={40} className="lg:hidden" />
+            <Brandmark size={54} className="hidden lg:inline-flex" />
           </Link>
 
           {/* Navigation + CTA, groupés à droite */}
@@ -95,7 +95,7 @@ export function Navbar() {
         }`}
       >
         <div className="h-[76px] px-4 flex items-center justify-between border-b border-[#e6ded0]">
-          <Brandmark height={42} />
+          <Brandmark size={40} />
           <button
             className="w-11 h-11 flex items-center justify-center text-[#171717]"
             onClick={() => setMobileOpen(false)}
