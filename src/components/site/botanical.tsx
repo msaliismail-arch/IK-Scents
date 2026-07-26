@@ -83,47 +83,64 @@ function Corner({
   );
 }
 
-export type Spot = "tl" | "tr" | "bl" | "br" | "ml" | "mr";
+export type Spot = "tl" | "tr" | "bl" | "br" | "ml" | "mr" | "tc" | "bc";
 
+/**
+ * Tailles ×4 par rapport à la première version : les brindilles deviennent
+ * un vrai élément de direction artistique, pas un détail.
+ * Elles restent en arrière-plan (z-0) et débordent hors cadre.
+ */
 const PLACEMENTS: Record<
   Spot,
   { pos: string; size: string; flipX: boolean; flipY: boolean }
 > = {
   tl: {
-    pos: "-top-6 -left-10",
-    size: "w-36 h-36 lg:w-56 lg:h-56",
+    pos: "-top-24 -left-32 lg:-top-40 lg:-left-48",
+    size: "w-[36rem] h-[36rem] lg:w-[56rem] lg:h-[56rem]",
     flipX: true,
     flipY: false,
   },
   tr: {
-    pos: "-top-6 -right-10",
-    size: "w-36 h-36 lg:w-56 lg:h-56",
+    pos: "-top-24 -right-32 lg:-top-40 lg:-right-48",
+    size: "w-[36rem] h-[36rem] lg:w-[56rem] lg:h-[56rem]",
     flipX: false,
     flipY: false,
   },
   bl: {
-    pos: "-bottom-6 -left-10",
-    size: "w-36 h-36 lg:w-56 lg:h-56",
+    pos: "-bottom-24 -left-32 lg:-bottom-40 lg:-left-48",
+    size: "w-[36rem] h-[36rem] lg:w-[56rem] lg:h-[56rem]",
     flipX: true,
     flipY: true,
   },
   br: {
-    pos: "-bottom-6 -right-10",
-    size: "w-36 h-36 lg:w-56 lg:h-56",
+    pos: "-bottom-24 -right-32 lg:-bottom-40 lg:-right-48",
+    size: "w-[36rem] h-[36rem] lg:w-[56rem] lg:h-[56rem]",
     flipX: false,
     flipY: true,
   },
   ml: {
-    pos: "top-1/3 -left-16",
-    size: "w-24 h-24 lg:w-40 lg:h-40",
+    pos: "top-1/3 -left-40 lg:-left-56",
+    size: "w-96 h-96 lg:w-[40rem] lg:h-[40rem]",
     flipX: true,
     flipY: true,
   },
   mr: {
-    pos: "bottom-1/3 -right-16",
-    size: "w-24 h-24 lg:w-40 lg:h-40",
+    pos: "bottom-1/3 -right-40 lg:-right-56",
+    size: "w-96 h-96 lg:w-[40rem] lg:h-[40rem]",
     flipX: false,
     flipY: false,
+  },
+  tc: {
+    pos: "-top-40 left-1/2 -translate-x-1/2 lg:-top-56",
+    size: "w-96 h-96 lg:w-[40rem] lg:h-[40rem]",
+    flipX: false,
+    flipY: false,
+  },
+  bc: {
+    pos: "-bottom-40 left-1/2 -translate-x-1/2 lg:-bottom-56",
+    size: "w-96 h-96 lg:w-[40rem] lg:h-[40rem]",
+    flipX: true,
+    flipY: true,
   },
 };
 
@@ -170,7 +187,7 @@ export function FloralDivider({ className = "" }: { className?: string }) {
       className={`relative flex items-center justify-center gap-6 ${className}`}
     >
       <span className="h-px w-16 sm:w-28 bg-champagne" />
-      <span className="relative w-14 h-14 lg:w-16 lg:h-16 shrink-0 opacity-70">
+      <span className="relative w-24 h-24 lg:w-32 lg:h-32 shrink-0 opacity-70">
         <Corner className="inset-0 w-full h-full" />
       </span>
       <span className="h-px w-16 sm:w-28 bg-champagne" />

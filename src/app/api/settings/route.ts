@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { DEFAULT_SETTINGS, parseDeliveryCities } from "@/lib/delivery";
 import type { Settings } from "@/lib/types";
+import { requireAdmin } from "@/lib/guard";
 
 const SETTINGS_ID = "main";
 
@@ -40,6 +41,9 @@ export async function GET() {
 
 // PUT /api/settings — mise à jour depuis l'espace admin
 export async function PUT(request: NextRequest) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     const body = await request.json();
 

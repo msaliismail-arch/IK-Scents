@@ -13,7 +13,6 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          console.log("Missing credentials");
           return null;
         }
 
@@ -22,7 +21,6 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          console.log("User not found:", credentials.email);
           return null;
         }
 
@@ -32,11 +30,8 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isPasswordValid) {
-          console.log("Invalid password for:", credentials.email);
           return null;
         }
-
-        console.log("Login successful:", credentials.email);
         return {
           id: user.id,
           email: user.email,
@@ -70,6 +65,17 @@ export const authOptions: NextAuthOptions = {
     signIn: "/",
     error: "/",
   },
-  secret: process.env.NEXTAUTH_SECRET || "assil-secret-key-2026-parfums",
+  /**
+   * Aucun secret de repli : une valeur codée en dur et publiée sur GitHub
+   * permettrait à n'importe qui de fabriquer un jeton de session admin.
+   * NEXTAUTH_SECRET est obligatoire (voir .env.example).
+   */
+  secret: process.env.NEXTAUTH_SECRET,
   debug: false,
 };
+
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error(
+    "NEXTAUTH_SECRET est manquant. Ajoutez-le dans .env — voir .env.example."
+  );
+}

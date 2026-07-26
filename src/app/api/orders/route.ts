@@ -6,6 +6,7 @@ import {
   parseDeliveryCities,
 } from "@/lib/delivery";
 import type { Settings } from "@/lib/types";
+import { requireAdmin } from "@/lib/guard";
 
 /**
  * Les frais de livraison sont TOUJOURS recalculés côté serveur à partir des
@@ -27,6 +28,9 @@ async function loadSettings(): Promise<Settings> {
 
 // GET /api/orders - List all orders (admin)
 export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     const orders = await db.order.findMany({
       orderBy: { createdAt: "desc" },

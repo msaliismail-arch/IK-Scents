@@ -21,7 +21,7 @@ function Hero() {
       id="hero"
       className="relative bg-background overflow-hidden pt-[96px] lg:pt-[104px]"
     >
-      <SideFlorals spots={["tl", "br", "mr"]} opacity="opacity-45" />
+      <SideFlorals spots={["tl", "tr", "br", "mr", "bl"]} opacity="opacity-40" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 pb-16 lg:pb-24">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
@@ -114,7 +114,7 @@ function Experience() {
       id="experience"
       className="relative bg-surface-alt border-y border-champagne overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      <SideFlorals spots={["tl", "tr", "bl", "br"]} opacity="opacity-45" />
+      <SideFlorals spots={["tl", "tr", "bl", "br", "ml", "mr"]} opacity="opacity-40" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-end mb-14 lg:mb-20">
@@ -277,7 +277,7 @@ function Collection({ perfumes }: { perfumes: Perfume[] }) {
       id="collection"
       className="relative bg-background overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      <SideFlorals spots={["tl", "br", "ml"]} opacity="opacity-40" />
+      <SideFlorals spots={["tl", "tr", "bl", "br", "ml", "mr"]} opacity="opacity-35" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-end mb-16 lg:mb-24">
@@ -374,7 +374,7 @@ function Concept() {
       id="about"
       className="relative bg-surface-alt border-y border-champagne overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      <SideFlorals spots={["tl", "tr", "bl", "br"]} opacity="opacity-45" />
+      <SideFlorals spots={["tl", "tr", "bl", "br", "ml", "mr"]} opacity="opacity-40" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -568,7 +568,7 @@ function Contact() {
       id="contact"
       className="relative bg-background overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      <SideFlorals spots={["tl", "tr", "bl", "br"]} opacity="opacity-45" />
+      <SideFlorals spots={["tl", "tr", "bl", "br", "ml", "mr"]} opacity="opacity-40" />
 
       <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
         <Reveal>
@@ -626,7 +626,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetch("/api/seed", { method: "POST" }).catch(() => {});
     fetchPerfumes();
   }, [fetchPerfumes]);
 

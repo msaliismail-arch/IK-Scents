@@ -53,18 +53,19 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      // Authentification unique via NextAuth : c'est lui qui vérifie le mot de
+      // passe et pose le cookie de session lu ensuite par les routes API.
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
       });
-      const data = await res.json();
-      if (!res.ok || data.error) {
+
+      if (!res || res.error) {
         setError("Identifiants incorrects");
-        setLoading(false);
         return;
       }
-      await signIn("credentials", { email, password, redirect: false });
+
       onLogin();
     } catch {
       setError("Erreur de connexion");

@@ -8,7 +8,12 @@ ne sont pas passées, le site ne démarrera pas.**
 ```
 npx prisma db push
 npx prisma generate
+npm run set-admin
 ```
+
+`set-admin` crée ou met à jour ton compte administrateur à partir des
+identifiants écrits dans `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`).
+Le mot de passe n'est jamais stocké en clair — seul son hachage part en base.
 
 Ensuite seulement, passe à l'étape 1.
 
@@ -104,7 +109,49 @@ commande et visible dans l'onglet **Commandes**.
 
 ---
 
-## 5. Si le design ne te plaît pas
+## 5. Sécurité — ce qui a été corrigé
+
+| Faille | Avant | Maintenant |
+|---|---|---|
+| **Secret de session** | Valeur codée en dur dans le code publié sur GitHub — n'importe qui pouvait fabriquer un jeton admin | `NEXTAUTH_SECRET` obligatoire, dans `.env` non versionné. L'app refuse de démarrer sans lui |
+| **Données clients** | `GET /api/orders` public : noms, téléphones, adresses de tous les clients | Réservé à l'admin connecté |
+| **Catalogue** | Créer / modifier / supprimer un parfum sans être connecté | Réservé à l'admin connecté |
+| **Frais de livraison** | Modifiables par n'importe qui | Réservé à l'admin connecté |
+| **Upload d'images** | Ouvert à tous — n'importe qui pouvait remplir ton stockage Supabase | Réservé à l'admin connecté |
+| **Brouillons** | `?all=true` exposait les parfums non publiés | Réservé à l'admin connecté |
+| **`/api/seed`** | Appelée publiquement à chaque visite, créait un admin avec un mot de passe par défaut connu | Désactivée, remplacée par `npm run set-admin` |
+| **`/api/auth/login`** | Vérifiait les mots de passe sans limite de tentatives (bruteforce) | Désactivée, tout passe par NextAuth |
+| **Journaux** | Les emails de connexion étaient écrits dans les logs | Supprimés |
+
+### Gérer les comptes admin
+
+```
+npm run admins              # liste les comptes admin en base
+npm run admins -- --purge   # supprime tous les admins sauf ADMIN_EMAIL
+npm run set-admin           # crée ou met à jour le compte de .env
+```
+
+⚠️ **Un ancien compte `admin@assil.ma` existe peut-être encore.** Son mot de
+passe par défaut était écrit dans le code publié : n'importe qui l'ayant lu
+peut se connecter. Vérifie avec `npm run admins` et supprime-le.
+
+### Ce qu'il te reste à faire
+
+1. **Change le mot de passe admin.** Celui d'aujourd'hui a été écrit dans une
+   conversation — considère-le comme connu. Modifie `ADMIN_PASSWORD` dans
+   `.env`, puis relance `npm run set-admin`.
+2. **En production**, ajoute les mêmes variables (`NEXTAUTH_SECRET`,
+   `NEXTAUTH_URL` avec l'URL réelle en https, `ADMIN_*`) dans les réglages de
+   ton hébergeur. **Ne mets jamais `.env` sur GitHub** — il est déjà ignoré.
+3. **Vérifie que le dépôt est privé** si les clés Supabase ont déjà été
+   poussées un jour.
+
+⚠️ Il n'y a **pas encore de limite de tentatives de connexion**. Sur un site à
+faible trafic le risque est modéré, mais c'est le prochain point à traiter.
+
+---
+
+## 6. Si le design ne te plaît pas
 
 Pour revenir à la version d'avant :
 
@@ -114,7 +161,7 @@ git checkout src/app/page.tsx src/app/globals.css src/components/site/
 
 ---
 
-## 6. Publier en ligne
+## 7. Publier en ligne
 
 ```
 git add .

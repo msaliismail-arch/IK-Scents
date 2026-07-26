@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/guard";
 
 type SizeInput = { label?: string; price?: string };
 
@@ -18,7 +19,14 @@ function cleanSizes(sizes: unknown): { label: string; price: string; position: n
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const all = searchParams.get("all") === "true";
+
+    // ?all=true expose aussi les brouillons : réservé à l'admin connecté.
+    let all = false;
+    if (searchParams.get("all") === "true") {
+      const denied = await requireAdmin();
+      if (denied) return denied;
+      all = true;
+    }
 
     const perfumes = await db.perfume.findMany({
       where: all ? {} : { published: true },
@@ -38,6 +46,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/perfumes - Create a perfume with dynamic sizes
 export async function POST(request: NextRequest) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     const body = await request.json();
     const { name, description, image, published } = body;

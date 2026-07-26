@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from "@/lib/guard";
 
 // Initialise la connexion à Supabase
 const supabase = createClient(
@@ -9,6 +10,9 @@ const supabase = createClient(
 );
 
 export async function POST(request: NextRequest) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     const formData = await request.formData();
     const file = formData.get("image") as File | null; // J'ai gardé "image" comme dans ton code
