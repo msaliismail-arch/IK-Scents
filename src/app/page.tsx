@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ArrowRight, Instagram, Package, ShoppingBag } from "lucide-react";
+import { ArrowRight, Bell, Instagram, Package, ShoppingBag } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { Img } from "@/components/site/media";
@@ -10,6 +10,7 @@ import { SideFlorals, FloralDivider } from "@/components/site/botanical";
 import { Reveal, RevealLines, Parallax } from "@/components/site/reveal";
 import { PerfumeRequestModal } from "@/components/site/perfume-request-modal";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
+import { resolveAvailability } from "@/lib/availability";
 import type { Perfume } from "@/lib/types";
 
 /* ══════════════════════════════════════════════
@@ -216,8 +217,17 @@ function ProductFrame({
   );
 }
 
-function PerfumeRow({ perfume, index }: { perfume: Perfume; index: number }) {
+function PerfumeRow({
+  perfume,
+  index,
+  onRequest,
+}: {
+  perfume: Perfume;
+  index: number;
+  onRequest: () => void;
+}) {
   const [imgError, setImgError] = useState(false);
+  const stock = resolveAvailability(perfume.availability);
   const imageUrl = resolveImg(perfume.image);
   const sizes = perfume.sizes ?? [];
   const from = sizes.length
@@ -258,11 +268,29 @@ function PerfumeRow({ perfume, index }: { perfume: Perfume; index: number }) {
           <Link href={`/commander/${perfume.id}`}>{perfume.name}</Link>
         </h3>
 
-        {perfume.family && (
-          <p className="mt-4 text-[11px] font-semibold tracking-[0.26em] uppercase text-[#8a7a63]">
-            {perfume.family}
-          </p>
-        )}
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <span
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 text-[10px] font-bold tracking-[0.2em] uppercase border ${
+              stock.orderable
+                ? "border-[#171717] bg-[#171717] text-white"
+                : "border-champagne bg-white text-[#6b6255]"
+            }`}
+          >
+            <span
+              aria-hidden="true"
+              className={`w-1.5 h-1.5 rounded-full ${
+                stock.orderable ? "bg-white" : "bg-[#8a7a63]"
+              }`}
+            />
+            {stock.badge}
+          </span>
+
+          {perfume.family && (
+            <span className="text-[11px] font-semibold tracking-[0.26em] uppercase text-[#8a7a63]">
+              {perfume.family}
+            </span>
+          )}
+        </div>
 
         <span className="rule my-6" />
 
@@ -285,16 +313,26 @@ function PerfumeRow({ perfume, index }: { perfume: Perfume; index: number }) {
               Formats disponibles
             </span>
             <div className="flex flex-wrap gap-2.5">
-              {sizes.map((s, i) => (
-                <Link
-                  key={s.id ?? i}
-                  href={`/commander/${perfume.id}?taille=${encodeURIComponent(s.label)}`}
-                  className="px-5 py-3 border border-champagne bg-white text-[14px] text-foreground hover:border-[#171717] transition-colors duration-500"
-                >
-                  <span className="font-semibold uppercase">{s.label}</span>
-                  <span className="text-[#6b6255]"> · {s.price} MAD</span>
-                </Link>
-              ))}
+              {sizes.map((s, i) =>
+                stock.orderable ? (
+                  <Link
+                    key={s.id ?? i}
+                    href={`/commander/${perfume.id}?taille=${encodeURIComponent(s.label)}`}
+                    className="px-5 py-3 border border-champagne bg-white text-[14px] text-foreground hover:border-[#171717] transition-colors duration-500"
+                  >
+                    <span className="font-semibold uppercase">{s.label}</span>
+                    <span className="text-[#6b6255]"> · {s.price} MAD</span>
+                  </Link>
+                ) : (
+                  <span
+                    key={s.id ?? i}
+                    className="px-5 py-3 border border-champagne bg-transparent text-[14px] text-[#6b6255]"
+                  >
+                    <span className="font-semibold uppercase">{s.label}</span>
+                    <span> · {s.price} MAD</span>
+                  </span>
+                )
+              )}
             </div>
           </div>
         )}
@@ -308,19 +346,43 @@ function PerfumeRow({ perfume, index }: { perfume: Perfume; index: number }) {
           </p>
         )}
 
-        <Link
-          href={`/commander/${perfume.id}`}
-          className="mt-8 inline-flex items-center justify-center gap-3 bg-[#171717] text-white px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#3a3a3a]"
-        >
-          <ShoppingBag className="w-4 h-4" />
-          Commander
-        </Link>
+        {stock.orderable ? (
+          <Link
+            href={`/commander/${perfume.id}`}
+            className="mt-8 inline-flex items-center justify-center gap-3 bg-[#171717] text-white px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#3a3a3a]"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            Commander
+          </Link>
+        ) : (
+          <div className="mt-8">
+            <button
+              type="button"
+              onClick={onRequest}
+              className="inline-flex items-center justify-center gap-3 border border-[#171717] text-[#171717] px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#171717] hover:text-white"
+            >
+              <Bell className="w-4 h-4" />
+              {stock.cta}
+            </button>
+            <p className="mt-3 text-[13px] text-[#6b6255] font-light">
+              {stock.value === "bientot"
+                ? "Ce parfum arrive bientôt. Laissez-nous vos coordonnées, nous vous prévenons dès sa mise en ligne."
+                : "Ce parfum n’est plus en stock. Laissez-nous vos coordonnées, nous vous prévenons dès son retour."}
+            </p>
+          </div>
+        )}
       </Reveal>
     </article>
   );
 }
 
-function Collection({ perfumes }: { perfumes: Perfume[] }) {
+function Collection({
+  perfumes,
+  onRequest,
+}: {
+  perfumes: Perfume[];
+  onRequest: () => void;
+}) {
   return (
     <section
       id="collection"
@@ -378,7 +440,7 @@ function Collection({ perfumes }: { perfumes: Perfume[] }) {
                     <FloralDivider className="my-16 lg:my-24" />
                   </Reveal>
                 )}
-                <PerfumeRow perfume={p} index={i} />
+                <PerfumeRow perfume={p} index={i} onRequest={onRequest} />
               </div>
             ))}
           </div>
@@ -589,7 +651,7 @@ export default function Home() {
       <main className="flex-1">
         <Hero onRequest={openRequest} />
         <Steps />
-        <Collection perfumes={perfumes} />
+        <Collection perfumes={perfumes} onRequest={openRequest} />
         <Concept />
         <Signature />
         <Contact onRequest={openRequest} />

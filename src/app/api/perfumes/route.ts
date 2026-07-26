@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guard";
+import {
+  DEFAULT_AVAILABILITY,
+  resolveAvailability,
+} from "@/lib/availability";
 
 type SizeInput = { label?: string; price?: string };
 
@@ -51,7 +55,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, description, image, published, family, notes } = body;
+    const { name, description, image, published, family, notes, availability } =
+      body;
     const sizes = cleanSizes(body.sizes);
 
     if (!name || !description || !image || sizes.length === 0) {
@@ -68,6 +73,9 @@ export async function POST(request: NextRequest) {
         image,
         family: String(family ?? "").trim(),
         notes: String(notes ?? "").trim(),
+        availability: availability
+          ? resolveAvailability(availability).value
+          : DEFAULT_AVAILABILITY,
         published: published ?? false,
         sizes: { create: sizes },
       },

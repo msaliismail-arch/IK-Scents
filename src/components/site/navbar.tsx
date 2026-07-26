@@ -45,8 +45,18 @@ export function Navbar() {
             aria-label="ASSIL — accueil"
             className="shrink-0 mr-4 lg:mr-14 transition-opacity duration-300 hover:opacity-75"
           >
-            <Brandmark size={40} className="lg:hidden" />
-            <Brandmark size={54} className="hidden lg:inline-flex" />
+            {/*
+              La classe d'affichage est portée par un conteneur, jamais par
+              <Brandmark> : celui-ci est déjà `inline-flex`, et poser `hidden`
+              dessus donne deux utilitaires de display concurrents — le logo
+              s'affichait alors en double.
+            */}
+            <span className="block lg:hidden">
+              <Brandmark size={40} showMark={false} />
+            </span>
+            <span className="hidden lg:block">
+              <Brandmark size={56} showMark={false} />
+            </span>
           </Link>
 
           {/* Navigation + CTA, groupés à droite */}
@@ -95,7 +105,7 @@ export function Navbar() {
         }`}
       >
         <div className="h-[76px] px-4 flex items-center justify-between border-b border-[#e6ded0]">
-          <Brandmark size={40} />
+          <Brandmark size={40} showMark={false} />
           <button
             className="w-11 h-11 flex items-center justify-center text-[#171717]"
             onClick={() => setMobileOpen(false)}

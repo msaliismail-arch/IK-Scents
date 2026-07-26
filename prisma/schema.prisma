@@ -27,6 +27,8 @@ model Perfume {
   family      String   @default("")
   /// Notes principales, ex. "Bergamote · Rose · Ambre".
   notes       String   @default("")
+  /// "disponible" | "bientot" | "rupture" — pilote l'affichage et le bouton Commander.
+  availability String  @default("disponible")
   published   Boolean  @default(false)
   sizes       Size[]
   createdAt   DateTime @default(now())

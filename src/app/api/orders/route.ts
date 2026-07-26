@@ -7,6 +7,7 @@ import {
 } from "@/lib/delivery";
 import type { Settings } from "@/lib/types";
 import { requireAdmin } from "@/lib/guard";
+import { resolveAvailability } from "@/lib/availability";
 
 /**
  * Les frais de livraison sont TOUJOURS recalculés côté serveur à partir des
@@ -67,6 +68,21 @@ export async function POST(request: NextRequest) {
         { error: "Nom, téléphone, adresse et produit sont requis" },
         { status: 400 }
       );
+    }
+
+    // Un parfum épuisé ou pas encore sorti ne doit jamais être commandable,
+    // même en appelant l'API directement.
+    if (perfumeId) {
+      const ref = await db.perfume.findUnique({
+        where: { id: String(perfumeId) },
+        select: { availability: true, published: true },
+      });
+      if (ref && (!ref.published || !resolveAvailability(ref.availability).orderable)) {
+        return NextResponse.json(
+          { error: "Ce parfum n'est pas disponible à la commande." },
+          { status: 409 }
+        );
+      }
     }
 
     const qty = Number.parseInt(quantity, 10);

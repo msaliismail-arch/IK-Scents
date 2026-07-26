@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { resolveImg } from "@/lib/site";
 import { DEFAULT_SETTINGS, computeDelivery } from "@/lib/delivery";
+import { resolveAvailability } from "@/lib/availability";
 import type { Perfume, Settings, Size } from "@/lib/types";
 
 export default function CommanderPage() {
@@ -87,6 +88,7 @@ export default function CommanderPage() {
     };
   }, []);
 
+  const stock = resolveAvailability(perfume?.availability);
   const sizes: Size[] = perfume?.sizes ?? [];
   const selectedSize = sizes.find((s) => s.label === sizeLabel) ?? sizes[0];
   const unitPrice = Number.parseFloat(selectedSize?.price ?? "0") || 0;
@@ -153,6 +155,27 @@ export default function CommanderPage() {
               <Link
                 href="/#collection"
                 className="inline-block mt-4 text-gold hover:underline"
+              >
+                Voir la collection
+              </Link>
+            </div>
+          ) : !stock.orderable ? (
+            <div className="max-w-md mx-auto text-center py-16">
+              <h1 className="text-2xl font-serif text-foreground mb-3">
+                {perfume.name}
+              </h1>
+              <p className="text-muted-foreground font-light leading-relaxed">
+                {stock.value === "bientot"
+                  ? "Ce parfum n'est pas encore en ligne. Il arrive bientôt."
+                  : "Ce parfum n'est plus en stock pour le moment."}
+              </p>
+              <p className="text-muted-foreground font-light leading-relaxed mt-3">
+                Signalez-nous votre intérêt depuis la page d'accueil : nous vous
+                contacterons dès qu'il sera disponible.
+              </p>
+              <Link
+                href="/#collection"
+                className="btn-gold inline-block mt-7 px-6 py-3 font-semibold tracking-wider uppercase text-sm rounded-sm"
               >
                 Voir la collection
               </Link>

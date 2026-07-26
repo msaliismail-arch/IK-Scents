@@ -14,6 +14,8 @@ export interface Perfume {
   family?: string;
   /** Notes principales, ex. "Bergamote · Rose · Ambre". */
   notes?: string;
+  /** État du stock. Voir AVAILABILITY dans lib/availability.ts. */
+  availability?: string;
   published: boolean;
   sizes: Size[];
   createdAt: string;

@@ -13,12 +13,15 @@ import { BRAND } from "@/lib/site";
 export function Brandmark({
   size = 48,
   showName = true,
+  showMark = true,
   variant = "light",
   className = "",
 }: {
   /** diamètre du disque en px — tout le reste s'y accorde */
   size?: number;
   showName?: boolean;
+  /** false : uniquement le nom, sans le disque */
+  showMark?: boolean;
   /** "light" : sur fond clair · "dark" : sur fond sombre */
   variant?: "light" | "dark";
   className?: string;
@@ -28,17 +31,19 @@ export function Brandmark({
   return (
     <span
       className={`inline-flex items-center ${className}`}
-      style={{ gap: Math.round(size * 0.34) }}
+      style={{ gap: showMark ? Math.round(size * 0.34) : 0 }}
     >
       {/*
         Le A est découpé dans le disque — un vrai trou, pas une lettre posée
         dessus. Le fond de la page se voit au travers, donc le monogramme
         reste juste quel que soit ce qu'il y a derrière.
       */}
-      <ADisc
-        className={`shrink-0 ${dark ? "text-[#f7f4ee]" : "text-[#171717]"}`}
-        style={{ width: size, height: size }}
-      />
+      {showMark && (
+        <ADisc
+          className={`shrink-0 ${dark ? "text-[#f7f4ee]" : "text-[#171717]"}`}
+          style={{ width: size, height: size }}
+        />
+      )}
 
       {showName && (
         <span

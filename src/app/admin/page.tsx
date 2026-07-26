@@ -30,6 +30,10 @@ import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/site/logo";
 import { resolveImg } from "@/lib/site";
 import { DEFAULT_SETTINGS } from "@/lib/delivery";
+import {
+  AVAILABILITY_OPTIONS,
+  DEFAULT_AVAILABILITY,
+} from "@/lib/availability";
 import type {
   Perfume,
   Order,
@@ -187,6 +191,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     image: "",
     family: "",
     notes: "",
+    availability: DEFAULT_AVAILABILITY as string,
     published: true,
   };
   const [formData, setFormData] = useState(emptyForm);
@@ -383,6 +388,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       image: perfume.image,
       family: perfume.family ?? "",
       notes: perfume.notes ?? "",
+      availability: perfume.availability ?? DEFAULT_AVAILABILITY,
       published: perfume.published,
     });
     setSizes(
@@ -864,6 +870,36 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       Séparez les notes par « · ».
                     </p>
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground text-sm">
+                    Disponibilité
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {AVAILABILITY_OPTIONS.map((o) => (
+                      <button
+                        key={o.value}
+                        type="button"
+                        onClick={() =>
+                          setFormData({ ...formData, availability: o.value })
+                        }
+                        className={`px-4 py-2 text-sm border rounded-sm transition-colors ${
+                          formData.availability === o.value
+                            ? "border-foreground bg-foreground text-background font-medium"
+                            : "border-border text-muted-foreground hover:border-gold-soft"
+                        }`}
+                      >
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground/70 text-xs">
+                    « Bientôt disponible » et « Épuisé » désactivent le bouton
+                    Commander sur le site. Le client est alors invité à laisser
+                    sa demande — annoncer un stock qu&apos;on n&apos;a pas coûte
+                    plus cher qu&apos;une vente manquée.
+                  </p>
                 </div>
 
                 <div className="space-y-2">
