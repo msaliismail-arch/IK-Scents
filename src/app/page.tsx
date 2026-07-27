@@ -306,10 +306,11 @@ function PerfumeRow({
           )}
 
           {perfume.family && (
-            <span className="text-[11px] font-semibold tracking-[0.26em] uppercase text-[#8a7a63]">
+            <span className="inline-flex items-center px-3.5 py-1.5 text-[10px] font-bold tracking-[0.2em] uppercase border border-bordeaux bg-bordeaux-soft text-bordeaux">
               {perfume.family}
             </span>
           )}
+
         </div>
 
         <span className="rule my-6" />
@@ -320,7 +321,7 @@ function PerfumeRow({
 
         {perfume.notes && (
           <p className="mt-4 text-[14px] text-[#4a4236] font-light leading-[1.8] max-w-lg">
-            <span className="text-[10px] font-semibold tracking-[0.24em] uppercase text-[#8a7a63] block mb-1.5">
+            <span className="text-[10px] font-bold tracking-[0.24em] uppercase text-bordeaux block mb-1.5">
               Notes principales
             </span>
             {perfume.notes}
@@ -329,27 +330,23 @@ function PerfumeRow({
 
         {sizes.length > 0 && (
           <div className="mt-8">
-            <span className="block text-[10px] font-semibold tracking-[0.26em] uppercase text-[#8a7a63] mb-3">
+            <span className="block text-[10px] font-bold tracking-[0.26em] uppercase text-bordeaux mb-3">
               Formats disponibles
             </span>
             <div className="flex flex-wrap gap-2.5">
               {priced.map((s, i) => {
                 const contenu = (
                   <>
-                    <span className="font-semibold uppercase">{s.label}</span>
-                    <span className="text-[#6b6255]"> · </span>
+                    <span className="font-semibold uppercase text-foreground">
+                      {s.label}
+                    </span>
+                    <span className="text-[#a89c88]"> · </span>
                     {s.view.hasDiscount && (
                       <span className="text-[#a89c88] line-through mr-1.5">
                         {s.view.original}
                       </span>
                     )}
-                    <span
-                      className={
-                        s.view.hasDiscount
-                          ? "font-semibold text-foreground"
-                          : "text-[#6b6255]"
-                      }
-                    >
+                    <span className="font-bold text-bordeaux">
                       {s.view.final} MAD
                     </span>
                   </>
@@ -359,14 +356,14 @@ function PerfumeRow({
                   <Link
                     key={s.id ?? i}
                     href={`/commander/${perfume.id}?taille=${encodeURIComponent(s.label)}`}
-                    className="px-5 py-3 border border-champagne bg-white text-[14px] text-foreground hover:border-[#171717] transition-colors duration-500"
+                    className="size-chip px-5 py-3 text-[14px]"
                   >
                     {contenu}
                   </Link>
                 ) : (
                   <span
                     key={s.id ?? i}
-                    className="px-5 py-3 border border-champagne bg-transparent text-[14px] text-[#6b6255]"
+                    className="px-5 py-3 border border-champagne bg-transparent text-[14px] opacity-70"
                   >
                     {contenu}
                   </span>
@@ -379,7 +376,7 @@ function PerfumeRow({
         {from && Number.isFinite(from) && (
           <p className="mt-6 text-[14px] text-[#6b6255] font-light">
             À partir de{" "}
-            <span className="font-serif text-[1.9rem] font-medium text-foreground align-middle">
+            <span className="font-serif text-[1.9rem] font-medium text-bordeaux align-middle">
               {from} MAD
             </span>
           </p>
@@ -398,7 +395,7 @@ function PerfumeRow({
             <button
               type="button"
               onClick={onRequest}
-              className="inline-flex items-center justify-center gap-3 border border-[#171717] text-[#171717] px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#171717] hover:text-white"
+              className="btn-bordeaux inline-flex items-center justify-center gap-3 px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase"
             >
               <Bell className="w-4 h-4" />
               {stock.cta}

@@ -127,6 +127,12 @@
   --surface-alt: #efe8dc;
   --surface-white: #ffffff;
   --champagne: #d8cbb8;
+  /* Accent bordeaux — réservé aux informations produit : famille olfactive,
+     notes, prix et bouton « Me prévenir ». Assez sombre pour rester lisible
+     sur crème, assez chaud pour ne pas trancher avec la palette. */
+  --bordeaux: #6e2639;
+  --bordeaux-dark: #551c2b;
+  --bordeaux-soft: #f6ecef;
   --gold: #8a7a63;
   --gold-strong: #5c5344;
   --gold-soft: #efe8dc;
@@ -316,6 +322,39 @@
 
 .bg-champagne {
   background-color: var(--champagne);
+}
+
+/* ===== Accent bordeaux (informations produit) ===== */
+.text-bordeaux {
+  color: var(--bordeaux);
+}
+.border-bordeaux {
+  border-color: var(--bordeaux);
+}
+.bg-bordeaux-soft {
+  background-color: var(--bordeaux-soft);
+}
+.btn-bordeaux {
+  border: 1px solid var(--bordeaux);
+  color: var(--bordeaux);
+  background: transparent;
+  transition: background-color 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-bordeaux:hover {
+  background: var(--bordeaux);
+  color: #ffffff;
+}
+/* Pastille de format : le prix passe en bordeaux au survol du cadre */
+.size-chip {
+  border: 1px solid var(--champagne);
+  background: #ffffff;
+  transition: border-color 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.size-chip:hover {
+  border-color: var(--bordeaux);
+  background: var(--bordeaux-soft);
 }
 .border-champagne {
   border-color: var(--champagne);

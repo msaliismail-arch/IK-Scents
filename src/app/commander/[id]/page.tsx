@@ -222,15 +222,28 @@ export default function CommanderPage() {
                       {sexe}
                     </span>
                   )}
+                  {perfume.family && (
+                    <span className="px-2.5 py-1 text-[11px] font-semibold tracking-wider uppercase border border-bordeaux bg-bordeaux-soft text-bordeaux rounded-sm">
+                      {perfume.family}
+                    </span>
+                  )}
                   {priceView.hasDiscount && (
                     <span className="px-2.5 py-1 text-[11px] font-semibold tracking-wider uppercase border border-gold-border bg-gold-soft text-foreground rounded-sm">
                       −{priceView.percent}%
                     </span>
                   )}
                 </div>
-                <p className="text-muted-foreground font-light mt-2 leading-relaxed">
+                <p className="text-muted-foreground font-light mt-3 leading-relaxed">
                   {perfume.description}
                 </p>
+                {perfume.notes && (
+                  <p className="mt-4 text-sm text-muted-foreground font-light leading-relaxed">
+                    <span className="block text-[10px] font-bold tracking-[0.24em] uppercase text-bordeaux mb-1.5">
+                      Notes principales
+                    </span>
+                    {perfume.notes}
+                  </p>
+                )}
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
@@ -254,10 +267,10 @@ export default function CommanderPage() {
                         type="button"
                         key={i}
                         onClick={() => setSizeLabel(s.label)}
-                        className={`px-3 py-2 text-xs border transition-all duration-200 rounded-sm ${
+                        className={`px-3.5 py-2.5 text-[13px] border transition-colors duration-300 rounded-sm ${
                           s.label === sizeLabel
-                            ? "border-gold-soft bg-gold-soft text-gold"
-                            : "border-border text-muted-foreground hover:border-gold-soft"
+                            ? "border-bordeaux bg-bordeaux-soft text-bordeaux font-semibold"
+                            : "border-border text-muted-foreground hover:border-bordeaux"
                         }`}
                       >
                         {s.label} ·{" "}
@@ -425,7 +438,7 @@ export default function CommanderPage() {
                     <span className="text-muted-foreground text-sm">
                       Total (paiement à la livraison)
                     </span>
-                    <span className="text-gold font-serif text-lg">
+                    <span className="text-bordeaux font-serif text-xl font-medium">
                       {subtotal > 0 ? `${total} MAD` : "—"}
                     </span>
                   </div>
