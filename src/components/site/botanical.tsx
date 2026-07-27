@@ -186,11 +186,11 @@ export function FloralDivider({ className = "" }: { className?: string }) {
       aria-hidden="true"
       className={`relative flex items-center justify-center gap-6 ${className}`}
     >
-      <span className="h-px w-16 sm:w-28 bg-champagne" />
+      <span className="h-[2px] flex-1 bg-[#171717]" />
       <span className="relative w-24 h-24 lg:w-32 lg:h-32 shrink-0 opacity-70">
         <Corner className="inset-0 w-full h-full" />
       </span>
-      <span className="h-px w-16 sm:w-28 bg-champagne" />
+      <span className="h-[2px] flex-1 bg-[#171717]" />
     </div>
   );
 }

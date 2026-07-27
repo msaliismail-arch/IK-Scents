@@ -218,17 +218,17 @@ export default function CommanderPage() {
                 </h1>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   {sexe && (
-                    <span className="px-2.5 py-1 text-[11px] tracking-wider uppercase border border-border text-muted-foreground rounded-sm">
+                    <span className="chip-champagne px-2.5 py-1 text-[11px] font-semibold tracking-wider uppercase rounded-sm">
                       {sexe}
                     </span>
                   )}
                   {perfume.family && (
-                    <span className="px-2.5 py-1 text-[11px] font-semibold tracking-wider uppercase border border-bordeaux bg-bordeaux-soft text-bordeaux rounded-sm">
+                    <span className="chip-bordeaux px-2.5 py-1 text-[11px] font-semibold tracking-wider uppercase rounded-sm">
                       {perfume.family}
                     </span>
                   )}
                   {priceView.hasDiscount && (
-                    <span className="px-2.5 py-1 text-[11px] font-semibold tracking-wider uppercase border border-gold-border bg-gold-soft text-foreground rounded-sm">
+                    <span className="chip-bordeaux px-2.5 py-1 text-[11px] font-bold tracking-wider uppercase rounded-sm">
                       −{priceView.percent}%
                     </span>
                   )}
@@ -267,10 +267,10 @@ export default function CommanderPage() {
                         type="button"
                         key={i}
                         onClick={() => setSizeLabel(s.label)}
-                        className={`px-3.5 py-2.5 text-[13px] border transition-colors duration-300 rounded-sm ${
+                        className={`px-4 py-2.5 text-[13px] border transition-colors duration-300 rounded-sm ${
                           s.label === sizeLabel
-                            ? "border-bordeaux bg-bordeaux-soft text-bordeaux font-semibold"
-                            : "border-border text-muted-foreground hover:border-bordeaux"
+                            ? "chip-bordeaux font-semibold"
+                            : "border-border bg-card text-muted-foreground hover:border-bordeaux"
                         }`}
                       >
                         {s.label} ·{" "}

@@ -294,19 +294,19 @@ function PerfumeRow({
           </span>
 
           {percent > 0 && stock.orderable && (
-            <span className="inline-flex items-center px-3.5 py-1.5 text-[10px] font-bold tracking-[0.2em] uppercase border border-[#8a7a63] bg-[#efe8dc] text-[#5c5344]">
+            <span className="chip-bordeaux inline-flex items-center px-3.5 py-1.5 text-[10px] font-bold tracking-[0.2em] uppercase">
               −{percent}%
             </span>
           )}
 
           {sexe && (
-            <span className="inline-flex items-center px-3.5 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase border border-champagne text-[#6b6255]">
+            <span className="chip-champagne inline-flex items-center px-3.5 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase">
               {sexe}
             </span>
           )}
 
           {perfume.family && (
-            <span className="inline-flex items-center px-3.5 py-1.5 text-[10px] font-bold tracking-[0.2em] uppercase border border-bordeaux bg-bordeaux-soft text-bordeaux">
+            <span className="chip-bordeaux inline-flex items-center px-3.5 py-1.5 text-[10px] font-bold tracking-[0.2em] uppercase">
               {perfume.family}
             </span>
           )}
@@ -337,18 +337,14 @@ function PerfumeRow({
               {priced.map((s, i) => {
                 const contenu = (
                   <>
-                    <span className="font-semibold uppercase text-foreground">
-                      {s.label}
-                    </span>
-                    <span className="text-[#a89c88]"> · </span>
+                    <span className="font-semibold uppercase">{s.label}</span>
+                    <span className="opacity-60"> · </span>
                     {s.view.hasDiscount && (
-                      <span className="text-[#a89c88] line-through mr-1.5">
+                      <span className="opacity-60 line-through mr-1.5">
                         {s.view.original}
                       </span>
                     )}
-                    <span className="font-bold text-bordeaux">
-                      {s.view.final} MAD
-                    </span>
+                    <span className="font-bold">{s.view.final} MAD</span>
                   </>
                 );
 
@@ -363,7 +359,7 @@ function PerfumeRow({
                 ) : (
                   <span
                     key={s.id ?? i}
-                    className="px-5 py-3 border border-champagne bg-transparent text-[14px] opacity-70"
+                    className="chip-bordeaux px-5 py-3 text-[14px] opacity-45"
                   >
                     {contenu}
                   </span>

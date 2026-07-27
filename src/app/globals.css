@@ -334,27 +334,46 @@
 .bg-bordeaux-soft {
   background-color: var(--bordeaux-soft);
 }
+/* Bouton et pastilles pleins : la couleur remplit le rectangle, elle ne se
+   contente pas d'en dessiner le contour — c'est ce qui les rend visibles
+   d'un coup d'œil sur un fond crème. */
 .btn-bordeaux {
-  border: 1px solid var(--bordeaux);
-  color: var(--bordeaux);
-  background: transparent;
-  transition: background-color 600ms cubic-bezier(0.22, 1, 0.36, 1),
-    color 600ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.btn-bordeaux:hover {
   background: var(--bordeaux);
   color: #ffffff;
+  border: 1px solid var(--bordeaux);
+  transition: background-color 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 500ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-/* Pastille de format : le prix passe en bordeaux au survol du cadre */
-.size-chip {
+.btn-bordeaux:hover {
+  background: var(--bordeaux-dark);
+  border-color: var(--bordeaux-dark);
+}
+
+/* Rectangle plein bordeaux — famille olfactive, remise, formats */
+.chip-bordeaux {
+  background: var(--bordeaux);
+  color: #ffffff;
+  border: 1px solid var(--bordeaux);
+}
+
+/* Rectangle plein champagne — genre, information secondaire */
+.chip-champagne {
+  background: var(--champagne);
+  color: #3f3226;
   border: 1px solid var(--champagne);
-  background: #ffffff;
-  transition: border-color 500ms cubic-bezier(0.22, 1, 0.36, 1),
-    background-color 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Pastille de format cliquable */
+.size-chip {
+  background: var(--bordeaux);
+  color: #ffffff;
+  border: 1px solid var(--bordeaux);
+  transition: background-color 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 500ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .size-chip:hover {
-  border-color: var(--bordeaux);
-  background: var(--bordeaux-soft);
+  background: var(--bordeaux-dark);
+  border-color: var(--bordeaux-dark);
 }
 .border-champagne {
   border-color: var(--champagne);
