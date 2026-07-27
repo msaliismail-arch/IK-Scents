@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { resolveImg } from "@/lib/site";
 import { DEFAULT_SETTINGS, computeDelivery } from "@/lib/delivery";
 import { resolveAvailability } from "@/lib/availability";
+import { genderLabel, priceWithDiscount } from "@/lib/pricing";
 import type { Perfume, Settings, Size } from "@/lib/types";
 
 export default function CommanderPage() {
@@ -91,8 +92,11 @@ export default function CommanderPage() {
   const stock = resolveAvailability(perfume?.availability);
   const sizes: Size[] = perfume?.sizes ?? [];
   const selectedSize = sizes.find((s) => s.label === sizeLabel) ?? sizes[0];
-  const unitPrice = Number.parseFloat(selectedSize?.price ?? "0") || 0;
+  // Même calcul que sur la page d'accueil et que côté serveur.
+  const priceView = priceWithDiscount(selectedSize?.price, perfume?.discount);
+  const unitPrice = priceView.final;
   const subtotal = unitPrice * quantity;
+  const sexe = genderLabel(perfume?.gender);
   const delivery = computeDelivery(settings, subtotal, form.city);
   const total = subtotal + delivery.price;
 
@@ -212,6 +216,18 @@ export default function CommanderPage() {
                 <h1 className="text-2xl font-serif text-foreground mt-5">
                   {perfume.name}
                 </h1>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {sexe && (
+                    <span className="px-2.5 py-1 text-[11px] tracking-wider uppercase border border-border text-muted-foreground rounded-sm">
+                      {sexe}
+                    </span>
+                  )}
+                  {priceView.hasDiscount && (
+                    <span className="px-2.5 py-1 text-[11px] font-semibold tracking-wider uppercase border border-gold-border bg-gold-soft text-foreground rounded-sm">
+                      −{priceView.percent}%
+                    </span>
+                  )}
+                </div>
                 <p className="text-muted-foreground font-light mt-2 leading-relaxed">
                   {perfume.description}
                 </p>
@@ -244,7 +260,23 @@ export default function CommanderPage() {
                             : "border-border text-muted-foreground hover:border-gold-soft"
                         }`}
                       >
-                        {s.label} · {s.price} MAD
+                        {s.label} ·{" "}
+                        {(() => {
+                          const v = priceWithDiscount(
+                            s.price,
+                            perfume?.discount
+                          );
+                          return v.hasDiscount ? (
+                            <>
+                              <span className="line-through opacity-60 mr-1">
+                                {v.original}
+                              </span>
+                              {v.final} MAD
+                            </>
+                          ) : (
+                            <>{v.final} MAD</>
+                          );
+                        })()}
                       </button>
                     ))}
                   </div>
@@ -355,6 +387,11 @@ export default function CommanderPage() {
                     </span>
                     <span className="text-foreground">
                       {subtotal > 0 ? `${subtotal} MAD` : "—"}
+                      {priceView.hasDiscount && subtotal > 0 && (
+                        <span className="text-muted-foreground/70 line-through ml-2">
+                          {priceView.original * quantity} MAD
+                        </span>
+                      )}
                     </span>
                   </div>
 

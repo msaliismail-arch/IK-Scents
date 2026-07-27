@@ -34,6 +34,7 @@ import {
   AVAILABILITY_OPTIONS,
   DEFAULT_AVAILABILITY,
 } from "@/lib/availability";
+import { GENDERS } from "@/lib/pricing";
 import type {
   Perfume,
   Order,
@@ -192,6 +193,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     family: "",
     notes: "",
     availability: DEFAULT_AVAILABILITY as string,
+    gender: "",
+    discount: "",
     published: true,
   };
   const [formData, setFormData] = useState(emptyForm);
@@ -389,6 +392,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       family: perfume.family ?? "",
       notes: perfume.notes ?? "",
       availability: perfume.availability ?? DEFAULT_AVAILABILITY,
+      gender: perfume.gender ?? "",
+      discount:
+        perfume.discount && perfume.discount !== "0" ? perfume.discount : "",
       published: perfume.published,
     });
     setSizes(
@@ -900,6 +906,58 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     sa demande — annoncer un stock qu&apos;on n&apos;a pas coûte
                     plus cher qu&apos;une vente manquée.
                   </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Pour qui
+                    </Label>
+                    <div className="flex flex-wrap gap-2">
+                      {GENDERS.map((g) => (
+                        <button
+                          key={g.value}
+                          type="button"
+                          onClick={() =>
+                            setFormData({
+                              ...formData,
+                              gender:
+                                formData.gender === g.value ? "" : g.value,
+                            })
+                          }
+                          className={`px-4 py-2 text-sm border rounded-sm transition-colors ${
+                            formData.gender === g.value
+                              ? "border-foreground bg-foreground text-background font-medium"
+                              : "border-border text-muted-foreground hover:border-gold-soft"
+                          }`}
+                        >
+                          {g.label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-muted-foreground/70 text-xs">
+                      Recliquez pour désélectionner. Rien de sélectionné = non
+                      précisé, le badge n&apos;apparaît pas.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Réduction (%)
+                    </Label>
+                    <Input
+                      value={formData.discount}
+                      onChange={(e) =>
+                        setFormData({ ...formData, discount: e.target.value })
+                      }
+                      placeholder="Ex : 20 — laissez vide pour aucune"
+                      inputMode="numeric"
+                    />
+                    <p className="text-muted-foreground/70 text-xs">
+                      Le prix barré et le prix remisé s&apos;affichent
+                      automatiquement sur tous les formats. Maximum 90 %.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="space-y-2">

@@ -16,6 +16,10 @@ export interface Perfume {
   notes?: string;
   /** État du stock. Voir AVAILABILITY dans lib/availability.ts. */
   availability?: string;
+  /** "homme" | "femme" | "unisexe" | "" */
+  gender?: string;
+  /** Remise en pourcentage, ex. "20". "0" = aucune. */
+  discount?: string;
   published: boolean;
   sizes: Size[];
   createdAt: string;

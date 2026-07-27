@@ -29,6 +29,10 @@ model Perfume {
   notes       String   @default("")
   /// "disponible" | "bientot" | "rupture" — pilote l'affichage et le bouton Commander.
   availability String  @default("disponible")
+  /// "homme" | "femme" | "unisexe" | "" (non précisé)
+  gender      String   @default("")
+  /// Remise en pourcentage, ex. "20". "0" = pas de remise.
+  discount    String   @default("0")
   published   Boolean  @default(false)
   sizes       Size[]
   createdAt   DateTime @default(now())

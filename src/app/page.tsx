@@ -11,6 +11,7 @@ import { Reveal, RevealLines, Parallax } from "@/components/site/reveal";
 import { PerfumeRequestModal } from "@/components/site/perfume-request-modal";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import { resolveAvailability } from "@/lib/availability";
+import { genderLabel, priceWithDiscount } from "@/lib/pricing";
 import type { Perfume } from "@/lib/types";
 
 /* ══════════════════════════════════════════════
@@ -228,11 +229,18 @@ function PerfumeRow({
 }) {
   const [imgError, setImgError] = useState(false);
   const stock = resolveAvailability(perfume.availability);
+  const sexe = genderLabel(perfume.gender);
   const imageUrl = resolveImg(perfume.image);
   const sizes = perfume.sizes ?? [];
-  const from = sizes.length
-    ? Math.min(...sizes.map((s) => Number.parseFloat(s.price) || Infinity))
+  // Chaque format porte son prix catalogue et son prix remisé.
+  const priced = sizes.map((s) => ({
+    ...s,
+    view: priceWithDiscount(s.price, perfume.discount),
+  }));
+  const from = priced.length
+    ? Math.min(...priced.map((s) => s.view.final || Infinity))
     : null;
+  const percent = priced[0]?.view.percent ?? 0;
   const flipped = index % 2 === 1;
 
   return (
@@ -285,6 +293,18 @@ function PerfumeRow({
             {stock.badge}
           </span>
 
+          {percent > 0 && stock.orderable && (
+            <span className="inline-flex items-center px-3.5 py-1.5 text-[10px] font-bold tracking-[0.2em] uppercase border border-[#8a7a63] bg-[#efe8dc] text-[#5c5344]">
+              −{percent}%
+            </span>
+          )}
+
+          {sexe && (
+            <span className="inline-flex items-center px-3.5 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase border border-champagne text-[#6b6255]">
+              {sexe}
+            </span>
+          )}
+
           {perfume.family && (
             <span className="text-[11px] font-semibold tracking-[0.26em] uppercase text-[#8a7a63]">
               {perfume.family}
@@ -313,26 +333,45 @@ function PerfumeRow({
               Formats disponibles
             </span>
             <div className="flex flex-wrap gap-2.5">
-              {sizes.map((s, i) =>
-                stock.orderable ? (
+              {priced.map((s, i) => {
+                const contenu = (
+                  <>
+                    <span className="font-semibold uppercase">{s.label}</span>
+                    <span className="text-[#6b6255]"> · </span>
+                    {s.view.hasDiscount && (
+                      <span className="text-[#a89c88] line-through mr-1.5">
+                        {s.view.original}
+                      </span>
+                    )}
+                    <span
+                      className={
+                        s.view.hasDiscount
+                          ? "font-semibold text-foreground"
+                          : "text-[#6b6255]"
+                      }
+                    >
+                      {s.view.final} MAD
+                    </span>
+                  </>
+                );
+
+                return stock.orderable ? (
                   <Link
                     key={s.id ?? i}
                     href={`/commander/${perfume.id}?taille=${encodeURIComponent(s.label)}`}
                     className="px-5 py-3 border border-champagne bg-white text-[14px] text-foreground hover:border-[#171717] transition-colors duration-500"
                   >
-                    <span className="font-semibold uppercase">{s.label}</span>
-                    <span className="text-[#6b6255]"> · {s.price} MAD</span>
+                    {contenu}
                   </Link>
                 ) : (
                   <span
                     key={s.id ?? i}
                     className="px-5 py-3 border border-champagne bg-transparent text-[14px] text-[#6b6255]"
                   >
-                    <span className="font-semibold uppercase">{s.label}</span>
-                    <span> · {s.price} MAD</span>
+                    {contenu}
                   </span>
-                )
-              )}
+                );
+              })}
             </div>
           </div>
         )}

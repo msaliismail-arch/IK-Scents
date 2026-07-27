@@ -8,6 +8,7 @@ import {
 import type { Settings } from "@/lib/types";
 import { requireAdmin } from "@/lib/guard";
 import { resolveAvailability } from "@/lib/availability";
+import { priceWithDiscount } from "@/lib/pricing";
 
 /**
  * Les frais de livraison sont TOUJOURS recalculés côté serveur à partir des
@@ -70,26 +71,56 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Un parfum épuisé ou pas encore sorti ne doit jamais être commandable,
-    // même en appelant l'API directement.
+    const qty = Number.parseInt(quantity, 10);
+    const safeQty = Number.isFinite(qty) && qty > 0 ? qty : 1;
+
+    // Le prix facturé vient TOUJOURS de la base, jamais du navigateur : sinon
+    // n'importe qui pourrait commander à 1 MAD. La remise est appliquée ici,
+    // donc le client paie exactement ce que le site lui a affiché.
+    let unitPrice = Number.parseFloat(String(price ?? "").replace(",", "."));
+    if (!Number.isFinite(unitPrice) || unitPrice < 0) unitPrice = 0;
+
     if (perfumeId) {
       const ref = await db.perfume.findUnique({
         where: { id: String(perfumeId) },
-        select: { availability: true, published: true },
+        select: {
+          availability: true,
+          published: true,
+          discount: true,
+          sizes: { select: { label: true, price: true } },
+        },
       });
-      if (ref && (!ref.published || !resolveAvailability(ref.availability).orderable)) {
+
+      if (!ref) {
+        return NextResponse.json(
+          { error: "Parfum introuvable." },
+          { status: 404 }
+        );
+      }
+
+      if (!ref.published || !resolveAvailability(ref.availability).orderable) {
         return NextResponse.json(
           { error: "Ce parfum n'est pas disponible à la commande." },
           { status: 409 }
         );
       }
+
+      const wanted = String(sizeLabel).trim().toLowerCase();
+      const size = ref.sizes.find(
+        (s) => s.label.trim().toLowerCase() === wanted
+      );
+
+      if (!size) {
+        return NextResponse.json(
+          { error: "Ce format n'est pas proposé pour ce parfum." },
+          { status: 400 }
+        );
+      }
+
+      unitPrice = priceWithDiscount(size.price, ref.discount).final;
     }
 
-    const qty = Number.parseInt(quantity, 10);
-    const safeQty = Number.isFinite(qty) && qty > 0 ? qty : 1;
-
-    const unitPrice = Number.parseFloat(String(price ?? "").replace(",", "."));
-    const subtotal = (Number.isFinite(unitPrice) ? unitPrice : 0) * safeQty;
+    const subtotal = unitPrice * safeQty;
 
     const settings = await loadSettings();
     const delivery = computeDelivery(
@@ -107,7 +138,7 @@ export async function POST(request: NextRequest) {
         perfumeId: perfumeId ?? null,
         perfumeName: String(perfumeName).trim(),
         sizeLabel: String(sizeLabel).trim(),
-        price: price ? String(price).trim() : "",
+        price: String(unitPrice),
         quantity: safeQty,
         deliveryPrice: String(delivery.price),
         note: note ? String(note).trim() : null,

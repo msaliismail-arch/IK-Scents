@@ -5,6 +5,7 @@ import {
   DEFAULT_AVAILABILITY,
   resolveAvailability,
 } from "@/lib/availability";
+import { normalizeGender, normalizeDiscount } from "@/lib/pricing";
 
 type SizeInput = { label?: string; price?: string };
 
@@ -55,8 +56,17 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, description, image, published, family, notes, availability } =
-      body;
+    const {
+      name,
+      description,
+      image,
+      published,
+      family,
+      notes,
+      availability,
+      gender,
+      discount,
+    } = body;
     const sizes = cleanSizes(body.sizes);
 
     if (!name || !description || !image || sizes.length === 0) {
@@ -76,6 +86,8 @@ export async function POST(request: NextRequest) {
         availability: availability
           ? resolveAvailability(availability).value
           : DEFAULT_AVAILABILITY,
+        gender: normalizeGender(gender),
+        discount: String(normalizeDiscount(discount)),
         published: published ?? false,
         sizes: { create: sizes },
       },
