@@ -31,9 +31,12 @@ const EMPTY = {
 export function PerfumeRequestModal({
   open,
   onClose,
+  prefill,
 }: {
   open: boolean;
   onClose: () => void;
+  /** Pré-remplissage quand la modale est ouverte depuis une fiche produit. */
+  prefill?: { name?: string; gender?: string };
 }) {
   const [form, setForm] = useState(EMPTY);
   const [submitting, setSubmitting] = useState(false);
@@ -50,13 +53,24 @@ export function PerfumeRequestModal({
     };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
+
+    // Ouverte depuis un parfum précis : on reprend son nom, pour que la
+    // demande arrive identifiée côté admin plutôt qu'anonyme.
+    if (prefill?.name) {
+      setForm((f) => ({
+        ...f,
+        name: f.name || prefill.name || "",
+        gender: f.gender || prefill.gender || "",
+      }));
+    }
+
     firstFieldRef.current?.focus();
 
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [open, onClose]);
+  }, [open, onClose, prefill?.name, prefill?.gender]);
 
   // Réinitialise après fermeture, une fois l'animation terminée
   useEffect(() => {
@@ -159,8 +173,9 @@ export function PerfumeRequestModal({
               parfum préféré ?
             </h2>
             <p className="mt-5 text-[#6b6255] text-[14px] font-light leading-[1.8]">
-              Dites-nous le parfum que vous recherchez. Nous vous prévenons dès
-              qu&apos;il est disponible chez ASSIL.
+              {prefill?.name
+                ? `Nous vous prévenons dès que ${prefill.name} sera de nouveau disponible chez ASSIL.`
+                : "Dites-nous le parfum que vous recherchez. Nous vous prévenons dès qu’il est disponible chez ASSIL."}
             </p>
 
             {error && (

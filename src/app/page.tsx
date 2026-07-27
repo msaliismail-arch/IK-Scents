@@ -225,7 +225,7 @@ function PerfumeRow({
 }: {
   perfume: Perfume;
   index: number;
-  onRequest: () => void;
+  onRequest: (prefill?: { name?: string; gender?: string }) => void;
 }) {
   const [imgError, setImgError] = useState(false);
   const stock = resolveAvailability(perfume.availability);
@@ -272,11 +272,11 @@ function PerfumeRow({
           {String(index + 1).padStart(2, "0")}
         </span>
 
-        <h3 className="font-serif font-semibold uppercase tracking-[0.015em] leading-[1.05] text-foreground text-[2.4rem] sm:text-[3rem] lg:text-[3.3rem]">
+        <h3 className="font-serif font-semibold uppercase tracking-[0.015em] leading-[1.05] text-foreground text-[1.9rem] sm:text-[2.6rem] lg:text-[3.3rem] break-words">
           <Link href={`/commander/${perfume.id}`}>{perfume.name}</Link>
         </h3>
 
-        <div className="mt-4 flex flex-wrap items-center gap-3">
+        <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3">
           <span
             className={`inline-flex items-center gap-2 px-3.5 py-1.5 text-[10px] font-bold tracking-[0.2em] uppercase border ${
               stock.orderable
@@ -294,19 +294,19 @@ function PerfumeRow({
           </span>
 
           {percent > 0 && stock.orderable && (
-            <span className="chip-bordeaux inline-flex items-center px-3.5 py-1.5 text-[10px] font-bold tracking-[0.2em] uppercase">
+            <span className="chip-bordeaux inline-flex items-center px-3 py-1.5 text-[9.5px] sm:px-3.5 sm:text-[10px] font-bold tracking-[0.2em] uppercase">
               −{percent}%
             </span>
           )}
 
           {sexe && (
-            <span className="chip-champagne inline-flex items-center px-3.5 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase">
+            <span className="chip-champagne inline-flex items-center px-3 py-1.5 text-[9.5px] sm:px-3.5 sm:text-[10px] font-semibold tracking-[0.2em] uppercase">
               {sexe}
             </span>
           )}
 
           {perfume.family && (
-            <span className="chip-bordeaux inline-flex items-center px-3.5 py-1.5 text-[10px] font-bold tracking-[0.2em] uppercase">
+            <span className="chip-bordeaux inline-flex items-center px-3 py-1.5 text-[9.5px] sm:px-3.5 sm:text-[10px] font-bold tracking-[0.2em] uppercase">
               {perfume.family}
             </span>
           )}
@@ -333,7 +333,7 @@ function PerfumeRow({
             <span className="block text-[10px] font-bold tracking-[0.26em] uppercase text-bordeaux mb-3">
               Formats disponibles
             </span>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap gap-2">
               {priced.map((s, i) => {
                 const contenu = (
                   <>
@@ -352,14 +352,14 @@ function PerfumeRow({
                   <Link
                     key={s.id ?? i}
                     href={`/commander/${perfume.id}?taille=${encodeURIComponent(s.label)}`}
-                    className="size-chip px-5 py-3 text-[14px]"
+                    className="size-chip px-4 py-2.5 text-[13px] sm:px-5 sm:py-3 sm:text-[14px]"
                   >
                     {contenu}
                   </Link>
                 ) : (
                   <span
                     key={s.id ?? i}
-                    className="chip-bordeaux px-5 py-3 text-[14px] opacity-45"
+                    className="chip-bordeaux px-4 py-2.5 text-[13px] sm:px-5 sm:py-3 sm:text-[14px] opacity-45"
                   >
                     {contenu}
                   </span>
@@ -381,7 +381,7 @@ function PerfumeRow({
         {stock.orderable ? (
           <Link
             href={`/commander/${perfume.id}`}
-            className="mt-8 inline-flex items-center justify-center gap-3 bg-[#171717] text-white px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#3a3a3a]"
+            className="mt-8 w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#171717] text-white px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#3a3a3a]"
           >
             <ShoppingBag className="w-4 h-4" />
             Commander
@@ -390,8 +390,10 @@ function PerfumeRow({
           <div className="mt-8">
             <button
               type="button"
-              onClick={onRequest}
-              className="btn-bordeaux inline-flex items-center justify-center gap-3 px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase"
+              onClick={() =>
+                onRequest({ name: perfume.name, gender: perfume.gender })
+              }
+              className="btn-bordeaux w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase"
             >
               <Bell className="w-4 h-4" />
               {stock.cta}
@@ -413,7 +415,7 @@ function Collection({
   onRequest,
 }: {
   perfumes: Perfume[];
-  onRequest: () => void;
+  onRequest: (prefill?: { name?: string; gender?: string }) => void;
 }) {
   return (
     <section
@@ -424,7 +426,7 @@ function Collection({
           elle habille la section sans jamais gêner la lecture. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-[0.16]"
+        className="absolute inset-0 bg-cover bg-center lg:bg-fixed opacity-[0.16]"
         style={{ backgroundImage: "url('/collection-bg.png')" }}
       />
       <div aria-hidden="true" className="absolute inset-0 bg-background/75" />
@@ -674,23 +676,37 @@ export default function Home() {
     fetchPerfumes();
   }, [fetchPerfumes]);
 
-  const openRequest = useCallback(() => setRequestOpen(true), []);
+  const [prefill, setPrefill] = useState<
+    { name?: string; gender?: string } | undefined
+  >(undefined);
+
+  const openRequest = useCallback(
+    (p?: { name?: string; gender?: string }) => {
+      setPrefill(p);
+      setRequestOpen(true);
+    },
+    []
+  );
   const closeRequest = useCallback(() => setRequestOpen(false), []);
 
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
       <Navbar />
       <main className="flex-1">
-        <Hero onRequest={openRequest} />
+        <Hero onRequest={() => openRequest()} />
         <Steps />
         <Collection perfumes={perfumes} onRequest={openRequest} />
         <Concept />
         <Signature />
-        <Contact onRequest={openRequest} />
+        <Contact onRequest={() => openRequest()} />
       </main>
       <Footer />
 
-      <PerfumeRequestModal open={requestOpen} onClose={closeRequest} />
+      <PerfumeRequestModal
+        open={requestOpen}
+        onClose={closeRequest}
+        prefill={prefill}
+      />
     </div>
   );
 }
