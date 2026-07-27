@@ -565,11 +565,6 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         <h4 className="font-serif text-lg text-foreground">
                           {r.name}
                         </h4>
-                        {r.brand && (
-                          <span className="text-muted-foreground text-sm">
-                            {r.brand}
-                          </span>
-                        )}
                       </div>
 
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -585,13 +580,27 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         )}
                       </div>
 
-                      <a
-                        href={`tel:${r.phone}`}
-                        className="mt-3 inline-flex items-center gap-1.5 text-gold text-sm hover:underline"
-                      >
-                        <Phone className="w-3.5 h-3.5" />
-                        {r.phone}
-                      </a>
+                      <div className="mt-3 space-y-1 text-sm">
+                        {r.customerName && (
+                          <p className="text-foreground font-medium">
+                            {r.customerName}
+                          </p>
+                        )}
+                        <a
+                          href={`tel:${r.phone}`}
+                          className="inline-flex items-center gap-1.5 text-gold hover:underline"
+                        >
+                          <Phone className="w-3.5 h-3.5" />
+                          {r.phone}
+                        </a>
+                        {(r.address || r.city || r.postalCode) && (
+                          <p className="text-muted-foreground">
+                            {[r.address, r.postalCode, r.city]
+                              .filter(Boolean)
+                              .join(", ")}
+                          </p>
+                        )}
+                      </div>
 
                       <p className="text-muted-foreground/50 text-[10px] mt-2">
                         {new Date(r.createdAt).toLocaleString("fr-FR")}

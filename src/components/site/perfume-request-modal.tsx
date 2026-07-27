@@ -2,24 +2,27 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, Loader2, X } from "lucide-react";
+import { GENDERS } from "@/lib/pricing";
 
-const GENDERS = [
-  { value: "homme", label: "Homme" },
-  { value: "femme", label: "Femme" },
-  { value: "unisexe", label: "Unisexe" },
-];
-
-const FORMATS = [
-  { value: "10ml", label: "10 ml" },
-  { value: "20ml", label: "20 ml" },
-];
+/** Formats proposés quand la demande ne vient pas d'un parfum précis. */
+const FALLBACK_FORMATS = ["10 ml", "20 ml"];
 
 const EMPTY = {
   name: "",
-  brand: "",
   gender: "",
   format: "",
+  customerName: "",
   phone: "",
+  address: "",
+  city: "",
+  postalCode: "",
+};
+
+export type RequestPrefill = {
+  name?: string;
+  gender?: string;
+  /** Décants réellement définis par l'admin pour ce parfum */
+  formats?: string[];
 };
 
 /**
@@ -27,6 +30,7 @@ const EMPTY = {
  *
  * Ce n'est PAS une création de parfum ni une personnalisation : c'est une
  * demande de mise en stock. Aucun prix, aucun engagement, aucune commande.
+ * Les coordonnées sont demandées pour pouvoir livrer dès l'arrivée du flacon.
  */
 export function PerfumeRequestModal({
   open,
@@ -35,14 +39,19 @@ export function PerfumeRequestModal({
 }: {
   open: boolean;
   onClose: () => void;
-  /** Pré-remplissage quand la modale est ouverte depuis une fiche produit. */
-  prefill?: { name?: string; gender?: string };
+  prefill?: RequestPrefill;
 }) {
   const [form, setForm] = useState(EMPTY);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const firstFieldRef = useRef<HTMLInputElement | null>(null);
+
+  // Les formats viennent des décants de l'admin, pas d'une liste figée
+  const formats =
+    prefill?.formats && prefill.formats.length > 0
+      ? prefill.formats
+      : FALLBACK_FORMATS;
 
   // Fermeture au clavier + blocage du scroll de fond
   useEffect(() => {
@@ -115,6 +124,14 @@ export function PerfumeRequestModal({
     "w-full border border-[#d8cbb8] bg-white px-4 py-3 text-[14px] text-[#171717] placeholder:text-[#a89c88] focus:outline-none focus:border-[#171717] transition-colors duration-300";
   const labelClass =
     "block text-[10px] font-semibold tracking-[0.24em] uppercase text-[#6b6255] mb-2.5";
+  const legendClass =
+    "block text-[10px] font-bold tracking-[0.28em] uppercase text-bordeaux mb-5";
+  const choiceClass = (active: boolean) =>
+    `py-3 text-[12px] tracking-[0.06em] border transition-colors duration-300 ${
+      active
+        ? "border-[#171717] bg-[#171717] text-white font-medium"
+        : "border-[#d8cbb8] bg-white text-[#171717] hover:border-[#8a7a63]"
+    }`;
 
   return (
     <div
@@ -123,7 +140,6 @@ export function PerfumeRequestModal({
       aria-modal="true"
       aria-labelledby="perfume-request-title"
     >
-      {/* Voile */}
       <button
         className="absolute inset-0 bg-[#171717]/45 backdrop-blur-[2px]"
         onClick={onClose}
@@ -134,14 +150,14 @@ export function PerfumeRequestModal({
       <div className="relative w-full sm:max-w-lg max-h-[92vh] overflow-y-auto bg-[#f7f4ee] border-t sm:border border-[#d8cbb8] shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center text-[#6b6255] hover:text-[#171717] transition-colors"
+          className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center text-[#6b6255] hover:text-[#171717] transition-colors z-10"
           aria-label="Fermer"
         >
           <X className="w-5 h-5" />
         </button>
 
         {done ? (
-          <div className="px-7 sm:px-10 py-16 text-center">
+          <div className="px-6 sm:px-10 py-16 text-center">
             <div className="w-14 h-14 mx-auto mb-6 rounded-full border border-[#d8cbb8] bg-white flex items-center justify-center">
               <Check className="w-7 h-7 text-[#8a7a63]" />
             </div>
@@ -160,13 +176,16 @@ export function PerfumeRequestModal({
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="px-7 sm:px-10 py-10 sm:py-12">
+          <form
+            onSubmit={handleSubmit}
+            className="px-6 sm:px-10 py-9 sm:py-12"
+          >
             <span className="block text-[10px] font-semibold tracking-[0.34em] uppercase text-[#8a7a63] mb-4">
               Demande de parfum
             </span>
             <h2
               id="perfume-request-title"
-              className="font-serif text-[1.9rem] sm:text-[2.2rem] font-light uppercase tracking-[0.02em] leading-[1.1] text-[#171717]"
+              className="font-serif text-[1.7rem] sm:text-[2.2rem] font-light uppercase tracking-[0.02em] leading-[1.1] text-[#171717] pr-10"
             >
               Quel est votre
               <br />
@@ -184,90 +203,136 @@ export function PerfumeRequestModal({
               </div>
             )}
 
-            <div className="mt-8 space-y-6">
-              <div>
-                <label className={labelClass} htmlFor="req-name">
-                  Nom du parfum *
-                </label>
-                <input
-                  id="req-name"
-                  ref={firstFieldRef}
-                  value={form.name}
-                  onChange={(e) => set("name", e.target.value)}
-                  placeholder="Ex : Oud Wood"
-                  required
-                  className={fieldClass}
-                />
-              </div>
+            {/* ── Le parfum ── */}
+            <div className="mt-9">
+              <span className={legendClass}>Le parfum</span>
 
-              <div>
-                <label className={labelClass} htmlFor="req-brand">
-                  Marque
-                </label>
-                <input
-                  id="req-brand"
-                  value={form.brand}
-                  onChange={(e) => set("brand", e.target.value)}
-                  placeholder="Ex : Tom Ford"
-                  className={fieldClass}
-                />
-              </div>
+              <div className="space-y-6">
+                <div>
+                  <label className={labelClass} htmlFor="req-name">
+                    Nom du parfum *
+                  </label>
+                  <input
+                    id="req-name"
+                    ref={firstFieldRef}
+                    value={form.name}
+                    onChange={(e) => set("name", e.target.value)}
+                    placeholder="Ex : Oud Wood"
+                    required
+                    className={fieldClass}
+                  />
+                </div>
 
-              <div>
-                <span className={labelClass}>Pour</span>
-                <div className="grid grid-cols-3 gap-2">
-                  {GENDERS.map((g) => (
-                    <button
-                      key={g.value}
-                      type="button"
-                      onClick={() => set("gender", g.value)}
-                      aria-pressed={form.gender === g.value}
-                      className={`py-3 text-[12px] tracking-[0.08em] border transition-colors duration-300 ${
-                        form.gender === g.value
-                          ? "border-[#171717] bg-[#171717] text-white font-medium"
-                          : "border-[#d8cbb8] bg-white text-[#171717] hover:border-[#8a7a63]"
-                      }`}
-                    >
-                      {g.label}
-                    </button>
-                  ))}
+                <div>
+                  <span className={labelClass}>Pour</span>
+                  <div className="grid grid-cols-3 gap-2">
+                    {GENDERS.map((g) => (
+                      <button
+                        key={g.value}
+                        type="button"
+                        onClick={() => set("gender", g.value)}
+                        aria-pressed={form.gender === g.value}
+                        className={choiceClass(form.gender === g.value)}
+                      >
+                        {g.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <span className={labelClass}>Format souhaité</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    {formats.map((f) => (
+                      <button
+                        key={f}
+                        type="button"
+                        onClick={() => set("format", f)}
+                        aria-pressed={form.format === f}
+                        className={`${choiceClass(form.format === f)} uppercase`}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div>
-                <span className={labelClass}>Format souhaité</span>
-                <div className="grid grid-cols-2 gap-2">
-                  {FORMATS.map((f) => (
-                    <button
-                      key={f.value}
-                      type="button"
-                      onClick={() => set("format", f.value)}
-                      aria-pressed={form.format === f.value}
-                      className={`py-3 text-[12px] tracking-[0.08em] border transition-colors duration-300 ${
-                        form.format === f.value
-                          ? "border-[#171717] bg-[#171717] text-white font-medium"
-                          : "border-[#d8cbb8] bg-white text-[#171717] hover:border-[#8a7a63]"
-                      }`}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
+            {/* ── Le client ── */}
+            <div className="mt-10 pt-9 border-t border-[#d8cbb8]">
+              <span className={legendClass}>Vos coordonnées</span>
+
+              <div className="space-y-6">
+                <div>
+                  <label className={labelClass} htmlFor="req-customer">
+                    Nom complet *
+                  </label>
+                  <input
+                    id="req-customer"
+                    value={form.customerName}
+                    onChange={(e) => set("customerName", e.target.value)}
+                    placeholder="Votre nom"
+                    required
+                    className={fieldClass}
+                  />
                 </div>
-              </div>
 
-              <div>
-                <label className={labelClass} htmlFor="req-phone">
-                  Téléphone / WhatsApp *
-                </label>
-                <input
-                  id="req-phone"
-                  value={form.phone}
-                  onChange={(e) => set("phone", e.target.value)}
-                  placeholder="06 00 00 00 00"
-                  inputMode="tel"
-                  required
-                  className={fieldClass}
-                />
+                <div>
+                  <label className={labelClass} htmlFor="req-phone">
+                    Téléphone / WhatsApp *
+                  </label>
+                  <input
+                    id="req-phone"
+                    value={form.phone}
+                    onChange={(e) => set("phone", e.target.value)}
+                    placeholder="06 00 00 00 00"
+                    inputMode="tel"
+                    required
+                    className={fieldClass}
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass} htmlFor="req-address">
+                    Adresse
+                  </label>
+                  <input
+                    id="req-address"
+                    value={form.address}
+                    onChange={(e) => set("address", e.target.value)}
+                    placeholder="Quartier, rue, n°..."
+                    className={fieldClass}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass} htmlFor="req-city">
+                      Ville
+                    </label>
+                    <input
+                      id="req-city"
+                      value={form.city}
+                      onChange={(e) => set("city", e.target.value)}
+                      placeholder="Oujda"
+                      className={fieldClass}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass} htmlFor="req-postal">
+                      Code postal
+                    </label>
+                    <input
+                      id="req-postal"
+                      value={form.postalCode}
+                      onChange={(e) => set("postalCode", e.target.value)}
+                      placeholder="60000"
+                      inputMode="numeric"
+                      className={fieldClass}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -282,6 +347,11 @@ export function PerfumeRequestModal({
                 "Envoyer ma demande"
               )}
             </button>
+
+            <p className="mt-4 text-[12px] text-[#8a7a63] font-light leading-relaxed text-center">
+              Aucun engagement : nous vous contactons simplement dès que le
+              parfum est disponible.
+            </p>
           </form>
         )}
       </div>

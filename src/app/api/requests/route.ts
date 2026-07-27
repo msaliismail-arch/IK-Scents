@@ -3,7 +3,6 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guard";
 
 const GENDERS = ["homme", "femme", "unisexe"];
-const FORMATS = ["10ml", "20ml"];
 
 const clean = (v: unknown, max = 120) =>
   String(v ?? "")
@@ -40,24 +39,30 @@ export async function POST(request: NextRequest) {
 
     const name = clean(body.name);
     const phone = clean(body.phone, 30);
+    const customerName = clean(body.customerName);
 
-    if (!name || !phone) {
+    if (!name || !phone || !customerName) {
       return NextResponse.json(
-        { error: "Le nom du parfum et le téléphone sont requis" },
+        { error: "Le parfum, votre nom et votre téléphone sont requis" },
         { status: 400 }
       );
     }
 
     const gender = clean(body.gender, 20).toLowerCase();
-    const format = clean(body.format, 20).toLowerCase().replace(/\s/g, "");
+    // Le format vient des décants définis par l'admin : on le stocke tel quel
+    // plutôt que de le comparer à une liste figée dans le code.
+    const format = clean(body.format, 30);
 
     const created = await db.perfumeRequest.create({
       data: {
         name,
-        brand: clean(body.brand),
         gender: GENDERS.includes(gender) ? gender : "",
-        format: FORMATS.includes(format) ? format : "",
+        format,
+        customerName,
         phone,
+        address: clean(body.address, 250),
+        city: clean(body.city, 80),
+        postalCode: clean(body.postalCode, 20),
         status: "new",
       },
     });

@@ -32,11 +32,18 @@ export interface Perfume {
  */
 export interface PerfumeRequest {
   id: string;
+  /** Nom du parfum recherché */
   name: string;
-  brand: string;
+  /** Ancien champ, plus demandé au client */
+  brand?: string;
   gender: string;
   format: string;
+  /** Coordonnées du client */
+  customerName?: string;
   phone: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
   status: string;
   createdAt: string;
   updatedAt: string;

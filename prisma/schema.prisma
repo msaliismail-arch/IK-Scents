@@ -42,14 +42,24 @@ model Perfume {
 /// Parfum recherché par un client, envoyé depuis « Votre parfum préféré ».
 /// Sert à savoir quoi mettre en stock — ce n'est pas une commande.
 model PerfumeRequest {
-  id        String   @id @default(cuid())
-  name      String
-  brand     String   @default("")
+  id     String @id @default(cuid())
+  /// Nom du parfum recherché
+  name   String
+  /// Ancien champ « marque », conservé pour ne pas perdre les demandes déjà
+  /// enregistrées. N'est plus demandé au client.
+  brand  String @default("")
   /// "homme" | "femme" | "unisexe"
-  gender    String   @default("")
-  /// "10ml" | "20ml"
-  format    String   @default("")
-  phone     String
+  gender String @default("")
+  /// Format souhaité, repris des décants définis par l'admin
+  format String @default("")
+
+  /// Coordonnées du client, pour pouvoir livrer dès que le parfum arrive
+  customerName String @default("")
+  phone        String
+  address      String @default("")
+  city         String @default("")
+  postalCode   String @default("")
+
   /// "new" | "contacted" | "available" | "closed"
   status    String   @default("new")
   createdAt DateTime @default(now())

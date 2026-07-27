@@ -8,7 +8,10 @@ import { Footer } from "@/components/site/footer";
 import { Img } from "@/components/site/media";
 import { SideFlorals, FloralDivider } from "@/components/site/botanical";
 import { Reveal, RevealLines, Parallax } from "@/components/site/reveal";
-import { PerfumeRequestModal } from "@/components/site/perfume-request-modal";
+import {
+  PerfumeRequestModal,
+  type RequestPrefill,
+} from "@/components/site/perfume-request-modal";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import { resolveAvailability } from "@/lib/availability";
 import { genderLabel, priceWithDiscount } from "@/lib/pricing";
@@ -225,7 +228,7 @@ function PerfumeRow({
 }: {
   perfume: Perfume;
   index: number;
-  onRequest: (prefill?: { name?: string; gender?: string }) => void;
+  onRequest: (prefill?: RequestPrefill) => void;
 }) {
   const [imgError, setImgError] = useState(false);
   const stock = resolveAvailability(perfume.availability);
@@ -391,7 +394,11 @@ function PerfumeRow({
             <button
               type="button"
               onClick={() =>
-                onRequest({ name: perfume.name, gender: perfume.gender })
+                onRequest({
+                  name: perfume.name,
+                  gender: perfume.gender,
+                  formats: sizes.map((x) => x.label).filter(Boolean),
+                })
               }
               className="btn-bordeaux w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase"
             >
@@ -415,7 +422,7 @@ function Collection({
   onRequest,
 }: {
   perfumes: Perfume[];
-  onRequest: (prefill?: { name?: string; gender?: string }) => void;
+  onRequest: (prefill?: RequestPrefill) => void;
 }) {
   return (
     <section
@@ -676,12 +683,10 @@ export default function Home() {
     fetchPerfumes();
   }, [fetchPerfumes]);
 
-  const [prefill, setPrefill] = useState<
-    { name?: string; gender?: string } | undefined
-  >(undefined);
+  const [prefill, setPrefill] = useState<RequestPrefill | undefined>(undefined);
 
   const openRequest = useCallback(
-    (p?: { name?: string; gender?: string }) => {
+    (p?: RequestPrefill) => {
       setPrefill(p);
       setRequestOpen(true);
     },
