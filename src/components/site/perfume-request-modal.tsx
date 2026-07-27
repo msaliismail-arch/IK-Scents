@@ -6,8 +6,13 @@ import { GENDERS, genderLabel } from "@/lib/pricing";
 import { DEFAULT_SETTINGS, computeDelivery } from "@/lib/delivery";
 import type { Settings } from "@/lib/types";
 
+export type RequestFormat = { label: string; price: number };
+
 /** Formats proposés quand la demande ne vient pas d'un parfum précis. */
-const FALLBACK_FORMATS = ["10 ml", "20 ml"];
+const FALLBACK_FORMATS: RequestFormat[] = [
+  { label: "10 ml", price: 0 },
+  { label: "20 ml", price: 0 },
+];
 
 const EMPTY = {
   name: "",
@@ -23,10 +28,8 @@ const EMPTY = {
 export type RequestPrefill = {
   name?: string;
   gender?: string;
-  /** Décants réellement définis par l'admin pour ce parfum */
-  formats?: string[];
-  /** Prix le plus bas du parfum, remise déjà appliquée */
-  priceFrom?: number;
+  /** Décants réellement définis par l'admin, avec leur prix remisé */
+  formats?: RequestFormat[];
 };
 
 /**
@@ -62,6 +65,23 @@ export function PerfumeRequestModal({
     prefill?.formats && prefill.formats.length > 0
       ? prefill.formats
       : FALLBACK_FORMATS;
+
+  // Le prix suit le format choisi. Tant que rien n'est sélectionné, on affiche
+  // le plus bas — c'est ce que le client a vu sur la fiche produit.
+  const prices = formats.map((f) => f.price).filter((p) => p > 0);
+  const selected = formats.find((f) => f.label === form.format);
+  const unitPrice =
+    selected && selected.price > 0
+      ? selected.price
+      : prices.length > 0
+        ? Math.min(...prices)
+        : 0;
+
+  // La ville saisie peut porter une exception de livraison : le total se
+  // recalcule à chaque frappe, comme sur la page de commande.
+  const livraison = computeDelivery(settings, unitPrice, form.city);
+  const villeException =
+    form.city.trim() !== "" && livraison.reason === "city";
 
   // Fermeture au clavier + blocage du scroll de fond
   useEffect(() => {
@@ -282,54 +302,22 @@ export function PerfumeRequestModal({
                   <div className="grid grid-cols-2 gap-2">
                     {formats.map((f) => (
                       <button
-                        key={f}
+                        key={f.label}
                         type="button"
-                        onClick={() => set("format", f)}
-                        aria-pressed={form.format === f}
-                        className={`${choiceClass(form.format === f)} uppercase`}
+                        onClick={() => set("format", f.label)}
+                        aria-pressed={form.format === f.label}
+                        className={choiceClass(form.format === f.label)}
                       >
-                        {f}
+                        <span className="uppercase">{f.label}</span>
+                        {f.price > 0 && (
+                          <span className="opacity-70"> · {f.price} MAD</span>
+                        )}
                       </button>
                     ))}
                   </div>
                 </div>
               </div>
             </div>
-
-            {typeof prefill?.priceFrom === "number" &&
-              prefill.priceFrom > 0 &&
-              (() => {
-                const liv = computeDelivery(
-                  settings,
-                  prefill.priceFrom!,
-                  form.city
-                );
-                return (
-                  <div className="mt-7 border border-[#d8cbb8] bg-white px-4 py-4 space-y-2 text-[13.5px]">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#6b6255]">À partir de</span>
-                      <span className="font-semibold text-bordeaux">
-                        {prefill.priceFrom} MAD
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#6b6255]">Livraison</span>
-                      <span className="text-[#171717]">
-                        {liv.free ? "Offerte" : `${liv.price} MAD`}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between border-t border-[#efe8dc] pt-2">
-                      <span className="text-[#6b6255]">Total indicatif</span>
-                      <span className="font-serif text-lg text-bordeaux">
-                        {prefill.priceFrom + liv.price} MAD
-                      </span>
-                    </div>
-                    <p className="text-[11.5px] text-[#8a7a63] font-light leading-relaxed pt-1">
-                      Tarif du jour, à confirmer au moment de la disponibilité.
-                    </p>
-                  </div>
-                );
-              })()}
 
             {/* ── Le client ── */}
             <div className="mt-10 pt-9 border-t border-[#d8cbb8]">
@@ -408,10 +396,52 @@ export function PerfumeRequestModal({
               </div>
             </div>
 
+            {unitPrice > 0 && (
+              <div className="mt-9 border border-[#d8cbb8] bg-white px-4 py-4 space-y-2 text-[13.5px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#6b6255]">
+                    {selected ? selected.label : "À partir de"}
+                  </span>
+                  <span className="font-semibold text-bordeaux">
+                    {unitPrice} MAD
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#6b6255]">
+                    Livraison
+                    {villeException ? ` (${form.city.trim()})` : ""}
+                  </span>
+                  <span className="text-[#171717]">
+                    {livraison.free ? "Offerte" : `${livraison.price} MAD`}
+                  </span>
+                </div>
+
+                {livraison.missingForFree > 0 && (
+                  <p className="text-[11.5px] text-[#6b6255] leading-relaxed">
+                    Plus que {livraison.missingForFree} MAD pour la livraison
+                    offerte.
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between border-t border-[#efe8dc] pt-2">
+                  <span className="text-[#6b6255]">Total indicatif</span>
+                  <span className="font-serif text-lg text-bordeaux">
+                    {unitPrice + livraison.price} MAD
+                  </span>
+                </div>
+
+                <p className="text-[11.5px] text-[#8a7a63] font-light leading-relaxed pt-1">
+                  Tarif du jour, à confirmer au moment de la disponibilité.
+                  {!form.city.trim() &&
+                    " Indiquez votre ville : la livraison peut changer."}
+                </p>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={submitting}
-              className="mt-9 w-full bg-[#171717] text-white py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#3a3a3a] disabled:opacity-60 flex items-center justify-center"
+              className="mt-6 w-full bg-[#171717] text-white py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#3a3a3a] disabled:opacity-60 flex items-center justify-center"
             >
               {submitting ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

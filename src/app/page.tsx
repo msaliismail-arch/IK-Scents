@@ -408,9 +408,12 @@ function PerfumeRow({
                 onRequest({
                   name: perfume.name,
                   gender: perfume.gender,
-                  formats: sizes.map((x) => x.label).filter(Boolean),
-                  priceFrom:
-                    from && Number.isFinite(from) ? from : undefined,
+                  formats: priced
+                    .filter((x) => x.label)
+                    .map((x) => ({
+                      label: x.label,
+                      price: x.view.final,
+                    })),
                 })
               }
               className="btn-bordeaux w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase"
