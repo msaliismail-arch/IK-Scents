@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, Loader2, X } from "lucide-react";
-import { GENDERS } from "@/lib/pricing";
+import { GENDERS, genderLabel } from "@/lib/pricing";
+import { DEFAULT_SETTINGS, computeDelivery } from "@/lib/delivery";
+import type { Settings } from "@/lib/types";
 
 /** Formats proposés quand la demande ne vient pas d'un parfum précis. */
 const FALLBACK_FORMATS = ["10 ml", "20 ml"];
@@ -23,6 +25,8 @@ export type RequestPrefill = {
   gender?: string;
   /** Décants réellement définis par l'admin pour ce parfum */
   formats?: string[];
+  /** Prix le plus bas du parfum, remise déjà appliquée */
+  priceFrom?: number;
 };
 
 /**
@@ -45,7 +49,13 @@ export function PerfumeRequestModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const firstFieldRef = useRef<HTMLInputElement | null>(null);
+
+  // Le parfum est imposé quand la demande part d'une fiche produit : le client
+  // ne doit pas pouvoir en changer le nom ni le genre, sinon la demande ne
+  // correspond plus au flacon sur lequel il a cliqué.
+  const locked = Boolean(prefill?.name);
 
   // Les formats viennent des décants de l'admin, pas d'une liste figée
   const formats =
@@ -80,6 +90,21 @@ export function PerfumeRequestModal({
       document.body.style.overflow = "";
     };
   }, [open, onClose, prefill?.name, prefill?.gender]);
+
+  // Frais de livraison, pour annoncer un prix complet dès la demande
+  useEffect(() => {
+    if (!open) return;
+    let active = true;
+    fetch("/api/settings")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (active && d) setSettings({ ...DEFAULT_SETTINGS, ...d });
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [open]);
 
   // Réinitialise après fermeture, une fois l'animation terminée
   useEffect(() => {
@@ -219,25 +244,37 @@ export function PerfumeRequestModal({
                     onChange={(e) => set("name", e.target.value)}
                     placeholder="Ex : Oud Wood"
                     required
-                    className={fieldClass}
+                    readOnly={locked}
+                    aria-readonly={locked}
+                    className={`${fieldClass} ${
+                      locked
+                        ? "bg-[#efe8dc] text-[#4a4236] cursor-default focus:border-[#d8cbb8]"
+                        : ""
+                    }`}
                   />
                 </div>
 
                 <div>
                   <span className={labelClass}>Pour</span>
-                  <div className="grid grid-cols-3 gap-2">
-                    {GENDERS.map((g) => (
-                      <button
-                        key={g.value}
-                        type="button"
-                        onClick={() => set("gender", g.value)}
-                        aria-pressed={form.gender === g.value}
-                        className={choiceClass(form.gender === g.value)}
-                      >
-                        {g.label}
-                      </button>
-                    ))}
-                  </div>
+                  {locked ? (
+                    <p className="px-4 py-3 border border-[#d8cbb8] bg-[#efe8dc] text-[14px] text-[#4a4236]">
+                      {genderLabel(form.gender) || "Non précisé"}
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2">
+                      {GENDERS.map((g) => (
+                        <button
+                          key={g.value}
+                          type="button"
+                          onClick={() => set("gender", g.value)}
+                          aria-pressed={form.gender === g.value}
+                          className={choiceClass(form.gender === g.value)}
+                        >
+                          {g.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -258,6 +295,41 @@ export function PerfumeRequestModal({
                 </div>
               </div>
             </div>
+
+            {typeof prefill?.priceFrom === "number" &&
+              prefill.priceFrom > 0 &&
+              (() => {
+                const liv = computeDelivery(
+                  settings,
+                  prefill.priceFrom!,
+                  form.city
+                );
+                return (
+                  <div className="mt-7 border border-[#d8cbb8] bg-white px-4 py-4 space-y-2 text-[13.5px]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#6b6255]">À partir de</span>
+                      <span className="font-semibold text-bordeaux">
+                        {prefill.priceFrom} MAD
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#6b6255]">Livraison</span>
+                      <span className="text-[#171717]">
+                        {liv.free ? "Offerte" : `${liv.price} MAD`}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-[#efe8dc] pt-2">
+                      <span className="text-[#6b6255]">Total indicatif</span>
+                      <span className="font-serif text-lg text-bordeaux">
+                        {prefill.priceFrom + liv.price} MAD
+                      </span>
+                    </div>
+                    <p className="text-[11.5px] text-[#8a7a63] font-light leading-relaxed pt-1">
+                      Tarif du jour, à confirmer au moment de la disponibilité.
+                    </p>
+                  </div>
+                );
+              })()}
 
             {/* ── Le client ── */}
             <div className="mt-10 pt-9 border-t border-[#d8cbb8]">

@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guard";
 import { resolveAvailability } from "@/lib/availability";
-import { normalizeGender, normalizeDiscount } from "@/lib/pricing";
+import {
+  normalizeGender,
+  normalizeDiscount,
+  normalizeDiscountUntil,
+} from "@/lib/pricing";
 
 type SizeInput = { label?: string; price?: string };
 
@@ -64,6 +68,7 @@ export async function PUT(
       availability,
       gender,
       discount,
+      discountUntil,
     } = body;
     const hasSizes = Array.isArray(body.sizes);
     const sizes = cleanSizes(body.sizes);
@@ -82,6 +87,9 @@ export async function PUT(
         ...(gender !== undefined && { gender: normalizeGender(gender) }),
         ...(discount !== undefined && {
           discount: String(normalizeDiscount(discount)),
+        }),
+        ...(discountUntil !== undefined && {
+          discountUntil: normalizeDiscountUntil(discountUntil),
         }),
         ...(published !== undefined && { published }),
         ...(hasSizes && {

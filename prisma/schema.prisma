@@ -33,6 +33,10 @@ model Perfume {
   gender      String   @default("")
   /// Remise en pourcentage, ex. "20". "0" = pas de remise.
   discount    String   @default("0")
+  /// Fin de la promotion. Passée cette date, le prix revient seul au tarif
+  /// normal — aucune intervention manuelle n'est nécessaire.
+  /// Vide = remise sans date de fin.
+  discountUntil DateTime?
   published   Boolean  @default(false)
   sizes       Size[]
   createdAt   DateTime @default(now())

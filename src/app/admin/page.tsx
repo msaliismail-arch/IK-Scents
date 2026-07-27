@@ -195,6 +195,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     availability: DEFAULT_AVAILABILITY as string,
     gender: "",
     discount: "",
+    discountUntil: "",
     published: true,
   };
   const [formData, setFormData] = useState(emptyForm);
@@ -395,6 +396,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       gender: perfume.gender ?? "",
       discount:
         perfume.discount && perfume.discount !== "0" ? perfume.discount : "",
+      discountUntil: perfume.discountUntil
+        ? String(perfume.discountUntil).slice(0, 10)
+        : "",
       published: perfume.published,
     });
     setSizes(
@@ -967,6 +971,28 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       automatiquement sur tous les formats. Maximum 90 %.
                     </p>
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground text-sm">
+                    Fin de la promotion
+                  </Label>
+                  <Input
+                    type="date"
+                    value={formData.discountUntil}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        discountUntil: e.target.value,
+                      })
+                    }
+                    className="max-w-xs"
+                  />
+                  <p className="text-muted-foreground/70 text-xs">
+                    Passée cette date, le prix revient <strong>tout seul</strong>{" "}
+                    au tarif normal — rien à refaire à la main. Laissez vide pour
+                    une remise sans échéance.
+                  </p>
                 </div>
 
                 <div className="space-y-2">

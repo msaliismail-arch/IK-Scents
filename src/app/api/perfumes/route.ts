@@ -5,7 +5,11 @@ import {
   DEFAULT_AVAILABILITY,
   resolveAvailability,
 } from "@/lib/availability";
-import { normalizeGender, normalizeDiscount } from "@/lib/pricing";
+import {
+  normalizeGender,
+  normalizeDiscount,
+  normalizeDiscountUntil,
+} from "@/lib/pricing";
 
 type SizeInput = { label?: string; price?: string };
 
@@ -66,6 +70,7 @@ export async function POST(request: NextRequest) {
       availability,
       gender,
       discount,
+      discountUntil,
     } = body;
     const sizes = cleanSizes(body.sizes);
 
@@ -88,6 +93,7 @@ export async function POST(request: NextRequest) {
           : DEFAULT_AVAILABILITY,
         gender: normalizeGender(gender),
         discount: String(normalizeDiscount(discount)),
+        discountUntil: normalizeDiscountUntil(discountUntil),
         published: published ?? false,
         sizes: { create: sizes },
       },

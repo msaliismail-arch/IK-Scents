@@ -41,6 +41,43 @@ export function normalizeDiscount(value: unknown) {
 /** Arrondi au dirham : on n'affiche jamais de centimes sur un prix en MAD. */
 const round = (n: number) => Math.round(n);
 
+/**
+ * La promotion est-elle encore valable ?
+ * Sans date de fin, elle court indéfiniment. Avec une date passée, le prix
+ * revient au tarif normal tout seul — c'est ce qui évite d'oublier une
+ * liquidation ouverte pendant des mois.
+ */
+export function isDiscountActive(until: unknown): boolean {
+  if (!until) return true;
+  const end = new Date(String(until));
+  if (Number.isNaN(end.getTime())) return true;
+  // La date choisie est incluse : la promo court jusqu'à la fin de ce jour.
+  end.setHours(23, 59, 59, 999);
+  return end.getTime() >= Date.now();
+}
+
+/** Date de fin lisible, ou "" si la promo n'a pas d'échéance. */
+export function discountEndLabel(until: unknown): string {
+  if (!until) return "";
+  const end = new Date(String(until));
+  if (Number.isNaN(end.getTime())) return "";
+  return end.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+/** Convertit une saisie "AAAA-MM-JJ" en Date, ou null si vide/invalide. */
+export function normalizeDiscountUntil(value: unknown): Date | null {
+  const raw = String(value ?? "").trim();
+  if (!raw) return null;
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return null;
+  d.setHours(23, 59, 59, 999);
+  return d;
+}
+
 export type PriceView = {
   /** prix catalogue */
   original: number;
@@ -52,13 +89,14 @@ export type PriceView = {
 
 export function priceWithDiscount(
   price: string | number | null | undefined,
-  discount: unknown
+  discount: unknown,
+  discountUntil?: unknown
 ): PriceView {
   const raw = Number.parseFloat(String(price ?? "").replace(",", "."));
   const original = Number.isFinite(raw) ? raw : 0;
   const percent = normalizeDiscount(discount);
 
-  if (percent <= 0 || original <= 0) {
+  if (percent <= 0 || original <= 0 || !isDiscountActive(discountUntil)) {
     return { original, final: original, percent: 0, hasDiscount: false };
   }
 

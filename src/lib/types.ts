@@ -20,6 +20,8 @@ export interface Perfume {
   gender?: string;
   /** Remise en pourcentage, ex. "20". "0" = aucune. */
   discount?: string;
+  /** Fin de promotion (ISO). Passée cette date le prix revient seul. */
+  discountUntil?: string | null;
   published: boolean;
   sizes: Size[];
   createdAt: string;

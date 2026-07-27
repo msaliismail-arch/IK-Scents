@@ -93,7 +93,11 @@ export default function CommanderPage() {
   const sizes: Size[] = perfume?.sizes ?? [];
   const selectedSize = sizes.find((s) => s.label === sizeLabel) ?? sizes[0];
   // Même calcul que sur la page d'accueil et que côté serveur.
-  const priceView = priceWithDiscount(selectedSize?.price, perfume?.discount);
+  const priceView = priceWithDiscount(
+    selectedSize?.price,
+    perfume?.discount,
+    perfume?.discountUntil
+  );
   const unitPrice = priceView.final;
   const subtotal = unitPrice * quantity;
   const sexe = genderLabel(perfume?.gender);
@@ -277,7 +281,8 @@ export default function CommanderPage() {
                         {(() => {
                           const v = priceWithDiscount(
                             s.price,
-                            perfume?.discount
+                            perfume?.discount,
+                            perfume?.discountUntil
                           );
                           return v.hasDiscount ? (
                             <>

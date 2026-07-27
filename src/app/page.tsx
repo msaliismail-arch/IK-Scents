@@ -14,7 +14,11 @@ import {
 } from "@/components/site/perfume-request-modal";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import { resolveAvailability } from "@/lib/availability";
-import { genderLabel, priceWithDiscount } from "@/lib/pricing";
+import {
+  genderLabel,
+  priceWithDiscount,
+  discountEndLabel,
+} from "@/lib/pricing";
 import type { Perfume } from "@/lib/types";
 
 /* ══════════════════════════════════════════════
@@ -238,12 +242,13 @@ function PerfumeRow({
   // Chaque format porte son prix catalogue et son prix remisé.
   const priced = sizes.map((s) => ({
     ...s,
-    view: priceWithDiscount(s.price, perfume.discount),
+    view: priceWithDiscount(s.price, perfume.discount, perfume.discountUntil),
   }));
   const from = priced.length
     ? Math.min(...priced.map((s) => s.view.final || Infinity))
     : null;
   const percent = priced[0]?.view.percent ?? 0;
+  const promoEnd = percent > 0 ? discountEndLabel(perfume.discountUntil) : "";
   const flipped = index % 2 === 1;
 
   return (
@@ -331,6 +336,12 @@ function PerfumeRow({
           </p>
         )}
 
+        {promoEnd && (
+          <p className="mt-4 text-[12.5px] font-medium text-bordeaux">
+            Offre valable jusqu’au {promoEnd}.
+          </p>
+        )}
+
         {sizes.length > 0 && (
           <div className="mt-8">
             <span className="block text-[10px] font-bold tracking-[0.26em] uppercase text-bordeaux mb-3">
@@ -398,6 +409,8 @@ function PerfumeRow({
                   name: perfume.name,
                   gender: perfume.gender,
                   formats: sizes.map((x) => x.label).filter(Boolean),
+                  priceFrom:
+                    from && Number.isFinite(from) ? from : undefined,
                 })
               }
               className="btn-bordeaux w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase"

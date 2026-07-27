@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
           availability: true,
           published: true,
           discount: true,
+          discountUntil: true,
           sizes: { select: { label: true, price: true } },
         },
       });
@@ -117,7 +118,11 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      unitPrice = priceWithDiscount(size.price, ref.discount).final;
+      unitPrice = priceWithDiscount(
+        size.price,
+        ref.discount,
+        ref.discountUntil
+      ).final;
     }
 
     const subtotal = unitPrice * safeQty;
