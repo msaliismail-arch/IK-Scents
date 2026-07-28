@@ -12,8 +12,59 @@ npm run set-admin
 ```
 
 > À relancer **à chaque fois** que le schéma change (`prisma/schema.prisma`).
-> Dernier changement : champs `family` / `notes` sur les parfums et table
-> `PerfumeRequest` pour « Votre parfum préféré ».
+
+### Si `prisma db push` refuse de se connecter
+
+Le pooler Supabase coupe parfois. Dans ce cas, ouvre
+**Supabase → SQL Editor → New query**, colle ce bloc et clique **Run**.
+Il contient **toutes** les colonnes ajoutées depuis le début, et il est sans
+risque : `IF NOT EXISTS` partout, tu peux le relancer autant de fois que tu veux.
+
+```sql
+-- Parfums
+ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "family"        TEXT NOT NULL DEFAULT '';
+ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "notes"         TEXT NOT NULL DEFAULT '';
+ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "availability"  TEXT NOT NULL DEFAULT 'disponible';
+ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "gender"        TEXT NOT NULL DEFAULT '';
+ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "discount"      TEXT NOT NULL DEFAULT '0';
+ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "discountUntil" TIMESTAMP(3);
+ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "isPack"        BOOLEAN NOT NULL DEFAULT false;
+
+-- Commandes
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "deliveryPrice" TEXT NOT NULL DEFAULT '0';
+
+-- Réglages du site (livraison)
+CREATE TABLE IF NOT EXISTS "Settings" (
+  "id"                 TEXT NOT NULL DEFAULT 'main',
+  "deliveryPrice"      TEXT NOT NULL DEFAULT '0',
+  "freeDeliveryFrom"   TEXT NOT NULL DEFAULT '',
+  "deliveryCitiesJson" TEXT NOT NULL DEFAULT '[]',
+  "updatedAt"          TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "Settings_pkey" PRIMARY KEY ("id")
+);
+
+-- Demandes de parfum (« Votre parfum préféré »)
+CREATE TABLE IF NOT EXISTS "PerfumeRequest" (
+  "id"        TEXT NOT NULL,
+  "name"      TEXT NOT NULL,
+  "brand"     TEXT NOT NULL DEFAULT '',
+  "gender"    TEXT NOT NULL DEFAULT '',
+  "format"    TEXT NOT NULL DEFAULT '',
+  "phone"     TEXT NOT NULL,
+  "status"    TEXT NOT NULL DEFAULT 'new',
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "PerfumeRequest_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "PerfumeRequest_status_idx" ON "PerfumeRequest"("status");
+
+ALTER TABLE "PerfumeRequest" ADD COLUMN IF NOT EXISTS "customerName" TEXT NOT NULL DEFAULT '';
+ALTER TABLE "PerfumeRequest" ADD COLUMN IF NOT EXISTS "address"      TEXT NOT NULL DEFAULT '';
+ALTER TABLE "PerfumeRequest" ADD COLUMN IF NOT EXISTS "city"         TEXT NOT NULL DEFAULT '';
+ALTER TABLE "PerfumeRequest" ADD COLUMN IF NOT EXISTS "postalCode"   TEXT NOT NULL DEFAULT '';
+```
+
+Ensuite `npx prisma generate` (celui-ci n'a pas besoin de la base).
 
 `set-admin` crée ou met à jour ton compte administrateur à partir des
 identifiants écrits dans `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`).

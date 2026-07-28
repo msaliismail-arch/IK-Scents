@@ -7,7 +7,7 @@ import { Brandmark } from "@/components/site/brandmark";
 
 const links = [
   { href: "/#about", label: "Le Concept" },
-  { href: "/#collection", label: "Nos Essences" },
+  { href: "/#collection", label: "Nos Décants" },
   { href: "/#collection", label: "Boutique" },
   { href: "/#contact", label: "Contact" },
 ];

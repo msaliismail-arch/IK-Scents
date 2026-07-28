@@ -5,14 +5,14 @@ import { BRAND, INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/site";
 
 const NAV = [
   { href: "/#about", label: "Le Concept" },
-  { href: "/#collection", label: "Nos Essences" },
+  { href: "/#collection", label: "Nos Décants" },
   { href: "/#collection", label: "Boutique" },
   { href: "/#contact", label: "Contact" },
 ];
 
 const ENGAGEMENTS = [
   { icon: Package, label: "Parfums originaux" },
-  { icon: Droplet, label: "Formats 10 ml / 20 ml" },
+  { icon: Droplet, label: "De 5 ml au flacon complet" },
   { icon: Truck, label: "Livraison partout au Maroc" },
 ];
 

@@ -34,38 +34,42 @@ function Hero({ onRequest }: { onRequest: () => void }) {
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 pb-16 lg:pb-24">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-          {/* Image — pièce maîtresse, jamais recadrée */}
-          <div className="lg:col-span-6 order-1">
+          {/*
+            Image — pièce maîtresse. Même cadre 9:16 que les fiches produit :
+            une photo prise au téléphone remplit le cadre exactement, sans
+            aucun recadrage. La largeur est bornée, sinon 9:16 sur six colonnes
+            donnerait une image de plus de 1000 px de haut.
+          */}
+          <div className="lg:col-span-5 order-1">
             <Parallax strength={22}>
               <Img
                 name="hero-bottle"
                 alt={`Flacon de parfum ${BRAND}`}
-                ratio="aspect-[4/5]"
-                className="lg:max-h-[76vh]"
-                position="center 45%"
+                ratio="aspect-[9/16]"
+                className="mx-auto max-w-[300px] sm:max-w-[380px] lg:max-w-[440px] lg:mx-0"
                 priority
               />
             </Parallax>
           </div>
 
           {/* Texte */}
-          <div className="lg:col-span-6 xl:col-span-5 xl:col-start-8 order-2 lg:pl-4">
+          <div className="lg:col-span-6 lg:col-start-7 order-2">
             <Reveal>
               <span className="label-xs block mb-7">
-                Parfumerie conceptuelle
+                Décants de parfums originaux
               </span>
             </Reveal>
 
             <RevealLines
               className="display text-[3rem] sm:text-[4.2rem] lg:text-[4.6rem] xl:text-[5.2rem] mb-8"
-              lines={["Découvrez", "l’essence", `d’${BRAND}.`]}
+              lines={["Le parfum", "original,", "en décant."]}
             />
 
             <Reveal delay={180}>
               <span className="rule mb-8" />
               <p className="text-[#4a4236] text-[16px] sm:text-[17px] font-light leading-[1.85] max-w-md mb-10">
-                Des parfums originaux, sélectionnés avec soin et proposés dans
-                des formats accessibles.
+                Nous achetons des flacons de parfum originaux et les proposons
+                en petits formats — le même parfum, à un prix accessible.
               </p>
             </Reveal>
 
@@ -75,7 +79,7 @@ function Hero({ onRequest }: { onRequest: () => void }) {
                   href="/#collection"
                   className="bg-[#171717] text-white px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase text-center transition-colors duration-500 hover:bg-[#3a3a3a]"
                 >
-                  Découvrir les essences
+                  Voir les décants
                 </Link>
                 <button
                   type="button"
@@ -94,7 +98,7 @@ function Hero({ onRequest }: { onRequest: () => void }) {
 }
 
 /* ══════════════════════════════════════════════
-   NOS ESSENCES
+   NOS DÉCANTS
    ══════════════════════════════════════════════ */
 
 /**
@@ -351,9 +355,9 @@ function Collection({
   onRequest,
   id = "collection",
   eyebrow = "La collection",
-  title = "Nos essences",
+  title = "Nos décants",
   intro,
-  variant = "essences",
+  variant = "decants",
 }: {
   perfumes: Perfume[];
   onRequest: (prefill?: RequestPrefill) => void;
@@ -361,8 +365,8 @@ function Collection({
   eyebrow?: string;
   title?: string;
   intro?: string;
-  /** "packs" pose un fond crème pour détacher la section des essences */
-  variant?: "essences" | "packs";
+  /** "packs" pose un fond crème pour détacher la section des décants */
+  variant?: "decants" | "packs";
 }) {
   const packs = variant === "packs";
 
@@ -416,10 +420,10 @@ function Collection({
               </p>
             ) : (
               <p className="text-[#2e2a22] text-[17px] font-normal leading-[1.8] max-w-md">
-                Des parfums{" "}
-                <strong className="font-semibold">100 % originaux</strong>,
-                sélectionnés un à un. Choisissez votre format 10 ml ou 20 ml,
-                commandez en ligne, payez à la réception.
+                Un décant, c&apos;est du parfum{" "}
+                <strong className="font-semibold">100 % original</strong>{" "}
+                transvasé du flacon de marque dans un petit format. Même
+                parfum, même tenue — vous payez la quantité, pas le flacon.
               </p>
             )}
           </Reveal>
@@ -494,7 +498,7 @@ function Concept() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-7 sm:gap-6 border-t border-champagne pt-9 mt-10">
                 {[
                   { v: "100%", l: "Original" },
-                  { v: "10 / 20 ml", l: "Formats accessibles" },
+                  { v: "Dès 5 ml", l: "Jusqu’au flacon complet" },
                   { v: "Livraison", l: "Partout au Maroc" },
                 ].map((s) => (
                   <div key={s.l}>
@@ -646,7 +650,7 @@ export default function Home() {
     fetchPerfumes();
   }, [fetchPerfumes]);
 
-  const essences = perfumes.filter((p) => !p.isPack);
+  const decants = perfumes.filter((p) => !p.isPack);
   const packs = perfumes.filter((p) => p.isPack);
 
   const [prefill, setPrefill] = useState<RequestPrefill | undefined>(undefined);
@@ -665,7 +669,7 @@ export default function Home() {
       <Navbar />
       <main className="flex-1">
         <Hero onRequest={() => openRequest()} />
-        <Collection perfumes={essences} onRequest={openRequest} />
+        <Collection perfumes={decants} onRequest={openRequest} />
         <Collection
           perfumes={packs}
           onRequest={openRequest}

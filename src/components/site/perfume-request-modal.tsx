@@ -8,10 +8,16 @@ import type { Settings } from "@/lib/types";
 
 export type RequestFormat = { label: string; price: number };
 
-/** Formats proposés quand la demande ne vient pas d'un parfum précis. */
+/**
+ * Formats proposés quand la demande ne vient pas d'un parfum précis.
+ * Dès qu'elle part d'une fiche produit, ce sont les décants réels de l'admin
+ * qui s'affichent à la place.
+ */
 const FALLBACK_FORMATS: RequestFormat[] = [
+  { label: "5 ml", price: 0 },
   { label: "10 ml", price: 0 },
   { label: "20 ml", price: 0 },
+  { label: "Flacon complet", price: 0 },
 ];
 
 const EMPTY = {
