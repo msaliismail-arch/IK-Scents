@@ -94,93 +94,6 @@ function Hero({ onRequest }: { onRequest: () => void }) {
 }
 
 /* ══════════════════════════════════════════════
-   DE L'ORIGINAL À VOTRE PORTE — les 3 étapes
-   ══════════════════════════════════════════════ */
-const STEPS = [
-  {
-    n: "01",
-    img: "step-1",
-    t: "Parfums originaux",
-    d: "Nous sélectionnons des parfums originaux et authentiques avec soin.",
-  },
-  {
-    n: "02",
-    img: "step-2",
-    t: "Votre format",
-    d: "Nous décomposons les parfums originaux en formats 10 ml ou 20 ml, selon votre choix.",
-  },
-  {
-    n: "03",
-    img: "step-3",
-    t: "Livraison",
-    d: "Votre parfum est soigneusement préparé puis livré directement chez vous.",
-  },
-];
-
-function Steps() {
-  return (
-    <section
-      id="methode"
-      className="relative bg-surface-alt border-y border-champagne overflow-hidden py-20 sm:py-28 lg:py-32"
-    >
-      <SideFlorals
-        spots={["tl", "tr", "bl", "br", "ml", "mr"]}
-        opacity="opacity-40"
-      />
-
-      <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-end mb-14 lg:mb-20">
-          <div className="lg:col-span-7">
-            <Reveal>
-              <span className="label-xs block mb-6">Notre méthode</span>
-            </Reveal>
-            <RevealLines
-              className="display font-normal text-[2.4rem] sm:text-[3.4rem] lg:text-[4rem]"
-              lines={["De l’original", "à votre porte"]}
-            />
-          </div>
-          <Reveal delay={200} className="lg:col-span-5">
-            <p className="text-[#4a4236] text-[16px] font-light leading-[1.85] max-w-md">
-              Trois étapes, sans intermédiaire. Du flacon original scellé jusqu’à
-              votre porte, au format que vous choisissez.
-            </p>
-          </Reveal>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-7 lg:gap-12">
-          {STEPS.map((s, i) => (
-            <Reveal key={s.n} delay={i * 160}>
-              <article className="group">
-                <Img
-                  name={s.img}
-                  alt={s.t}
-                  ratio="aspect-[4/5] md:aspect-[3/4]"
-                  zoomOnHover
-                />
-
-                <div className="mt-7 flex items-start gap-5">
-                  <span className="font-serif text-[#8a7a63] text-[1.7rem] font-light leading-none pt-0.5">
-                    {s.n}
-                  </span>
-                  <div>
-                    <h3 className="font-serif text-[1.5rem] font-normal uppercase tracking-[0.05em] text-foreground leading-tight">
-                      {s.t}
-                    </h3>
-                    <p className="mt-3 text-[#4a4236] text-[14.5px] font-light leading-[1.8]">
-                      {s.d}
-                    </p>
-                  </div>
-                </div>
-              </article>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ══════════════════════════════════════════════
    NOS ESSENCES
    ══════════════════════════════════════════════ */
 
@@ -436,23 +349,50 @@ function PerfumeRow({
 function Collection({
   perfumes,
   onRequest,
+  id = "collection",
+  eyebrow = "La collection",
+  title = "Nos essences",
+  intro,
+  variant = "essences",
 }: {
   perfumes: Perfume[];
   onRequest: (prefill?: RequestPrefill) => void;
+  id?: string;
+  eyebrow?: string;
+  title?: string;
+  intro?: string;
+  /** "packs" pose un fond crème pour détacher la section des essences */
+  variant?: "essences" | "packs";
 }) {
+  const packs = variant === "packs";
+
+  // Une section vide n'apporte rien : les packs ne s'affichent que s'il y en a.
+  if (packs && perfumes.length === 0) return null;
+
   return (
     <section
-      id="collection"
-      className="relative bg-background overflow-hidden py-20 sm:py-28 lg:py-32"
+      id={id}
+      className={`relative overflow-hidden py-20 sm:py-28 lg:py-32 ${
+        packs
+          ? "bg-surface-alt border-y border-champagne"
+          : "bg-background"
+      }`}
     >
-      {/* Photo d'ambiance de l'admin, en fond très atténué :
-          elle habille la section sans jamais gêner la lecture. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-cover bg-center lg:bg-fixed opacity-[0.16]"
-        style={{ backgroundImage: "url('/collection-bg.png')" }}
-      />
-      <div aria-hidden="true" className="absolute inset-0 bg-background/75" />
+      {!packs && (
+        <>
+          {/* Photo d'ambiance de l'admin, en fond très atténué :
+              elle habille la section sans jamais gêner la lecture. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-cover bg-center lg:bg-fixed opacity-[0.16]"
+            style={{ backgroundImage: "url('/collection-bg.png')" }}
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-background/75"
+          />
+        </>
+      )}
 
       <SideFlorals spots={["tl", "br", "ml"]} opacity="opacity-30" />
 
@@ -461,20 +401,27 @@ function Collection({
           <div className="lg:col-span-7">
             <Reveal>
               <span className="block text-[11px] font-bold tracking-[0.4em] uppercase text-[#171717] mb-6">
-                La collection
+                {eyebrow}
               </span>
             </Reveal>
             <RevealLines
               className="font-serif font-semibold uppercase tracking-[0.01em] leading-[1] text-foreground text-[3.2rem] sm:text-[4.6rem] lg:text-[5.6rem]"
-              lines={["Nos essences"]}
+              lines={[title]}
             />
           </div>
           <Reveal delay={200} className="lg:col-span-5">
-            <p className="text-[#2e2a22] text-[17px] font-normal leading-[1.8] max-w-md">
-              Des parfums <strong className="font-semibold">100 % originaux</strong>,
-              sélectionnés un à un. Choisissez votre format 10 ml ou 20 ml,
-              commandez en ligne, payez à la réception.
-            </p>
+            {intro ? (
+              <p className="text-[#2e2a22] text-[17px] font-normal leading-[1.8] max-w-md">
+                {intro}
+              </p>
+            ) : (
+              <p className="text-[#2e2a22] text-[17px] font-normal leading-[1.8] max-w-md">
+                Des parfums{" "}
+                <strong className="font-semibold">100 % originaux</strong>,
+                sélectionnés un à un. Choisissez votre format 10 ml ou 20 ml,
+                commandez en ligne, payez à la réception.
+              </p>
+            )}
           </Reveal>
         </div>
 
@@ -699,6 +646,9 @@ export default function Home() {
     fetchPerfumes();
   }, [fetchPerfumes]);
 
+  const essences = perfumes.filter((p) => !p.isPack);
+  const packs = perfumes.filter((p) => p.isPack);
+
   const [prefill, setPrefill] = useState<RequestPrefill | undefined>(undefined);
 
   const openRequest = useCallback(
@@ -715,8 +665,17 @@ export default function Home() {
       <Navbar />
       <main className="flex-1">
         <Hero onRequest={() => openRequest()} />
-        <Steps />
-        <Collection perfumes={perfumes} onRequest={openRequest} />
+        <Collection perfumes={essences} onRequest={openRequest} />
+        <Collection
+          perfumes={packs}
+          onRequest={openRequest}
+          id="packs"
+          eyebrow="Coffrets"
+          title="Nos packs"
+          intro="Plusieurs parfums réunis, à prix réduit. Idéal pour découvrir
+                 plusieurs signatures ou pour offrir."
+          variant="packs"
+        />
         <Concept />
         <Signature />
         <Contact onRequest={() => openRequest()} />

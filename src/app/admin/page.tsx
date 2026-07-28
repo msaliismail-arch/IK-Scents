@@ -196,6 +196,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     gender: "",
     discount: "",
     discountUntil: "",
+    isPack: false,
     published: true,
   };
   const [formData, setFormData] = useState(emptyForm);
@@ -399,6 +400,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       discountUntil: perfume.discountUntil
         ? String(perfume.discountUntil).slice(0, 10)
         : "",
+      isPack: Boolean(perfume.isPack),
       published: perfume.published,
     });
     setSizes(
@@ -1038,6 +1040,25 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         </Button>
                       </div>
                     ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 border-t border-border pt-5">
+                  <Switch
+                    checked={formData.isPack}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, isPack: checked })
+                    }
+                    className="data-[state=checked]:bg-[#6e2639]"
+                  />
+                  <div>
+                    <Label className="text-muted-foreground text-sm">
+                      {formData.isPack ? "C'est un pack" : "Parfum simple"}
+                    </Label>
+                    <p className="text-muted-foreground/70 text-xs mt-1">
+                      Un pack apparaît dans la section « Nos packs ». Prix,
+                      formats, stock et commande fonctionnent exactement pareil.
+                    </p>
                   </div>
                 </div>
 

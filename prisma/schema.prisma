@@ -37,6 +37,9 @@ model Perfume {
   /// normal — aucune intervention manuelle n'est nécessaire.
   /// Vide = remise sans date de fin.
   discountUntil DateTime?
+  /// true = coffret / lot. S'affiche dans la section « Nos packs » au lieu de
+  /// « Nos essences ». Tout le reste (prix, formats, stock) fonctionne pareil.
+  isPack      Boolean  @default(false)
   published   Boolean  @default(false)
   sizes       Size[]
   createdAt   DateTime @default(now())

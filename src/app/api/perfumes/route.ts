@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
       gender,
       discount,
       discountUntil,
+      isPack,
     } = body;
     const sizes = cleanSizes(body.sizes);
 
@@ -94,6 +95,7 @@ export async function POST(request: NextRequest) {
         gender: normalizeGender(gender),
         discount: String(normalizeDiscount(discount)),
         discountUntil: normalizeDiscountUntil(discountUntil),
+        isPack: Boolean(isPack),
         published: published ?? false,
         sizes: { create: sizes },
       },

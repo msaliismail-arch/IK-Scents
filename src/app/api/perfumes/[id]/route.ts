@@ -69,6 +69,7 @@ export async function PUT(
       gender,
       discount,
       discountUntil,
+      isPack,
     } = body;
     const hasSizes = Array.isArray(body.sizes);
     const sizes = cleanSizes(body.sizes);
@@ -91,6 +92,7 @@ export async function PUT(
         ...(discountUntil !== undefined && {
           discountUntil: normalizeDiscountUntil(discountUntil),
         }),
+        ...(isPack !== undefined && { isPack: Boolean(isPack) }),
         ...(published !== undefined && { published }),
         ...(hasSizes && {
           sizes: {

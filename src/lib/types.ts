@@ -22,6 +22,8 @@ export interface Perfume {
   discount?: string;
   /** Fin de promotion (ISO). Passée cette date le prix revient seul. */
   discountUntil?: string | null;
+  /** true = coffret / lot, affiché dans « Nos packs » */
+  isPack?: boolean;
   published: boolean;
   sizes: Size[];
   createdAt: string;
