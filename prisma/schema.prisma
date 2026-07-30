@@ -132,6 +132,39 @@ model Order {
   @@index([status])
 }
 
+/// Annonce publiée par l'admin.
+///
+/// Deux points d'affichage, une seule source : la section « Annonces » de la
+/// page d'accueil les montre toutes, et le bandeau en haut du site reprend la
+/// première active. Écrire l'annonce une fois suffit donc à la diffuser aux
+/// deux endroits — pas de texte à maintenir en double.
+model Announcement {
+  id String @id @default(cuid())
+
+  /// Titre court, ex. « Nouvelle arrivée » ou « −20 % jusqu'au 20 août »
+  title String
+  /// Détail facultatif, sous le titre. Le bandeau n'affiche que le titre.
+  body  String @default("")
+
+  /// Lien facultatif. Interne ("/#collection") ou externe (https://…).
+  url       String @default("")
+  /// Texte du bouton quand un lien est renseigné.
+  linkLabel String @default("")
+
+  /// Permet de retirer une annonce sans la perdre — utile pour une promotion
+  /// saisonnière qu'on réactivera l'an prochain.
+  active Boolean @default(true)
+
+  /// Ordre d'affichage. La plus petite valeur passe en premier, et c'est elle
+  /// qui alimente le bandeau du haut.
+  position Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, position])
+}
+
 /// Réglages du site — une seule ligne, id fixe "main".
 model Settings {
   id String @id @default("main")
@@ -144,15 +177,6 @@ model Settings {
 
   /// Exceptions par ville : JSON [{ "city": "Oujda", "price": "20" }]
   deliveryCitiesJson String @default("[]")
-
-  /// ─── Bandeau d'annonce ──────────────────────────────────────────────────
-  /// Texte affiché en haut de toutes les pages, ex. « −20 % jusqu'au 20 août ».
-  announcement       String  @default("")
-  /// Lien optionnel du bandeau. Vide = bandeau non cliquable.
-  announcementUrl    String  @default("")
-  /// Interrupteur séparé du texte : permet de préparer une annonce à l'avance,
-  /// ou d'en retirer une sans perdre ce qui était écrit.
-  announcementActive Boolean @default(false)
 
   updatedAt DateTime @updatedAt
 }

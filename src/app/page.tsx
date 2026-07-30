@@ -6,6 +6,7 @@ import { ArrowRight, Bell, Instagram, Package, ShoppingBag } from "lucide-react"
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { Img } from "@/components/site/media";
+import { AnnouncementsSection } from "@/components/site/announcements-section";
 import { SideFlorals, FloralDivider } from "@/components/site/botanical";
 import { Reveal, RevealLines, Parallax } from "@/components/site/reveal";
 import {
@@ -756,6 +757,9 @@ export default function Home() {
       <Navbar />
       <main className="flex-1">
         <Hero onRequest={() => openRequest()} />
+        {/* Entre le hero et la collection : le visiteur vient de voir la
+            marque, il décide s'il descend. C'est là qu'une annonce agit. */}
+        <AnnouncementsSection />
         <Collection
           perfumes={decants}
           onRequest={openRequest}

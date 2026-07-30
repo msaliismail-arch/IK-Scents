@@ -4,9 +4,6 @@ export const DEFAULT_SETTINGS: Settings = {
   deliveryPrice: "0",
   freeDeliveryFrom: "",
   deliveryCities: [],
-  announcement: "",
-  announcementUrl: "",
-  announcementActive: false,
 };
 
 const num = (v: string | number | null | undefined) => {

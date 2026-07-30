@@ -25,6 +25,7 @@ import {
   Check,
   ExternalLink,
   X,
+  Megaphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +49,7 @@ import type {
   Settings,
   DeliveryCity,
   PerfumeRequest,
+  Announcement,
 } from "@/lib/types";
 
 type SizeRow = { label: string; price: string };
@@ -184,7 +186,7 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
 // ---------- DASHBOARD ----------
 function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [tab, setTab] = useState<
-    "products" | "orders" | "requests" | "delivery"
+    "products" | "orders" | "requests" | "announcements" | "delivery"
   >("products");
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -228,6 +230,93 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
+
+  // --- Annonces ---
+  const emptyAnnouncement = {
+    title: "",
+    body: "",
+    url: "",
+    linkLabel: "",
+    active: true,
+    position: 0,
+  };
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [annLoading, setAnnLoading] = useState(false);
+  const [annForm, setAnnForm] = useState(emptyAnnouncement);
+  const [annEditingId, setAnnEditingId] = useState<string | null>(null);
+  const [annShowForm, setAnnShowForm] = useState(false);
+  const [annError, setAnnError] = useState("");
+
+  const fetchAnnouncements = async () => {
+    setAnnLoading(true);
+    try {
+      const res = await fetch("/api/announcements?all=true");
+      const data = await res.json();
+      setAnnouncements(Array.isArray(data) ? data : []);
+    } finally {
+      setAnnLoading(false);
+    }
+  };
+
+  const resetAnnForm = () => {
+    setAnnForm(emptyAnnouncement);
+    setAnnEditingId(null);
+    setAnnError("");
+  };
+
+  const saveAnnouncement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAnnError("");
+    const res = annEditingId
+      ? await fetch(`/api/announcements/${annEditingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(annForm),
+        })
+      : await fetch("/api/announcements", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(annForm),
+        });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setAnnError(data.error || "Enregistrement impossible.");
+      return;
+    }
+    resetAnnForm();
+    setAnnShowForm(false);
+    fetchAnnouncements();
+  };
+
+  const editAnnouncement = (a: Announcement) => {
+    setAnnForm({
+      title: a.title,
+      body: a.body ?? "",
+      url: a.url ?? "",
+      linkLabel: a.linkLabel ?? "",
+      active: a.active,
+      position: a.position ?? 0,
+    });
+    setAnnEditingId(a.id);
+    setAnnShowForm(true);
+    setAnnError("");
+  };
+
+  const toggleAnnouncement = async (a: Announcement) => {
+    await fetch(`/api/announcements/${a.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ active: !a.active }),
+    });
+    fetchAnnouncements();
+  };
+
+  const deleteAnnouncement = async (id: string) => {
+    if (!confirm("Supprimer cette annonce ?")) return;
+    await fetch(`/api/announcements/${id}`, { method: "DELETE" });
+    fetchAnnouncements();
+  };
 
   const fetchPerfumes = async () => {
     setLoading(true);
@@ -279,6 +368,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     fetchOrders();
     fetchRequests();
     fetchSettings();
+    fetchAnnouncements();
   }, []);
 
   const updateRequestStatus = async (id: string, status: string) => {
@@ -576,6 +666,22 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             )}
           </button>
           <button
+            onClick={() => setTab("announcements")}
+            className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+              tab === "announcements"
+                ? "text-gold border-b-2 border-gold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Megaphone className="w-4 h-4" />
+            Annonces
+            {announcements.filter((a) => a.active).length > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-[#b8935a] text-white font-semibold">
+                {announcements.filter((a) => a.active).length}
+              </span>
+            )}
+          </button>
+          <button
             onClick={() => setTab("delivery")}
             className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "delivery"
@@ -703,75 +809,258 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </div>
         )}
 
+        {tab === "announcements" && (
+          <>
+            <div className="flex items-start justify-between gap-4 mb-6">
+              <div className="max-w-xl">
+                <h2 className="font-serif text-xl text-foreground">Annonces</h2>
+                <p className="text-muted-foreground text-sm font-light mt-1.5 leading-relaxed">
+                  Affichées dans une section dédiée entre le hero et la
+                  collection. <strong>La première annonce active</strong> passe
+                  aussi dans le bandeau en haut du site — visible dès l’arrivée,
+                  sans avoir à faire défiler.
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  setAnnShowForm((v) => !v);
+                  if (!annShowForm) resetAnnForm();
+                }}
+                className="btn-gold shrink-0"
+              >
+                {annShowForm ? (
+                  <>
+                    <X className="w-4 h-4 mr-1.5" />
+                    Annuler
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-1.5" />
+                    Nouvelle annonce
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {annShowForm && (
+              <form
+                onSubmit={saveAnnouncement}
+                className="bg-card border border-border rounded-lg p-5 space-y-4 mb-6 max-w-2xl"
+              >
+                {annError && (
+                  <p className="border border-destructive/40 bg-destructive/5 text-destructive text-sm rounded-md px-3 py-2.5">
+                    {annError}
+                  </p>
+                )}
+
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground text-sm">
+                    Titre *
+                  </Label>
+                  <Input
+                    value={annForm.title}
+                    onChange={(e) =>
+                      setAnnForm({ ...annForm, title: e.target.value })
+                    }
+                    placeholder="Ex : −20 % sur tous les décants jusqu’au 20 août"
+                    maxLength={120}
+                    required
+                  />
+                  <p className="text-muted-foreground/70 text-xs">
+                    C’est ce texte seul qui passe dans le bandeau du haut.
+                    Court et concret — une date de fin fait bien plus agir
+                    qu’une promesse vague.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground text-sm">
+                    Détail — optionnel
+                  </Label>
+                  <Textarea
+                    value={annForm.body}
+                    onChange={(e) =>
+                      setAnnForm({ ...annForm, body: e.target.value })
+                    }
+                    placeholder="Une ou deux phrases, affichées uniquement dans la section."
+                    rows={3}
+                    maxLength={400}
+                    className="resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Lien — optionnel
+                    </Label>
+                    <Input
+                      value={annForm.url}
+                      onChange={(e) =>
+                        setAnnForm({ ...annForm, url: e.target.value })
+                      }
+                      placeholder="/#collection  ou  https://..."
+                    />
+                    <p className="text-muted-foreground/70 text-xs">
+                      <code>/#collection</code> envoie droit à la boutique.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Texte du bouton
+                    </Label>
+                    <Input
+                      value={annForm.linkLabel}
+                      onChange={(e) =>
+                        setAnnForm({ ...annForm, linkLabel: e.target.value })
+                      }
+                      placeholder="En savoir plus"
+                      maxLength={40}
+                      disabled={!annForm.url.trim()}
+                    />
+                    <p className="text-muted-foreground/70 text-xs">
+                      Ignoré sans lien.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Ordre d’affichage
+                    </Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={999}
+                      value={annForm.position}
+                      onChange={(e) =>
+                        setAnnForm({
+                          ...annForm,
+                          position: Number(e.target.value) || 0,
+                        })
+                      }
+                    />
+                    <p className="text-muted-foreground/70 text-xs">
+                      Le plus petit nombre passe en premier — et alimente le
+                      bandeau.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-4 border border-border rounded-lg px-4 py-3">
+                    <Label className="text-foreground text-sm">Active</Label>
+                    <Switch
+                      checked={annForm.active}
+                      onCheckedChange={(v) =>
+                        setAnnForm({ ...annForm, active: v })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <Button type="submit" className="btn-gold w-full">
+                  {annEditingId ? "Enregistrer" : "Publier l’annonce"}
+                </Button>
+              </form>
+            )}
+
+            {annLoading ? (
+              <div className="flex justify-center py-10">
+                <Loader2 className="w-8 h-8 text-gold animate-spin" />
+              </div>
+            ) : announcements.length === 0 ? (
+              <div className="text-center py-10">
+                <Megaphone className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground">Aucune annonce</p>
+                <p className="text-muted-foreground/60 text-sm mt-1.5">
+                  Sans annonce, la section et le bandeau ne s’affichent pas.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2 max-w-3xl">
+                {announcements.map((a, i) => (
+                  <div
+                    key={a.id}
+                    className="flex items-start gap-3 p-4 bg-card border border-border rounded-lg"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="text-foreground text-sm font-medium">
+                          {a.title}
+                        </h4>
+                        <Badge
+                          className={`text-[10px] ${
+                            a.active
+                              ? "bg-gold-soft text-gold border-gold-soft"
+                              : "bg-muted text-muted-foreground border-border"
+                          }`}
+                        >
+                          {a.active ? "Active" : "Masquée"}
+                        </Badge>
+                        {a.active && i === 0 && (
+                          <Badge className="text-[10px] bg-bordeaux/10 text-bordeaux border-bordeaux/30">
+                            Dans le bandeau
+                          </Badge>
+                        )}
+                      </div>
+                      {a.body && (
+                        <p className="text-muted-foreground text-xs mt-1 line-clamp-2">
+                          {a.body}
+                        </p>
+                      )}
+                      <p className="text-muted-foreground/60 text-[11px] mt-1">
+                        Ordre {a.position ?? 0}
+                        {a.url ? ` · ${a.url}` : " · sans lien"}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title={a.active ? "Masquer" : "Afficher"}
+                        className="w-8 h-8 text-muted-foreground hover:text-gold"
+                        onClick={() => toggleAnnouncement(a)}
+                      >
+                        {a.active ? (
+                          <Eye className="w-3.5 h-3.5" />
+                        ) : (
+                          <EyeOff className="w-3.5 h-3.5" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="Modifier"
+                        className="w-8 h-8 text-muted-foreground hover:text-gold"
+                        onClick={() => editAnnouncement(a)}
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="Supprimer"
+                        className="w-8 h-8 text-muted-foreground hover:text-red-500"
+                        onClick={() => deleteAnnouncement(a.id)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
         {tab === "delivery" && (
           <form
             onSubmit={saveSettings}
             className="bg-card border border-border rounded-lg p-5 sm:p-6 space-y-7 max-w-2xl"
           >
-            {/* ─── Bandeau d'annonce ───────────────────────────────────── */}
             <div>
-              <h2 className="font-serif text-xl text-foreground">
-                Bandeau d’annonce
-              </h2>
-              <p className="text-muted-foreground text-sm font-light mt-1.5 leading-relaxed">
-                Une bande fine en haut de toutes les pages. Le visiteur peut la
-                fermer ; une nouvelle annonce réapparaît chez tout le monde.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-muted-foreground text-sm">
-                Texte de l’annonce
-              </Label>
-              <Input
-                value={settings.announcement}
-                onChange={(e) =>
-                  setSettings({ ...settings, announcement: e.target.value })
-                }
-                placeholder="Ex : −20 % sur tous les décants jusqu’au 20 août"
-                maxLength={200}
-              />
-              <p className="text-muted-foreground/70 text-xs">
-                Court et concret. Une date de fin fait bien plus agir qu’une
-                promesse vague.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-muted-foreground text-sm">
-                Lien du bandeau — optionnel
-              </Label>
-              <Input
-                value={settings.announcementUrl}
-                onChange={(e) =>
-                  setSettings({ ...settings, announcementUrl: e.target.value })
-                }
-                placeholder="/#collection  ou  https://..."
-              />
-              <p className="text-muted-foreground/70 text-xs">
-                Rend le bandeau cliquable. <code>/#collection</code> envoie
-                directement à la boutique.
-              </p>
-            </div>
-
-            <div className="flex items-center justify-between gap-4 border border-border rounded-lg px-4 py-3">
-              <div>
-                <Label className="text-foreground text-sm">
-                  Afficher le bandeau
-                </Label>
-                <p className="text-muted-foreground/70 text-xs mt-0.5">
-                  Se désactive seul si le texte est vide.
-                </p>
-              </div>
-              <Switch
-                checked={settings.announcementActive}
-                onCheckedChange={(v) =>
-                  setSettings({ ...settings, announcementActive: v })
-                }
-              />
-            </div>
-
-            <div className="border-t border-border pt-7">
               <h2 className="font-serif text-xl text-foreground">
                 Frais de livraison
               </h2>

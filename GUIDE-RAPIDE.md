@@ -71,10 +71,21 @@ CREATE TABLE IF NOT EXISTS "PerfumeRequest" (
 );
 CREATE INDEX IF NOT EXISTS "PerfumeRequest_status_idx" ON "PerfumeRequest"("status");
 
--- Bandeau d'annonce
-ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "announcement"       TEXT    NOT NULL DEFAULT '';
-ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "announcementUrl"    TEXT    NOT NULL DEFAULT '';
-ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "announcementActive" BOOLEAN NOT NULL DEFAULT false;
+-- Annonces
+CREATE TABLE IF NOT EXISTS "Announcement" (
+  "id"        TEXT NOT NULL,
+  "title"     TEXT NOT NULL,
+  "body"      TEXT NOT NULL DEFAULT '',
+  "url"       TEXT NOT NULL DEFAULT '',
+  "linkLabel" TEXT NOT NULL DEFAULT '',
+  "active"    BOOLEAN NOT NULL DEFAULT true,
+  "position"  INTEGER NOT NULL DEFAULT 0,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "Announcement_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "Announcement_active_position_idx"
+  ON "Announcement"("active", "position");
 
 ALTER TABLE "PerfumeRequest" ADD COLUMN IF NOT EXISTS "quantity"     INTEGER NOT NULL DEFAULT 1;
 ALTER TABLE "PerfumeRequest" ADD COLUMN IF NOT EXISTS "customerName" TEXT NOT NULL DEFAULT '';
@@ -259,6 +270,28 @@ contrefaçon — c'est aussi **ton** outil au moment d'acheter chez un fournisse
 Le numéro d'une commande est une **copie** faite au moment de la commande :
 rien n'est généré à la confirmation, et modifier le parfum plus tard ne
 réécrit pas l'historique.
+
+---
+
+## 4 quater. Annonces
+
+Onglet **Annonces** dans l'admin. Chaque annonce a un titre, un détail
+facultatif, un lien facultatif, un interrupteur et un ordre.
+
+**Deux emplacements, une seule saisie :**
+
+| Où | Ce qui s'affiche |
+|---|---|
+| Section « Annonces » de l'accueil, **entre le hero et la collection** | Toutes les annonces actives, en cartes |
+| Bandeau bordeaux en haut du site | **Le titre de la première annonce active** (le plus petit `Ordre`) |
+
+Le bandeau assure la visibilité dès l'arrivée ; la section donne le détail au
+moment où le visiteur décide s'il descend. Écrire l'annonce une fois suffit.
+
+Aucune annonce active = ni bandeau ni section. Rien ne reste vide à l'écran.
+
+Le visiteur peut fermer le bandeau : on s'en souvient, mais la mémoire est liée
+au **titre**. Change le titre et le bandeau réapparaît chez tout le monde.
 
 ### Une variable à ajouter
 

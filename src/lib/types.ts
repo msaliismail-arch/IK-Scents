@@ -103,12 +103,25 @@ export interface Settings {
   freeDeliveryFrom: string;
   /** Villes qui ne suivent pas le prix par défaut. */
   deliveryCities: DeliveryCity[];
-  /** Texte du bandeau affiché en haut du site. "" = rien à annoncer. */
-  announcement: string;
-  /** Lien optionnel du bandeau. "" = bandeau non cliquable. */
-  announcementUrl: string;
-  /** Le bandeau ne s'affiche que si ceci est vrai ET que le texte est rempli. */
-  announcementActive: boolean;
+}
+
+/**
+ * Annonce publiée par l'admin.
+ * Affichée dans la section « Annonces » de l'accueil ; la première active
+ * alimente aussi le bandeau en haut du site.
+ */
+export interface Announcement {
+  id: string;
+  title: string;
+  body?: string;
+  /** Lien interne ("/#collection") ou externe ("https://…"). "" = aucun. */
+  url?: string;
+  /** Texte du bouton. Vide avec une URL renseignée = libellé par défaut. */
+  linkLabel?: string;
+  active: boolean;
+  position?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AdminUser {
