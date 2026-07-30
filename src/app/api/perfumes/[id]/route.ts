@@ -7,6 +7,7 @@ import {
   normalizeDiscount,
   normalizeDiscountUntil,
 } from "@/lib/pricing";
+import { checkAuthenticity } from "@/lib/perfume-validation";
 
 type SizeInput = { label?: string; price?: string };
 
@@ -63,6 +64,7 @@ export async function PUT(
       description,
       image,
       published,
+      brand,
       family,
       notes,
       availability,
@@ -74,12 +76,34 @@ export async function PUT(
     const hasSizes = Array.isArray(body.sizes);
     const sizes = cleanSizes(body.sizes);
 
+    // Les champs d'authenticité ne sont revalidés que s'ils sont envoyés :
+    // une mise à jour partielle (publier / dépublier) ne doit rien effacer.
+    const touchesAuth =
+      body.serialNumber !== undefined ||
+      body.batchCode !== undefined ||
+      body.officialUrl !== undefined;
+
+    let authData: {
+      serialNumber?: string | null;
+      batchCode?: string;
+      officialUrl?: string;
+    } = {};
+    if (touchesAuth) {
+      const auth = await checkAuthenticity(body, id);
+      if (!auth.ok) return auth.response;
+      authData = auth.data;
+    }
+
     const perfume = await db.perfume.update({
       where: { id },
       data: {
         ...(name !== undefined && { name }),
         ...(description !== undefined && { description }),
         ...(image !== undefined && { image }),
+        ...(brand !== undefined && {
+          brand: String(brand).trim().slice(0, 80),
+        }),
+        ...authData,
         ...(family !== undefined && { family: String(family).trim() }),
         ...(notes !== undefined && { notes: String(notes).trim() }),
         ...(availability !== undefined && {

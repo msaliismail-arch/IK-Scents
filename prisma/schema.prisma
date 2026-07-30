@@ -23,6 +23,23 @@ model Perfume {
   name        String
   description String
   image       String
+  /// Marque du parfum, ex. "Lancôme". Sert à l'affichage et au tri en admin.
+  brand       String   @default("")
+
+  /// ─── Authenticité ───────────────────────────────────────────────────────
+  /// Numéro de série RÉEL relevé sur le flacon d'origine dont proviennent les
+  /// décants. Jamais généré automatiquement : il est saisi à la main par
+  /// l'admin, flacon en main. Unique en base — deux produits ne peuvent pas
+  /// porter le même numéro. `null` tant qu'aucun numéro n'a été saisi (en
+  /// PostgreSQL, plusieurs NULL sont autorisés sur une colonne unique).
+  serialNumber String? @unique
+  /// Code de lot imprimé sous le flacon (3 à 12 caractères). C'est le seul
+  /// élément que le client peut vérifier lui-même, sur un décodeur public
+  /// comme CheckFresh, qui en donne la date de fabrication.
+  batchCode    String  @default("")
+  /// Page officielle du produit chez la marque. Doit être une URL http(s)
+  /// valide, saisie et vérifiée par l'admin. Vide = pas de QR affiché.
+  officialUrl  String  @default("")
   /// Famille olfactive, ex. "Boisé oriental". Vide tant que l'admin ne l'a pas saisie.
   family      String   @default("")
   /// Notes principales, ex. "Bergamote · Rose · Ambre".
@@ -96,6 +113,13 @@ model Order {
   perfumeName   String
   sizeLabel     String
   price         String
+  /// Copie figée des informations d'authenticité au moment de la commande.
+  /// Le parfum peut être modifié ou supprimé plus tard : la commande doit
+  /// garder la trace exacte du flacon d'où venait le décant livré.
+  /// Aucun numéro n'est généré ici — c'est une copie, jamais une création.
+  brand         String   @default("")
+  serialNumber  String   @default("")
+  officialUrl   String   @default("")
   quantity      Int      @default(1)
   deliveryPrice String   @default("0")
   note          String?

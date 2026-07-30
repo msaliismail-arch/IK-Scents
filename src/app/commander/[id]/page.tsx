@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
+import { AuthenticityBlock } from "@/components/site/authenticity-block";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -248,6 +249,10 @@ export default function CommanderPage() {
                     {perfume.notes}
                   </p>
                 )}
+
+                {/* Provenance du flacon source. Le bloc se masque tout seul
+                    quand aucune information d'authenticité n'a été saisie. */}
+                <AuthenticityBlock perfume={perfume} />
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">

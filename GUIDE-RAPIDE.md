@@ -22,6 +22,15 @@ risque : `IF NOT EXISTS` partout, tu peux le relancer autant de fois que tu veux
 
 ```sql
 -- Parfums
+ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "brand"         TEXT NOT NULL DEFAULT '';
+ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "serialNumber"  TEXT;
+ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "batchCode"     TEXT NOT NULL DEFAULT '';
+ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "officialUrl"   TEXT NOT NULL DEFAULT '';
+-- Un numéro de série ne peut appartenir qu'à un seul flacon.
+-- NULL est autorisé plusieurs fois : les parfums sans numéro ne se gênent pas.
+CREATE UNIQUE INDEX IF NOT EXISTS "Perfume_serialNumber_key"
+  ON "Perfume"("serialNumber");
+
 ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "family"        TEXT NOT NULL DEFAULT '';
 ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "notes"         TEXT NOT NULL DEFAULT '';
 ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "availability"  TEXT NOT NULL DEFAULT 'disponible';
@@ -32,6 +41,10 @@ ALTER TABLE "Perfume" ADD COLUMN IF NOT EXISTS "isPack"        BOOLEAN NOT NULL 
 
 -- Commandes
 ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "deliveryPrice" TEXT NOT NULL DEFAULT '0';
+-- Copie figée des infos d'authenticité au moment de la commande
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "brand"        TEXT NOT NULL DEFAULT '';
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "serialNumber" TEXT NOT NULL DEFAULT '';
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "officialUrl"  TEXT NOT NULL DEFAULT '';
 
 -- Réglages du site (livraison)
 CREATE TABLE IF NOT EXISTS "Settings" (
@@ -184,6 +197,89 @@ Le lien WhatsApp du footer n'apparaît que si tu renseignes le numéro dans
 ```ts
 export const WHATSAPP_NUMBER = "2126XXXXXXXX"; // sans + ni espaces
 ```
+
+---
+
+## 4 ter. Authenticité — numéro de série et QR code
+
+### Ce que le système fait, et ce qu'il ne fait pas
+
+**Aucune marque de parfum (Dior, Lancôme, Prada…) ne propose de service public
+permettant de vérifier un numéro de série.** Ça n'existe pas. Un QR code qui
+ouvrirait `dior.com` ne prouverait donc rien du tout — n'importe qui peut créer
+un lien vers Dior.
+
+Le système installé fait autre chose, et de plus utile :
+
+```
+Flacon original  →  tu relèves son numéro  →  QR code
+                                               ↓
+                              assilparfums.store/verifier/LE-NUMERO
+                                               ↓
+                    photo du flacon · code de lot · deux vérifications
+                    indépendantes que le client fait LUI-MÊME
+```
+
+### Les champs, dans l'admin
+
+| Champ | Ce que tu y mets |
+|---|---|
+| **Marque** | Ex. `Lancôme` |
+| **Numéro de série du flacon** | Recopié **exactement** du flacon original. Unique : deux parfums ne peuvent pas le partager. |
+| **Code de lot** | Le petit code sous le flacon (ex. `3F01`) |
+| **Page officielle de la marque** | L'URL du produit chez la marque. Vérifie-la avant d'enregistrer. |
+
+⚠️ **N'invente jamais un numéro.** Un numéro faux est pire que pas de numéro :
+le jour où un client le vérifie, tu perds tout — et c'est exactement le
+reproche que tu fais aux vendeurs de contrefaçon. Pas de numéro sous la main ?
+Laisse vide, le bloc se masque tout seul.
+
+### Le code de lot, c'est lui qui compte
+
+C'est la **seule** vérification réellement indépendante. Le client clique
+« Vérifier le code de lot » et arrive sur CheckFresh, qui lui donne la date de
+fabrication du flacon. Un code qui ne se décode pas est un signal fort de
+contrefaçon — c'est aussi **ton** outil au moment d'acheter chez un fournisseur.
+
+### Où ça s'affiche
+
+- **Fiche produit** — bloc « Authenticité & provenance » sous les notes
+- **Page `/verifier/[numéro]`** — la cible du QR, publique
+- **Admin → Produits** — numéro sous chaque ligne + boutons : voir le QR,
+  copier l'URL, ouvrir le site officiel
+- **Admin → Commandes** — dès qu'une commande passe à **Confirmé**, sa fiche
+  d'authenticité apparaît (marque, format, numéro, QR, lien officiel)
+
+Le numéro d'une commande est une **copie** faite au moment de la commande :
+rien n'est généré à la confirmation, et modifier le parfum plus tard ne
+réécrit pas l'historique.
+
+### Une variable à ajouter
+
+Pour que le QR encode la bonne adresse dès le rendu serveur, ajoute dans
+`.env` **et** dans les variables Vercel :
+
+```
+NEXT_PUBLIC_SITE_URL="https://assilparfums.vercel.app"
+```
+
+Sans elle, le QR se génère quand même — juste une fraction de seconde plus
+tard, une fois la page chargée.
+
+### La formulation, et pourquoi elle est prudente
+
+Le site écrit « Décant transvasé d'un flacon original acheté par ASSIL » et
+non « Produit certifié authentique ». Trois raisons :
+
+1. Le numéro appartient au **flacon source**, pas au décant reçu. Deux clients
+   du même parfum verront le même numéro : si le texte ne l'explique pas, ça
+   ressemble à une fraude.
+2. Une affirmation d'authenticité produite automatiquement par ton propre site
+   t'engage seul. Si un fournisseur te refile un faux, c'est **ton** site qui
+   aura écrit « original » (loi 31-08 sur la protection du consommateur).
+3. La mention de non-affiliation est affichée partout où une marque est citée.
+   C'est ce qui sépare « voici d'où vient ce décant » de « cette marque
+   garantit ce produit ».
 
 ---
 

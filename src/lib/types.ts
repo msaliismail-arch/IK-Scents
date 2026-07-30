@@ -10,6 +10,17 @@ export interface Perfume {
   name: string;
   description: string;
   image: string;
+  /** Marque, ex. "Lancôme". */
+  brand?: string;
+  /**
+   * Numéro de série réel du flacon d'origine, saisi à la main par l'admin.
+   * Jamais généré. Unique en base. `null` = non renseigné.
+   */
+  serialNumber?: string | null;
+  /** Code de lot imprimé sous le flacon, vérifiable sur CheckFresh. */
+  batchCode?: string;
+  /** Page officielle du produit chez la marque (http/https). */
+  officialUrl?: string;
   /** Famille olfactive saisie par l'admin, ex. "Boisé oriental". */
   family?: string;
   /** Notes principales, ex. "Bergamote · Rose · Ambre". */
@@ -63,6 +74,10 @@ export interface Order {
   perfumeName: string;
   sizeLabel: string;
   price: string;
+  /** Copie figée des infos d'authenticité au moment de la commande. */
+  brand?: string;
+  serialNumber?: string;
+  officialUrl?: string;
   quantity: number;
   /** Frais de livraison appliqués à cette commande, en MAD */
   deliveryPrice?: string;

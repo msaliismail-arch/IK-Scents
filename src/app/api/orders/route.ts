@@ -80,6 +80,10 @@ export async function POST(request: NextRequest) {
     let unitPrice = Number.parseFloat(String(price ?? "").replace(",", "."));
     if (!Number.isFinite(unitPrice) || unitPrice < 0) unitPrice = 0;
 
+    // Informations d'authenticité recopiées depuis le parfum. Rien n'est
+    // généré ici : si le flacon n'a pas de numéro, la commande n'en aura pas.
+    let authSnapshot = { brand: "", serialNumber: "", officialUrl: "" };
+
     if (perfumeId) {
       const ref = await db.perfume.findUnique({
         where: { id: String(perfumeId) },
@@ -88,6 +92,9 @@ export async function POST(request: NextRequest) {
           published: true,
           discount: true,
           discountUntil: true,
+          brand: true,
+          serialNumber: true,
+          officialUrl: true,
           sizes: { select: { label: true, price: true } },
         },
       });
@@ -123,6 +130,12 @@ export async function POST(request: NextRequest) {
         ref.discount,
         ref.discountUntil
       ).final;
+
+      authSnapshot = {
+        brand: ref.brand ?? "",
+        serialNumber: ref.serialNumber ?? "",
+        officialUrl: ref.officialUrl ?? "",
+      };
     }
 
     const subtotal = unitPrice * safeQty;
@@ -144,6 +157,7 @@ export async function POST(request: NextRequest) {
         perfumeName: String(perfumeName).trim(),
         sizeLabel: String(sizeLabel).trim(),
         price: String(unitPrice),
+        ...authSnapshot,
         quantity: safeQty,
         deliveryPrice: String(delivery.price),
         note: note ? String(note).trim() : null,

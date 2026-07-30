@@ -20,6 +20,11 @@ import {
   Truck,
   Sparkles,
   Phone,
+  QrCode as QrCodeIcon,
+  Copy,
+  Check,
+  ExternalLink,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +33,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/site/logo";
+import { QrCode } from "@/components/site/qr-code";
+import { verifyUrl } from "@/lib/authenticity";
 import { resolveImg } from "@/lib/site";
 import { DEFAULT_SETTINGS } from "@/lib/delivery";
 import {
@@ -190,6 +197,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     name: "",
     description: "",
     image: "",
+    brand: "",
+    // Authenticité — toujours saisis à la main, flacon en main. Rien ici n'est
+    // généré automatiquement : un numéro inventé vaut moins que pas de numéro.
+    serialNumber: "",
+    batchCode: "",
+    officialUrl: "",
     family: "",
     notes: "",
     availability: DEFAULT_AVAILABILITY as string,
@@ -201,6 +214,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   };
   const [formData, setFormData] = useState(emptyForm);
   const [sizes, setSizes] = useState<SizeRow[]>([{ label: "", price: "" }]);
+  /** Message renvoyé par l'API (série en double, URL invalide…). */
+  const [formError, setFormError] = useState("");
+  /** Parfum dont on affiche le QR en grand depuis le tableau. */
+  const [qrPerfume, setQrPerfume] = useState<Perfume | null>(null);
+  /** Confirmation visuelle après « Copier l'URL ». */
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // --- Réglages de livraison ---
   const [requests, setRequests] = useState<PerfumeRequest[]>([]);
@@ -331,6 +350,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     setFormData(emptyForm);
     setSizes([{ label: "", price: "" }]);
     setEditingId(null);
+    setFormError("");
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -367,23 +387,53 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       alert("Ajoutez au moins une taille avec un prix.");
       return;
     }
+    setFormError("");
     const payload = { ...formData, sizes: cleanSizes };
-    if (editingId) {
-      await fetch(`/api/perfumes/${editingId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-    } else {
-      await fetch("/api/perfumes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+    const res = editingId
+      ? await fetch(`/api/perfumes/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+      : await fetch("/api/perfumes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+    // Un numéro de série en double ou une URL invalide reviennent en erreur :
+    // il faut la montrer, sinon l'admin croit avoir enregistré.
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setFormError(
+        data.error || "Enregistrement impossible. Vérifiez les champs."
+      );
+      return;
     }
+
     resetForm();
     setShowForm(false);
     fetchPerfumes();
+  };
+
+  /**
+   * Copie l'URL de vérification d'un parfum. C'est cette adresse qui est
+   * encodée dans le QR : la coller dans un navigateur donne exactement ce que
+   * verra un client qui scanne.
+   */
+  const copyVerifyUrl = async (perfume: Perfume) => {
+    if (!perfume.serialNumber) return;
+    const url = verifyUrl(perfume.serialNumber, window.location.origin);
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Clipboard refusé (page non sécurisée, permission) : on montre l'URL
+      // pour que l'admin puisse la copier à la main plutôt que rien.
+      window.prompt("Copiez l'URL de vérification :", url);
+      return;
+    }
+    setCopiedId(perfume.id);
+    setTimeout(() => setCopiedId(null), 1800);
   };
 
   const handleEdit = (perfume: Perfume) => {
@@ -391,6 +441,10 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       name: perfume.name,
       description: perfume.description,
       image: perfume.image,
+      brand: perfume.brand ?? "",
+      serialNumber: perfume.serialNumber ?? "",
+      batchCode: perfume.batchCode ?? "",
+      officialUrl: perfume.officialUrl ?? "",
       family: perfume.family ?? "",
       notes: perfume.notes ?? "",
       availability: perfume.availability ?? DEFAULT_AVAILABILITY,
@@ -801,6 +855,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 onSubmit={handleSubmit}
                 className="bg-card border border-border rounded-lg p-5 space-y-4 mb-6"
               >
+                {formError && (
+                  <p className="border border-destructive/40 bg-destructive/5 text-destructive text-sm rounded-md px-3 py-2.5">
+                    {formError}
+                  </p>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-muted-foreground text-sm">
@@ -858,6 +918,115 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     className="resize-none"
                   />
                 </div>
+
+                {/* ─── Authenticité & provenance ─────────────────────────
+                    Ces champs sont recopiés du flacon, jamais inventés. Le
+                    numéro de série identifie le FLACON SOURCE d'où sont tirés
+                    les décants — il est unique en base. */}
+                <fieldset className="border border-border rounded-lg p-4 space-y-4">
+                  <legend className="px-2 text-[11px] font-bold tracking-[0.2em] uppercase text-bordeaux">
+                    Authenticité &amp; provenance
+                  </legend>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-sm">
+                        Marque
+                      </Label>
+                      <Input
+                        value={formData.brand}
+                        onChange={(e) =>
+                          setFormData({ ...formData, brand: e.target.value })
+                        }
+                        placeholder="Ex : Lancôme"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-sm">
+                        Numéro de série du flacon
+                      </Label>
+                      <Input
+                        value={formData.serialNumber}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            serialNumber: e.target.value,
+                          })
+                        }
+                        placeholder="Recopiez-le exactement"
+                        className="font-mono"
+                      />
+                      <p className="text-muted-foreground/70 text-xs">
+                        Relevé sur le flacon original. <strong>Jamais
+                        inventé</strong> : un numéro faux se retourne contre
+                        vous. Unique — deux parfums ne peuvent pas le partager.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-sm">
+                        Code de lot
+                      </Label>
+                      <Input
+                        value={formData.batchCode}
+                        onChange={(e) =>
+                          setFormData({ ...formData, batchCode: e.target.value })
+                        }
+                        placeholder="Ex : 3F01"
+                        className="font-mono"
+                      />
+                      <p className="text-muted-foreground/70 text-xs">
+                        Le petit code sous le flacon. C&apos;est la seule chose
+                        que le client peut vérifier lui-même : elle donne la
+                        date de fabrication.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-sm">
+                        Page officielle de la marque
+                      </Label>
+                      <Input
+                        type="url"
+                        value={formData.officialUrl}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            officialUrl: e.target.value,
+                          })
+                        }
+                        placeholder="https://www.lancome.fr/..."
+                      />
+                      <p className="text-muted-foreground/70 text-xs">
+                        Vérifiez le lien avant de l&apos;enregistrer. Vide = pas
+                        de bouton « site officiel » sur la fiche.
+                      </p>
+                    </div>
+                  </div>
+
+                  {formData.serialNumber.trim() && (
+                    <div className="flex items-start gap-4 pt-2 border-t border-border">
+                      <QrCode
+                        value={verifyUrl(
+                          formData.serialNumber,
+                          typeof window !== "undefined"
+                            ? window.location.origin
+                            : ""
+                        )}
+                        size={104}
+                        title="Aperçu du QR code"
+                      />
+                      <p className="text-muted-foreground/70 text-xs leading-relaxed pt-1">
+                        Aperçu du QR code. Il mène à la fiche de vérification de
+                        ce numéro, pas au site de la marque — aucune marque ne
+                        propose de vérification publique par numéro de série.
+                      </p>
+                    </div>
+                  )}
+                </fieldset>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -1128,6 +1297,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
+                        {perfume.brand && (
+                          <span className="text-muted-foreground text-[11px] uppercase tracking-wider shrink-0">
+                            {perfume.brand}
+                          </span>
+                        )}
                         <h4 className="text-foreground text-sm font-medium truncate">
                           {perfume.name}
                         </h4>
@@ -1146,11 +1320,61 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                           .map((s) => `${s.label}: ${s.price} MAD`)
                           .join(" · ") || "Aucune taille"}
                       </p>
+                      <p className="text-muted-foreground/70 text-[11px] truncate mt-0.5">
+                        {perfume.serialNumber ? (
+                          <span className="font-mono">
+                            N° {perfume.serialNumber}
+                          </span>
+                        ) : (
+                          <span className="text-amber-600">
+                            Aucun numéro de série
+                          </span>
+                        )}
+                        {perfume.officialUrl && " · lien officiel ✓"}
+                      </p>
                     </div>
                     <div className="flex items-center gap-1">
+                      {perfume.serialNumber && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Voir le QR code"
+                          className="w-8 h-8 text-muted-foreground hover:text-gold"
+                          onClick={() => setQrPerfume(perfume)}
+                        >
+                          <QrCodeIcon className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
+                      {perfume.serialNumber && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Copier l'URL de vérification"
+                          className="w-8 h-8 text-muted-foreground hover:text-gold"
+                          onClick={() => copyVerifyUrl(perfume)}
+                        >
+                          {copiedId === perfume.id ? (
+                            <Check className="w-3.5 h-3.5 text-gold" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </Button>
+                      )}
+                      {perfume.officialUrl && (
+                        <a
+                          href={perfume.officialUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Ouvrir le site officiel"
+                          className="w-8 h-8 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-gold transition-colors"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
+                        title={perfume.published ? "Dépublier" : "Publier"}
                         className="w-8 h-8 text-muted-foreground hover:text-gold"
                         onClick={() => togglePublish(perfume)}
                       >
@@ -1163,6 +1387,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       <Button
                         variant="ghost"
                         size="icon"
+                        title="Modifier"
                         className="w-8 h-8 text-muted-foreground hover:text-gold"
                         onClick={() => handleEdit(perfume)}
                       >
@@ -1171,6 +1396,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       <Button
                         variant="ghost"
                         size="icon"
+                        title="Supprimer"
                         className="w-8 h-8 text-muted-foreground hover:text-red-500"
                         onClick={() => handleDelete(perfume.id)}
                       >
@@ -1251,6 +1477,54 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         <p className="text-muted-foreground/50 text-[10px] mt-1">
                           {new Date(order.createdAt).toLocaleString("fr-FR")}
                         </p>
+
+                        {/* Fiche d'authenticité, une fois la commande
+                            confirmée. Le numéro affiché est celui copié à la
+                            commande — aucun numéro n'est créé ici. */}
+                        {order.status === "confirmed" && order.serialNumber && (
+                          <div className="mt-3 pt-3 border-t border-border flex items-start gap-4">
+                            <QrCode
+                              value={verifyUrl(
+                                order.serialNumber,
+                                typeof window !== "undefined"
+                                  ? window.location.origin
+                                  : ""
+                              )}
+                              size={96}
+                              title="QR de vérification de la commande"
+                            />
+                            <div className="min-w-0 text-xs space-y-1">
+                              <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-bordeaux">
+                                Flacon source
+                              </p>
+                              {order.brand && (
+                                <p className="text-muted-foreground">
+                                  Marque : {order.brand}
+                                </p>
+                              )}
+                              <p className="text-muted-foreground">
+                                Parfum : {order.perfumeName}
+                              </p>
+                              <p className="text-muted-foreground">
+                                Format : {order.sizeLabel}
+                              </p>
+                              <p className="text-foreground font-mono break-all">
+                                N° {order.serialNumber}
+                              </p>
+                              {order.officialUrl && (
+                                <a
+                                  href={order.officialUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1.5 text-gold hover:underline"
+                                >
+                                  Site officiel
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <div className="flex flex-col items-end gap-2 shrink-0">
                         <select
@@ -1283,6 +1557,74 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </>
         )}
       </div>
+
+      {/* Aperçu du QR en grand — pour l'imprimer ou le montrer au client. */}
+      {qrPerfume?.serialNumber && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          <button
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setQrPerfume(null)}
+            aria-label="Fermer"
+            tabIndex={-1}
+          />
+          <div className="relative bg-card border border-border rounded-lg p-6 max-w-sm w-full text-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 w-8 h-8 text-muted-foreground"
+              onClick={() => setQrPerfume(null)}
+              aria-label="Fermer"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+
+            <h3 className="text-foreground text-sm font-medium pr-8 text-left">
+              {qrPerfume.name}
+            </h3>
+            <p className="text-muted-foreground font-mono text-xs mt-1 text-left break-all">
+              N° {qrPerfume.serialNumber}
+            </p>
+
+            <div className="mt-5 flex justify-center">
+              <QrCode
+                value={verifyUrl(
+                  qrPerfume.serialNumber,
+                  typeof window !== "undefined" ? window.location.origin : ""
+                )}
+                size={220}
+                title={`QR de ${qrPerfume.name}`}
+              />
+            </div>
+
+            <p className="mt-5 text-muted-foreground text-xs leading-relaxed">
+              Mène à la fiche de vérification de ce numéro. Ce n&apos;est pas un
+              certificat de la marque.
+            </p>
+
+            <Button
+              variant="outline"
+              className="mt-4 w-full text-xs"
+              onClick={() => copyVerifyUrl(qrPerfume)}
+            >
+              {copiedId === qrPerfume.id ? (
+                <>
+                  <Check className="w-3.5 h-3.5 mr-1.5" />
+                  URL copiée
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 mr-1.5" />
+                  Copier l&apos;URL
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

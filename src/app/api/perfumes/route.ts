@@ -10,6 +10,7 @@ import {
   normalizeDiscount,
   normalizeDiscountUntil,
 } from "@/lib/pricing";
+import { checkAuthenticity } from "@/lib/perfume-validation";
 
 type SizeInput = { label?: string; price?: string };
 
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
       description,
       image,
       published,
+      brand,
       family,
       notes,
       availability,
@@ -82,11 +84,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const auth = await checkAuthenticity(body);
+    if (!auth.ok) return auth.response;
+
     const perfume = await db.perfume.create({
       data: {
         name,
         description,
         image,
+        brand: String(brand ?? "").trim().slice(0, 80),
+        ...auth.data,
         family: String(family ?? "").trim(),
         notes: String(notes ?? "").trim(),
         availability: availability
