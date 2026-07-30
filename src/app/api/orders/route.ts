@@ -22,6 +22,11 @@ async function loadSettings(): Promise<Settings> {
       deliveryPrice: row.deliveryPrice ?? "0",
       freeDeliveryFrom: row.freeDeliveryFrom ?? "",
       deliveryCities: parseDeliveryCities(row.deliveryCitiesJson),
+      // Sans rapport avec la livraison, mais Settings les exige : les reprendre
+      // évite de faire diverger ce type de sa source en base.
+      announcement: row.announcement ?? "",
+      announcementUrl: row.announcementUrl ?? "",
+      announcementActive: Boolean(row.announcementActive),
     };
   } catch {
     return DEFAULT_SETTINGS;

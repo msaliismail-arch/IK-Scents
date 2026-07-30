@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Loader2, X } from "lucide-react";
+import { Check, Loader2, Minus, Plus, X } from "lucide-react";
 import { GENDERS, genderLabel } from "@/lib/pricing";
 import { DEFAULT_SETTINGS, computeDelivery } from "@/lib/delivery";
 import type { Settings } from "@/lib/types";
@@ -55,6 +55,7 @@ export function PerfumeRequestModal({
   prefill?: RequestPrefill;
 }) {
   const [form, setForm] = useState(EMPTY);
+  const [quantity, setQuantity] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
@@ -83,9 +84,13 @@ export function PerfumeRequestModal({
         ? Math.min(...prices)
         : 0;
 
+  // Le sous-total suit la quantité, sinon le seuil de livraison offerte serait
+  // calculé sur un seul exemplaire alors que le client en demande plusieurs.
+  const subtotal = unitPrice * quantity;
+
   // La ville saisie peut porter une exception de livraison : le total se
   // recalcule à chaque frappe, comme sur la page de commande.
-  const livraison = computeDelivery(settings, unitPrice, form.city);
+  const livraison = computeDelivery(settings, subtotal, form.city);
   const villeException =
     form.city.trim() !== "" && livraison.reason === "city";
 
@@ -137,6 +142,7 @@ export function PerfumeRequestModal({
     if (open) return;
     const t = setTimeout(() => {
       setForm(EMPTY);
+      setQuantity(1);
       setError("");
       setDone(false);
     }, 400);
@@ -154,7 +160,7 @@ export function PerfumeRequestModal({
       const res = await fetch("/api/requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, quantity }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -322,6 +328,37 @@ export function PerfumeRequestModal({
                     ))}
                   </div>
                 </div>
+
+                {/* Combien d'exemplaires. Un client qui en veut trois le dit
+                    tout de suite : c'est autant de flacons à prévoir. */}
+                <div>
+                  <span className={labelClass}>Quantité</span>
+                  <div className="inline-flex items-center border border-[#d8cbb8] bg-white">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                      disabled={quantity <= 1}
+                      aria-label="Retirer un exemplaire"
+                      className="w-12 h-12 flex items-center justify-center text-[#171717] hover:bg-[#efe8dc] disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span
+                      aria-live="polite"
+                      className="w-14 text-center text-[15px] font-medium text-[#171717] tabular-nums"
+                    >
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((q) => Math.min(99, q + 1))}
+                      aria-label="Ajouter un exemplaire"
+                      className="w-12 h-12 flex items-center justify-center text-[#171717] hover:bg-[#efe8dc] transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -407,9 +444,10 @@ export function PerfumeRequestModal({
                 <div className="flex items-center justify-between">
                   <span className="text-[#6b6255]">
                     {selected ? selected.label : "À partir de"}
+                    {quantity > 1 ? ` × ${quantity}` : ""}
                   </span>
                   <span className="font-semibold text-bordeaux">
-                    {unitPrice} MAD
+                    {subtotal} MAD
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -432,7 +470,7 @@ export function PerfumeRequestModal({
                 <div className="flex items-center justify-between border-t border-[#efe8dc] pt-2">
                   <span className="text-[#6b6255]">Total indicatif</span>
                   <span className="font-serif text-lg text-bordeaux">
-                    {unitPrice + livraison.price} MAD
+                    {subtotal + livraison.price} MAD
                   </span>
                 </div>
 

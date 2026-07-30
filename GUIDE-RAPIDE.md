@@ -71,6 +71,12 @@ CREATE TABLE IF NOT EXISTS "PerfumeRequest" (
 );
 CREATE INDEX IF NOT EXISTS "PerfumeRequest_status_idx" ON "PerfumeRequest"("status");
 
+-- Bandeau d'annonce
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "announcement"       TEXT    NOT NULL DEFAULT '';
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "announcementUrl"    TEXT    NOT NULL DEFAULT '';
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "announcementActive" BOOLEAN NOT NULL DEFAULT false;
+
+ALTER TABLE "PerfumeRequest" ADD COLUMN IF NOT EXISTS "quantity"     INTEGER NOT NULL DEFAULT 1;
 ALTER TABLE "PerfumeRequest" ADD COLUMN IF NOT EXISTS "customerName" TEXT NOT NULL DEFAULT '';
 ALTER TABLE "PerfumeRequest" ADD COLUMN IF NOT EXISTS "address"      TEXT NOT NULL DEFAULT '';
 ALTER TABLE "PerfumeRequest" ADD COLUMN IF NOT EXISTS "city"         TEXT NOT NULL DEFAULT '';

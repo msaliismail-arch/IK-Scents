@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { ArrowRight, Bell, Instagram, Package, ShoppingBag } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
@@ -15,7 +15,10 @@ import {
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import { resolveAvailability } from "@/lib/availability";
 import {
+  GENDERS,
   genderLabel,
+  normalizeGender,
+  // genderLabel reste utilisé ailleurs dans la page (fiche parfum)
   priceWithDiscount,
   discountEndLabel,
 } from "@/lib/pricing";
@@ -358,6 +361,7 @@ function Collection({
   title = "Nos décants",
   intro,
   variant = "decants",
+  withGenderFilter = false,
 }: {
   perfumes: Perfume[];
   onRequest: (prefill?: RequestPrefill) => void;
@@ -367,8 +371,36 @@ function Collection({
   intro?: string;
   /** "packs" pose un fond crème pour détacher la section des décants */
   variant?: "decants" | "packs";
+  /** Barre « Tous · Homme · Femme · Unisexe ». Inutile sur les packs. */
+  withGenderFilter?: boolean;
 }) {
   const packs = variant === "packs";
+
+  // "" = aucun filtre actif, donc « Tous »
+  const [genderFilter, setGenderFilter] = useState("");
+
+  // Un onglet qui ne contient rien est un cul-de-sac : on ne propose que les
+  // catégories réellement représentées, avec leur nombre.
+  const counts = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const p of perfumes) {
+      const g = normalizeGender(p.gender);
+      if (!g) continue;
+      map.set(g, (map.get(g) ?? 0) + 1);
+    }
+    return map;
+  }, [perfumes]);
+
+  const visible = useMemo(
+    () =>
+      genderFilter
+        ? perfumes.filter((p) => normalizeGender(p.gender) === genderFilter)
+        : perfumes,
+    [perfumes, genderFilter]
+  );
+
+  // Filtrer n'a de sens qu'à partir de deux catégories distinctes.
+  const showFilter = Boolean(withGenderFilter) && counts.size > 1;
 
   // Une section vide n'apporte rien : les packs ne s'affichent que s'il y en a.
   if (packs && perfumes.length === 0) return null;
@@ -429,6 +461,47 @@ function Collection({
           </Reveal>
         </div>
 
+        {showFilter && (
+          <Reveal>
+            <div
+              role="group"
+              aria-label="Filtrer par genre"
+              className="flex flex-wrap gap-2.5 mb-14 lg:mb-20"
+            >
+              {[
+                { value: "", label: "Tous", count: perfumes.length },
+                // GENDERS contient des objets { value, label } — on garde le
+                // libellé officiel plutôt que d'en réinventer un ici.
+                ...GENDERS.filter((g) => counts.has(g.value)).map((g) => ({
+                  value: g.value as string,
+                  label: g.label as string,
+                  count: counts.get(g.value) ?? 0,
+                })),
+              ].map((opt) => {
+                const active = genderFilter === opt.value;
+                return (
+                  <button
+                    key={opt.value || "tous"}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setGenderFilter(opt.value)}
+                    className={`px-5 py-2.5 text-[11px] font-semibold tracking-[0.18em] uppercase border transition-colors duration-300 ${
+                      active
+                        ? "bg-[#171717] text-white border-[#171717]"
+                        : "bg-transparent text-[#171717] border-champagne hover:border-[#171717]"
+                    }`}
+                  >
+                    {opt.label}
+                    <span
+                      className={active ? "opacity-60" : "opacity-45"}
+                    >{` (${opt.count})`}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </Reveal>
+        )}
+
         {perfumes.length === 0 ? (
           <div className="text-center py-24 border border-dashed border-champagne">
             <Package className="w-10 h-10 text-champagne mx-auto mb-5" />
@@ -439,9 +512,23 @@ function Collection({
               Ajoutez vos parfums depuis l’espace admin
             </p>
           </div>
+        ) : visible.length === 0 ? (
+          <div className="text-center py-24 border border-dashed border-champagne">
+            <Package className="w-10 h-10 text-champagne mx-auto mb-5" />
+            <p className="text-muted-foreground font-light">
+              Aucun décant dans cette catégorie pour le moment
+            </p>
+            <button
+              type="button"
+              onClick={() => onRequest()}
+              className="mt-5 text-[11px] font-semibold tracking-[0.18em] uppercase text-bordeaux hover:underline underline-offset-4"
+            >
+              Demander votre parfum préféré
+            </button>
+          </div>
         ) : (
           <div>
-            {perfumes.map((p, i) => (
+            {visible.map((p, i) => (
               <div key={p.id}>
                 {i > 0 && (
                   <Reveal>
@@ -669,7 +756,11 @@ export default function Home() {
       <Navbar />
       <main className="flex-1">
         <Hero onRequest={() => openRequest()} />
-        <Collection perfumes={decants} onRequest={openRequest} />
+        <Collection
+          perfumes={decants}
+          onRequest={openRequest}
+          withGenderFilter
+        />
         <Collection
           perfumes={packs}
           onRequest={openRequest}

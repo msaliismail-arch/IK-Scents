@@ -53,6 +53,8 @@ export interface PerfumeRequest {
   brand?: string;
   gender: string;
   format: string;
+  /** Nombre d'exemplaires souhaités. */
+  quantity?: number;
   /** Coordonnées du client */
   customerName?: string;
   phone: string;
@@ -101,6 +103,12 @@ export interface Settings {
   freeDeliveryFrom: string;
   /** Villes qui ne suivent pas le prix par défaut. */
   deliveryCities: DeliveryCity[];
+  /** Texte du bandeau affiché en haut du site. "" = rien à annoncer. */
+  announcement: string;
+  /** Lien optionnel du bandeau. "" = bandeau non cliquable. */
+  announcementUrl: string;
+  /** Le bandeau ne s'affiche que si ceci est vrai ET que le texte est rempli. */
+  announcementActive: boolean;
 }
 
 export interface AdminUser {

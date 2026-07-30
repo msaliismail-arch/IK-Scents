@@ -48,7 +48,11 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as { role: string }).role;
+        // `role` vient de notre provider credentials : il n'existe pas sur le
+        // type User de NextAuth, d'où le passage par `unknown`. La valeur de
+        // repli est volontairement vide — jamais "admin" : un rôle absent ne
+        // doit pas ouvrir l'espace d'administration.
+        token.role = (user as unknown as { role?: string }).role ?? "";
         token.id = user.id;
       }
       return token;

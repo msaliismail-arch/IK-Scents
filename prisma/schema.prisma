@@ -76,6 +76,8 @@ model PerfumeRequest {
   gender String @default("")
   /// Format souhaité, repris des décants définis par l'admin
   format String @default("")
+  /// Nombre d'exemplaires souhaités. Renseigne le volume à commander.
+  quantity Int @default(1)
 
   /// Coordonnées du client, pour pouvoir livrer dès que le parfum arrive
   customerName String @default("")
@@ -142,6 +144,15 @@ model Settings {
 
   /// Exceptions par ville : JSON [{ "city": "Oujda", "price": "20" }]
   deliveryCitiesJson String @default("[]")
+
+  /// ─── Bandeau d'annonce ──────────────────────────────────────────────────
+  /// Texte affiché en haut de toutes les pages, ex. « −20 % jusqu'au 20 août ».
+  announcement       String  @default("")
+  /// Lien optionnel du bandeau. Vide = bandeau non cliquable.
+  announcementUrl    String  @default("")
+  /// Interrupteur séparé du texte : permet de préparer une annonce à l'avance,
+  /// ou d'en retirer une sans perdre ce qui était écrit.
+  announcementActive Boolean @default(false)
 
   updatedAt DateTime @updatedAt
 }

@@ -151,14 +151,21 @@
   }
   body {
     @apply bg-background text-foreground;
+    /*
+      Le bandeau d'annonce est en position fixe : sans compensation, il
+      recouvrirait le haut de la page. --announce-h est publiée par
+      <AnnouncementBar> et vaut 0 dès qu'aucune annonce n'est active, ce qui
+      rend cette règle sans effet le reste du temps.
+    */
+    padding-top: var(--announce-h, 0px);
   }
   section[id] {
     /* hauteur de la navbar fixe (76px mobile / 92px desktop) + respiration */
-    scroll-margin-top: 92px;
+    scroll-margin-top: calc(92px + var(--announce-h, 0px));
   }
   @media (min-width: 1024px) {
     section[id] {
-      scroll-margin-top: 110px;
+      scroll-margin-top: calc(110px + var(--announce-h, 0px));
     }
   }
 }

@@ -638,6 +638,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                             {r.format}
                           </span>
                         )}
+                        {(r.quantity ?? 1) > 1 && (
+                          <span className="px-2.5 py-1 text-[11px] font-semibold tracking-wider uppercase border border-bordeaux/30 bg-bordeaux/10 text-bordeaux rounded-sm">
+                            × {r.quantity}
+                          </span>
+                        )}
                       </div>
 
                       <div className="mt-3 space-y-1 text-sm">
@@ -703,7 +708,70 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             onSubmit={saveSettings}
             className="bg-card border border-border rounded-lg p-5 sm:p-6 space-y-7 max-w-2xl"
           >
+            {/* ─── Bandeau d'annonce ───────────────────────────────────── */}
             <div>
+              <h2 className="font-serif text-xl text-foreground">
+                Bandeau d’annonce
+              </h2>
+              <p className="text-muted-foreground text-sm font-light mt-1.5 leading-relaxed">
+                Une bande fine en haut de toutes les pages. Le visiteur peut la
+                fermer ; une nouvelle annonce réapparaît chez tout le monde.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-muted-foreground text-sm">
+                Texte de l’annonce
+              </Label>
+              <Input
+                value={settings.announcement}
+                onChange={(e) =>
+                  setSettings({ ...settings, announcement: e.target.value })
+                }
+                placeholder="Ex : −20 % sur tous les décants jusqu’au 20 août"
+                maxLength={200}
+              />
+              <p className="text-muted-foreground/70 text-xs">
+                Court et concret. Une date de fin fait bien plus agir qu’une
+                promesse vague.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-muted-foreground text-sm">
+                Lien du bandeau — optionnel
+              </Label>
+              <Input
+                value={settings.announcementUrl}
+                onChange={(e) =>
+                  setSettings({ ...settings, announcementUrl: e.target.value })
+                }
+                placeholder="/#collection  ou  https://..."
+              />
+              <p className="text-muted-foreground/70 text-xs">
+                Rend le bandeau cliquable. <code>/#collection</code> envoie
+                directement à la boutique.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between gap-4 border border-border rounded-lg px-4 py-3">
+              <div>
+                <Label className="text-foreground text-sm">
+                  Afficher le bandeau
+                </Label>
+                <p className="text-muted-foreground/70 text-xs mt-0.5">
+                  Se désactive seul si le texte est vide.
+                </p>
+              </div>
+              <Switch
+                checked={settings.announcementActive}
+                onCheckedChange={(v) =>
+                  setSettings({ ...settings, announcementActive: v })
+                }
+              />
+            </div>
+
+            <div className="border-t border-border pt-7">
               <h2 className="font-serif text-xl text-foreground">
                 Frais de livraison
               </h2>

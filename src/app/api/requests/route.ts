@@ -53,11 +53,18 @@ export async function POST(request: NextRequest) {
     // plutôt que de le comparer à une liste figée dans le code.
     const format = clean(body.format, 30);
 
+    // Quantité bornée : le champ vient du navigateur, donc rien n'empêche
+    // d'envoyer 99999. On garde une valeur qui a un sens commercial.
+    const parsedQty = Number.parseInt(String(body.quantity ?? "1"), 10);
+    const quantity =
+      Number.isFinite(parsedQty) && parsedQty > 0 ? Math.min(parsedQty, 99) : 1;
+
     const created = await db.perfumeRequest.create({
       data: {
         name,
         gender: GENDERS.includes(gender) ? gender : "",
         format,
+        quantity,
         customerName,
         phone,
         address: clean(body.address, 250),

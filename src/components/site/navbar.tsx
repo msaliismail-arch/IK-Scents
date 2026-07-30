@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Brandmark } from "@/components/site/brandmark";
+import { AnnouncementBar } from "@/components/site/announcement-bar";
 
 const links = [
   { href: "/#about", label: "Le Concept" },
@@ -32,11 +33,16 @@ export function Navbar() {
   }, [mobileOpen]);
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#e6ded0] transition-shadow duration-500 ${
-        scrolled ? "shadow-[0_1px_20px_rgba(23,23,23,0.06)]" : ""
-      }`}
-    >
+    <>
+      <AnnouncementBar />
+      {/* `top` suit la hauteur réelle du bandeau : sans annonce, --announce-h
+          vaut 0 et la navbar reste collée en haut comme avant. */}
+      <nav
+        style={{ top: "var(--announce-h, 0px)" }}
+        className={`fixed left-0 right-0 z-50 bg-white border-b border-[#e6ded0] transition-shadow duration-500 ${
+          scrolled ? "shadow-[0_1px_20px_rgba(23,23,23,0.06)]" : ""
+        }`}
+      >
       <div className="max-w-[1500px] mx-auto pl-4 pr-4 sm:pl-6 sm:pr-8 lg:pl-8 lg:pr-12">
         <div className="h-[76px] lg:h-[92px] flex items-center justify-between gap-6">
           {/* Logo — premier élément, à l'extrême gauche */}
@@ -136,6 +142,7 @@ export function Navbar() {
           </Link>
         </div>
       </div>
-    </nav>
+      </nav>
+    </>
   );
 }
