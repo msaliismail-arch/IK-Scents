@@ -54,6 +54,25 @@ import type {
 
 type SizeRow = { label: string; price: string };
 
+/**
+ * `fetch` de l'espace admin.
+ *
+ * Toutes les routes `/api` de l'admin répondent 401 dès que la session n'est
+ * plus valable. Sans traitement, ce 401 se transformait en liste vide et en
+ * enregistrement qui « ne fait rien » — l'utilisateur n'avait aucun moyen de
+ * comprendre qu'il devait se reconnecter.
+ *
+ * On coupe donc la session côté client au premier 401 : `useSession` bascule
+ * et l'écran de connexion réapparaît de lui-même.
+ */
+async function adminFetch(input: string, init?: RequestInit) {
+  const res = await fetch(input, init);
+  if (res.status === 401) {
+    await signOut({ redirect: false });
+  }
+  return res;
+}
+
 const REQUEST_STATUS_LABELS: Record<string, string> = {
   new: "Nouvelle",
   contacted: "Client contacté",
@@ -70,7 +89,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 // ---------- LOGIN ----------
-function LoginView({ onLogin }: { onLogin: () => void }) {
+function LoginView({ notAdmin = false }: { notAdmin?: boolean }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -84,6 +103,8 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
     try {
       // Authentification unique via NextAuth : c'est lui qui vérifie le mot de
       // passe et pose le cookie de session lu ensuite par les routes API.
+      // `signIn` rafraîchit la session lui-même : `useSession` bascule et la
+      // page affiche le tableau de bord, sans drapeau à mémoriser ici.
       const res = await signIn("credentials", {
         email,
         password,
@@ -92,10 +113,7 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
 
       if (!res || res.error) {
         setError("Identifiants incorrects");
-        return;
       }
-
-      onLogin();
     } catch {
       setError("Erreur de connexion");
     } finally {
@@ -114,6 +132,11 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {notAdmin && !error && (
+            <div className="p-3 rounded border border-gold-border bg-gold-soft text-[13px] text-foreground text-center">
+              Ce compte existe mais n’a pas les droits d’administration.
+            </div>
+          )}
           {error && (
             <div className="p-3 rounded border border-red-400/40 bg-red-500/10 text-red-500 text-sm text-center">
               {error}
@@ -250,7 +273,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const fetchAnnouncements = async () => {
     setAnnLoading(true);
     try {
-      const res = await fetch("/api/announcements?all=true");
+      const res = await adminFetch("/api/announcements?all=true");
       const data = await res.json();
       setAnnouncements(Array.isArray(data) ? data : []);
     } finally {
@@ -268,12 +291,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     e.preventDefault();
     setAnnError("");
     const res = annEditingId
-      ? await fetch(`/api/announcements/${annEditingId}`, {
+      ? await adminFetch(`/api/announcements/${annEditingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(annForm),
         })
-      : await fetch("/api/announcements", {
+      : await adminFetch("/api/announcements", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(annForm),
@@ -304,7 +327,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   };
 
   const toggleAnnouncement = async (a: Announcement) => {
-    await fetch(`/api/announcements/${a.id}`, {
+    await adminFetch(`/api/announcements/${a.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ active: !a.active }),
@@ -314,14 +337,14 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   const deleteAnnouncement = async (id: string) => {
     if (!confirm("Supprimer cette annonce ?")) return;
-    await fetch(`/api/announcements/${id}`, { method: "DELETE" });
+    await adminFetch(`/api/announcements/${id}`, { method: "DELETE" });
     fetchAnnouncements();
   };
 
   const fetchPerfumes = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/perfumes?all=true");
+      const res = await adminFetch("/api/perfumes?all=true");
       const data = await res.json();
       setPerfumes(Array.isArray(data) ? data : []);
     } finally {
@@ -332,7 +355,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const fetchOrders = async () => {
     setOrdersLoading(true);
     try {
-      const res = await fetch("/api/orders");
+      const res = await adminFetch("/api/orders");
       const data = await res.json();
       setOrders(Array.isArray(data) ? data : []);
     } finally {
@@ -342,7 +365,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch("/api/settings");
+      const res = await adminFetch("/api/settings");
       const data = await res.json();
       if (data && typeof data === "object") {
         setSettings({ ...DEFAULT_SETTINGS, ...data });
@@ -355,7 +378,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const fetchRequests = async () => {
     setRequestsLoading(true);
     try {
-      const res = await fetch("/api/requests");
+      const res = await adminFetch("/api/requests");
       const data = await res.json();
       setRequests(Array.isArray(data) ? data : []);
     } finally {
@@ -372,7 +395,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   }, []);
 
   const updateRequestStatus = async (id: string, status: string) => {
-    await fetch(`/api/requests/${id}`, {
+    await adminFetch(`/api/requests/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
@@ -382,7 +405,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   const deleteRequest = async (id: string) => {
     if (!confirm("Supprimer cette demande ?")) return;
-    await fetch(`/api/requests/${id}`, { method: "DELETE" });
+    await adminFetch(`/api/requests/${id}`, { method: "DELETE" });
     fetchRequests();
   };
 
@@ -411,7 +434,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     setSavingSettings(true);
     setSettingsSaved(false);
     try {
-      const res = await fetch("/api/settings", {
+      const res = await adminFetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -450,7 +473,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     try {
       const fd = new FormData();
       fd.append("image", file);
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const res = await adminFetch("/api/upload", { method: "POST", body: fd });
       const data = await res.json();
       if (data.url) setFormData((prev) => ({ ...prev, image: data.url }));
     } finally {
@@ -480,12 +503,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     setFormError("");
     const payload = { ...formData, sizes: cleanSizes };
     const res = editingId
-      ? await fetch(`/api/perfumes/${editingId}`, {
+      ? await adminFetch(`/api/perfumes/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         })
-      : await fetch("/api/perfumes", {
+      : await adminFetch("/api/perfumes", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -559,12 +582,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Supprimer ce parfum ?")) return;
-    await fetch(`/api/perfumes/${id}`, { method: "DELETE" });
+    await adminFetch(`/api/perfumes/${id}`, { method: "DELETE" });
     fetchPerfumes();
   };
 
   const togglePublish = async (perfume: Perfume) => {
-    await fetch(`/api/perfumes/${perfume.id}`, {
+    await adminFetch(`/api/perfumes/${perfume.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ published: !perfume.published }),
@@ -573,7 +596,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   };
 
   const updateOrderStatus = async (id: string, status: string) => {
-    await fetch(`/api/orders/${id}`, {
+    await adminFetch(`/api/orders/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
@@ -583,7 +606,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   const deleteOrder = async (id: string) => {
     if (!confirm("Supprimer cette commande ?")) return;
-    await fetch(`/api/orders/${id}`, { method: "DELETE" });
+    await adminFetch(`/api/orders/${id}`, { method: "DELETE" });
     fetchOrders();
   };
 
@@ -1995,30 +2018,34 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 }
 
 // ---------- PAGE ----------
+/**
+ * L'accès à l'espace admin repose UNIQUEMENT sur la session NextAuth.
+ *
+ * Une version précédente doublait ce contrôle d'un drapeau `localStorage` qui,
+ * lui, n'expirait jamais. Passé la durée de vie de la session, le tableau de
+ * bord continuait donc de s'afficher alors que le serveur rejetait déjà chaque
+ * requête : l'écran restait vide, les enregistrements échouaient en silence, et
+ * il fallait se déconnecter puis se reconnecter pour retrouver un état sain.
+ * Le symptôme se voyait surtout au téléphone, où l'on revient sur le site
+ * plusieurs jours après s'y être connecté.
+ *
+ * Un drapeau posé par le navigateur ne prouve rien de toute façon : seul le
+ * cookie signé compte, et c'est lui que vérifient les routes API.
+ */
 export default function AdminPage() {
   const { data: session, status } = useSession();
-  const [localAdmin, setLocalAdmin] = useState(false);
-  const [ready, setReady] = useState(false);
 
-  useEffect(() => {
-    setLocalAdmin(localStorage.getItem("assil-admin") === "true");
-    setReady(true);
-  }, []);
-
-  const isAdmin = !!session?.user || localAdmin;
-
-  const handleLogin = () => {
-    setLocalAdmin(true);
-    localStorage.setItem("assil-admin", "true");
-  };
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  // Le rôle est vérifié ici comme il l'est côté serveur : un compte existant
+  // mais sans le rôle « admin » n'ouvre pas le tableau de bord.
+  const isAdmin = !!session?.user && role === "admin";
+  const connectedButNotAdmin = !!session?.user && !isAdmin;
 
   const handleLogout = async () => {
-    setLocalAdmin(false);
-    localStorage.removeItem("assil-admin");
     await signOut({ redirect: false });
   };
 
-  if (!ready || status === "loading") {
+  if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-alt">
         <Loader2 className="w-8 h-8 text-gold animate-spin" />
@@ -2029,6 +2056,6 @@ export default function AdminPage() {
   return isAdmin ? (
     <Dashboard onLogout={handleLogout} />
   ) : (
-    <LoginView onLogin={handleLogin} />
+    <LoginView notAdmin={connectedButNotAdmin} />
   );
 }

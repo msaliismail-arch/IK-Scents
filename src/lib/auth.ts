@@ -43,7 +43,13 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
-    maxAge: 24 * 60 * 60,
+    /**
+     * 30 jours. La boutique est tenue depuis un téléphone, souvent en
+     * déplacement : avec 24 h, il fallait ressaisir l'email et le mot de passe
+     * presque à chaque visite. Le risque reste contenu — la session est un
+     * cookie signé, révocable en se déconnectant.
+     */
+    maxAge: 30 * 24 * 60 * 60,
   },
   callbacks: {
     async jwt({ token, user }) {
