@@ -9,6 +9,7 @@ import type { Settings } from "@/lib/types";
 import { requireAdmin } from "@/lib/guard";
 import { resolveAvailability } from "@/lib/availability";
 import { priceWithDiscount } from "@/lib/pricing";
+import { notifyNewOrder } from "@/lib/notify";
 
 /**
  * Les frais de livraison sont TOUJOURS recalculés côté serveur à partir des
@@ -163,6 +164,24 @@ export async function POST(request: NextRequest) {
         note: note ? String(note).trim() : null,
         status: "new",
       },
+    });
+
+    // Alerte au gérant. `await` volontaire : sur une plateforme sans serveur,
+    // l'exécution s'arrête dès la réponse renvoyée — une promesse laissée en
+    // suspens serait tuée avant d'avoir atteint Telegram. Le module a son
+    // propre délai maximal et n'échoue jamais, la commande est donc déjà
+    // acquise quoi qu'il arrive ici.
+    await notifyNewOrder({
+      customerName: order.customerName,
+      phone: order.phone,
+      address: order.address,
+      city: order.city,
+      perfumeName: order.perfumeName,
+      sizeLabel: order.sizeLabel,
+      quantity: order.quantity,
+      unitPrice,
+      deliveryPrice: delivery.price,
+      note: order.note,
     });
 
     return NextResponse.json(order, { status: 201 });

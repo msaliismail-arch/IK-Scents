@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guard";
+import { notifyNewRequest } from "@/lib/notify";
 
 const GENDERS = ["homme", "femme", "unisexe"];
 
@@ -72,6 +73,16 @@ export async function POST(request: NextRequest) {
         postalCode: clean(body.postalCode, 20),
         status: "new",
       },
+    });
+
+    await notifyNewRequest({
+      name: created.name,
+      gender: created.gender,
+      format: created.format,
+      quantity: created.quantity,
+      customerName: created.customerName,
+      phone: created.phone,
+      city: created.city,
     });
 
     return NextResponse.json({ id: created.id }, { status: 201 });

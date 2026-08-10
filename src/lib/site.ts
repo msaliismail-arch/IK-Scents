@@ -11,10 +11,14 @@ export const INSTAGRAM_URL = "https://www.instagram.com/assill.parfums/";
 
 /**
  * Numéro WhatsApp au format international, sans "+" ni espaces.
- * Exemple pour le Maroc : "2126XXXXXXXX".
+ * 0633386334 s'écrit donc "212633386334" : le 0 initial est remplacé par
+ * l'indicatif du Maroc, sinon wa.me ne reconnaît pas le numéro.
  * Laisser vide masque simplement le lien WhatsApp — rien ne casse.
  */
-export const WHATSAPP_NUMBER = "";
+export const WHATSAPP_NUMBER = "212633386334";
+
+/** Le même numéro tel qu'on l'écrit au Maroc, pour l'afficher au visiteur. */
+export const PHONE_DISPLAY = "06 33 38 63 34";
 
 export const WHATSAPP_URL = WHATSAPP_NUMBER
   ? `https://wa.me/${WHATSAPP_NUMBER}`

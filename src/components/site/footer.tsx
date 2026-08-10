@@ -1,7 +1,20 @@
 import Link from "next/link";
-import { Instagram, MessageCircle, Package, Droplet, Truck } from "lucide-react";
+import {
+  Instagram,
+  MessageCircle,
+  Package,
+  Droplet,
+  Truck,
+  Phone,
+} from "lucide-react";
 import { Brandmark } from "@/components/site/brandmark";
-import { BRAND, INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/site";
+import {
+  BRAND,
+  INSTAGRAM_URL,
+  PHONE_DISPLAY,
+  WHATSAPP_NUMBER,
+  WHATSAPP_URL,
+} from "@/lib/site";
 
 const NAV = [
   { href: "/#about", label: "Le Concept" },
@@ -51,6 +64,21 @@ export function Footer() {
                 </a>
               )}
             </div>
+
+            {/*
+              Le numéro écrit en clair, en plus du bouton WhatsApp : tout le
+              monde n'utilise pas WhatsApp, et un numéro visible rassure autant
+              qu'il sert. `tel:` ouvre le clavier d'appel sur téléphone.
+            */}
+            {WHATSAPP_NUMBER && (
+              <a
+                href={`tel:+${WHATSAPP_NUMBER}`}
+                className="mt-5 inline-flex items-center gap-2.5 pointer-coarse:min-h-[44px] text-[15px] font-light text-[#f7f4ee]/75 hover:text-[#f7f4ee] transition-colors duration-500"
+              >
+                <Phone className="w-4 h-4 shrink-0 text-[#d8cbb8]" />
+                {PHONE_DISPLAY}
+              </a>
+            )}
           </div>
 
           {/* Navigation */}
