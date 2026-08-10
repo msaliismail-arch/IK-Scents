@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import AuthProvider from "@/components/auth/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { BRAND } from "@/lib/site";
 
 const manrope = Manrope({
   variable: "--font-montserrat",
@@ -18,23 +19,22 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "ASSIL — Parfums Originaux",
-  description:
-    "ASSIL — Parfums 100% originaux, authenticité garantie. Livraison partout au Maroc, paiement à la livraison. Commandez directement en ligne.",
+  title: `${BRAND} — Parfums Originaux`,
+  description: `${BRAND} — Parfums 100% originaux, authenticité garantie. Livraison partout au Maroc, paiement à la livraison. Commandez directement en ligne.`,
   keywords: [
-    "ASSIL",
+    BRAND,
     "parfums originaux",
     "parfum maroc",
     "parfum authentique",
     "livraison maroc",
     "paiement à la livraison",
   ],
-  authors: [{ name: "ASSIL" }],
+  authors: [{ name: BRAND }],
   icons: {
     icon: "/logo.svg",
   },
   openGraph: {
-    title: "ASSIL — Parfums Originaux",
+    title: `${BRAND} — Parfums Originaux`,
     description:
       "Parfums 100% originaux, authenticité garantie. Livraison partout au Maroc.",
     type: "website",

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Brandmark } from "@/components/site/brandmark";
 import { AnnouncementBar } from "@/components/site/announcement-bar";
+import { BRAND } from "@/lib/site";
 
 const links = [
   { href: "/#about", label: "Le Concept" },
@@ -55,7 +56,7 @@ export function Navbar() {
           {/* Logo — premier élément, à l'extrême gauche */}
           <Link
             href="/"
-            aria-label="ASSIL — accueil"
+            aria-label={`${BRAND} — accueil`}
             className="shrink-0 mr-4 lg:mr-14 transition-opacity duration-300 hover:opacity-75"
           >
             {/*

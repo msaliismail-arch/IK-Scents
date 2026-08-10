@@ -6,7 +6,7 @@ import { ArrowLeft, Loader2, SearchX, ShieldCheck } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { AuthenticityBlock } from "@/components/site/authenticity-block";
-import { resolveImg } from "@/lib/site";
+import { BRAND, resolveImg } from "@/lib/site";
 import { genderLabel } from "@/lib/pricing";
 
 type VerifiedPerfume = {
@@ -101,7 +101,7 @@ export default function VerifierPage({
             <div className="mt-10 border border-dashed border-champagne bg-card px-6 py-16 text-center">
               <SearchX className="w-10 h-10 text-champagne mx-auto mb-5" />
               <p className="font-serif text-xl font-light text-foreground">
-                Ce numéro ne correspond à aucun flacon ASSIL
+                Ce numéro ne correspond à aucun flacon {BRAND}
               </p>
               <p className="mt-3 max-w-md mx-auto text-[14px] font-light leading-relaxed text-muted-foreground">
                 Vérifiez la saisie — le numéro doit être recopié exactement.
@@ -164,7 +164,7 @@ export default function VerifierPage({
               <AuthenticityBlock perfume={perfume} variant="full" />
 
               <p className="text-[12.5px] font-light leading-relaxed text-muted-foreground">
-                Cette page est éditée par ASSIL. Elle atteste que ce numéro
+                Cette page est éditée par {BRAND}. Elle atteste que ce numéro
                 figure bien dans notre registre de flacons — elle ne constitue
                 pas une certification émise par la marque du parfum. Pour un
                 contrôle indépendant, utilisez le code de lot ci-dessus.

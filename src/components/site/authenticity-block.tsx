@@ -8,6 +8,7 @@ import {
   NON_AFFILIATION,
   verifyUrl,
 } from "@/lib/authenticity";
+import { BRAND } from "@/lib/site";
 
 /**
  * Bloc « Authenticité & provenance ».
@@ -101,7 +102,7 @@ export function AuthenticityBlock({
             Statut
           </dt>
           <dd className="text-[14.5px] font-light leading-relaxed text-foreground">
-            Décant transvasé d&apos;un flacon original acheté par ASSIL.
+            Décant transvasé d&apos;un flacon original acheté par {BRAND}.
           </dd>
         </div>
       </dl>

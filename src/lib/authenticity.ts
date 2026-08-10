@@ -20,6 +20,8 @@
  * page officielle de la marque.
  */
 
+import { BRAND } from "@/lib/site";
+
 /** Longueur maximale acceptée pour un numéro de série. */
 const SERIAL_MAX = 60;
 /** Longueur maximale d'un code de lot (les vrais font 3 à 12 caractères). */
@@ -153,5 +155,4 @@ export function authenticityOf(
  * c'est ce qui distingue « voici d'où vient ce décant » de « cette marque
  * garantit ce produit », et c'est la première protection juridique du site.
  */
-export const NON_AFFILIATION =
-  "ASSIL n'est affilié à aucune des marques citées. Les liens renvoient vers les sites officiels afin que vous puissiez comparer le produit par vous-même.";
+export const NON_AFFILIATION = `${BRAND} n'est affilié à aucune des marques citées. Les liens renvoient vers les sites officiels afin que vous puissiez comparer le produit par vous-même.`;

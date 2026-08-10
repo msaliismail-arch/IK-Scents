@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Check, Loader2, Minus, Plus, X } from "lucide-react";
 import { GENDERS, genderLabel } from "@/lib/pricing";
 import { DEFAULT_SETTINGS, computeDelivery } from "@/lib/delivery";
+import { BRAND } from "@/lib/site";
 import type { Settings } from "@/lib/types";
 
 export type RequestFormat = { label: string; price: number };
@@ -256,8 +257,8 @@ export function PerfumeRequestModal({
             </h2>
             <p className="mt-5 text-[#6b6255] text-[14px] font-light leading-[1.8]">
               {prefill?.name
-                ? `Nous vous prévenons dès que ${prefill.name} sera de nouveau disponible chez ASSIL.`
-                : "Dites-nous le parfum que vous recherchez. Nous vous prévenons dès qu’il est disponible chez ASSIL."}
+                ? `Nous vous prévenons dès que ${prefill.name} sera de nouveau disponible chez ${BRAND}.`
+                : `Dites-nous le parfum que vous recherchez. Nous vous prévenons dès qu’il est disponible chez ${BRAND}.`}
             </p>
 
             {error && (
