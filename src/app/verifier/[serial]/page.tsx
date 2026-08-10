@@ -7,7 +7,8 @@ import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { AuthenticityBlock } from "@/components/site/authenticity-block";
 import { BRAND, resolveImg } from "@/lib/site";
-import { genderLabel } from "@/lib/pricing";
+import { useLang } from "@/components/site/language-provider";
+import { genderText, fill } from "@/lib/i18n";
 
 type VerifiedPerfume = {
   id: string;
@@ -38,6 +39,7 @@ export default function VerifierPage({
 }: {
   params: Promise<{ serial: string }>;
 }) {
+  const { t } = useLang();
   const { serial } = use(params);
   const decoded = decodeURIComponent(serial);
 
@@ -64,7 +66,7 @@ export default function VerifierPage({
     };
   }, [decoded]);
 
-  const sexe = perfume?.gender ? genderLabel(perfume.gender) : "";
+  const sexe = genderText(t, perfume?.gender);
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
@@ -76,18 +78,18 @@ export default function VerifierPage({
             href="/#collection"
             className="inline-flex items-center gap-2 pointer-coarse:min-h-[44px] text-muted-foreground hover:text-bordeaux text-sm mb-6 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Retour à la collection
+            <ArrowLeft className="w-4 h-4 rtl:-scale-x-100" />
+            {t.verify.back}
           </Link>
 
           <div className="flex items-center gap-2.5 mb-3">
             <ShieldCheck className="w-4 h-4 text-bordeaux shrink-0" />
             <span className="text-[10px] font-bold tracking-[0.28em] uppercase text-bordeaux">
-              Vérification
+              {t.verify.eyebrow}
             </span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-light uppercase tracking-[0.03em] text-foreground">
-            Flacon source
+            {t.verify.title}
           </h1>
           <p className="mt-3 font-mono text-[15px] tracking-[0.08em] text-muted-foreground break-all">
             {decoded}
@@ -101,18 +103,16 @@ export default function VerifierPage({
             <div className="mt-10 border border-dashed border-champagne bg-card px-6 py-16 text-center">
               <SearchX className="w-10 h-10 text-champagne mx-auto mb-5" />
               <p className="font-serif text-xl font-light text-foreground">
-                Ce numéro ne correspond à aucun flacon {BRAND}
+                {fill(t.verify.notFound, { brand: BRAND })}
               </p>
               <p className="mt-3 max-w-md mx-auto text-[14px] font-light leading-relaxed text-muted-foreground">
-                Vérifiez la saisie — le numéro doit être recopié exactement.
-                S&apos;il est correct et que ce message persiste, contactez-nous
-                avant tout achat.
+                {t.verify.notFoundHint}
               </p>
               <Link
                 href="/#contact"
                 className="btn-bordeaux inline-block mt-7 px-6 py-3 text-[11px] font-semibold tracking-[0.18em] uppercase"
               >
-                Nous contacter
+                {t.verify.contact}
               </Link>
             </div>
           ) : (
@@ -153,7 +153,7 @@ export default function VerifierPage({
                   {perfume.notes && (
                     <p className="mt-4 text-[13.5px] font-light leading-relaxed text-muted-foreground">
                       <span className="block text-[10px] font-bold tracking-[0.24em] uppercase text-bordeaux mb-1.5">
-                        Notes principales
+                        {t.verify.mainNotes}
                       </span>
                       {perfume.notes}
                     </p>
@@ -164,17 +164,14 @@ export default function VerifierPage({
               <AuthenticityBlock perfume={perfume} variant="full" />
 
               <p className="text-[12.5px] font-light leading-relaxed text-muted-foreground">
-                Cette page est éditée par {BRAND}. Elle atteste que ce numéro
-                figure bien dans notre registre de flacons — elle ne constitue
-                pas une certification émise par la marque du parfum. Pour un
-                contrôle indépendant, utilisez le code de lot ci-dessus.
+                {fill(t.verify.disclaimer, { brand: BRAND })}
               </p>
 
               <Link
                 href={`/commander/${perfume.id}`}
                 className="btn-bordeaux inline-block px-7 py-3.5 text-[11px] font-semibold tracking-[0.18em] uppercase"
               >
-                Voir ce décant
+                {t.verify.seeDecant}
               </Link>
             </div>
           )}

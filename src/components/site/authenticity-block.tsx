@@ -3,12 +3,10 @@
 import { useEffect, useState } from "react";
 import { ExternalLink, ShieldCheck, ScanLine } from "lucide-react";
 import { QrCode } from "@/components/site/qr-code";
-import {
-  authenticityOf,
-  NON_AFFILIATION,
-  verifyUrl,
-} from "@/lib/authenticity";
+import { authenticityOf, verifyUrl } from "@/lib/authenticity";
 import { BRAND } from "@/lib/site";
+import { useLang } from "@/components/site/language-provider";
+import { fill } from "@/lib/i18n";
 
 /**
  * Bloc « Authenticité & provenance ».
@@ -37,6 +35,8 @@ export function AuthenticityBlock({
   /** "product" = encart sur la fiche ; "full" = page de vérification */
   variant?: "product" | "full";
 }) {
+  const { t } = useLang();
+
   // L'origine doit être identique côté serveur et côté navigateur, sinon
   // l'hydratation diverge. Sans variable publique configurée, on attend le
   // montage pour lire l'origine réelle plutôt que d'en deviner une.
@@ -70,7 +70,7 @@ export function AuthenticityBlock({
           id="authenticite-titre"
           className="text-[10px] font-bold tracking-[0.28em] uppercase text-bordeaux"
         >
-          Authenticité &amp; provenance
+          {t.authenticity.title}
         </h2>
       </div>
 
@@ -78,7 +78,7 @@ export function AuthenticityBlock({
         {auth.serial && (
           <div>
             <dt className="text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-foreground mb-1.5">
-              Numéro de série du flacon source
+              {t.authenticity.serial}
             </dt>
             <dd className="font-mono text-[15px] sm:text-base tracking-[0.08em] text-foreground break-all">
               {auth.serial}
@@ -89,7 +89,7 @@ export function AuthenticityBlock({
         {auth.batchCode && (
           <div>
             <dt className="text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-foreground mb-1.5">
-              Code de lot
+              {t.authenticity.batch}
             </dt>
             <dd className="font-mono text-[15px] tracking-[0.08em] text-foreground">
               {auth.batchCode}
@@ -99,10 +99,10 @@ export function AuthenticityBlock({
 
         <div>
           <dt className="text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-foreground mb-1.5">
-            Statut
+            {t.authenticity.status}
           </dt>
           <dd className="text-[14.5px] font-light leading-relaxed text-foreground">
-            Décant transvasé d&apos;un flacon original acheté par {BRAND}.
+            {fill(t.authenticity.statusText, { brand: BRAND })}
           </dd>
         </div>
       </dl>
@@ -113,16 +113,15 @@ export function AuthenticityBlock({
             value={qrTarget}
             href={internalHref}
             size={variant === "full" ? 168 : 136}
-            title={`Vérifier le numéro de série ${auth.serial}`}
+            title={`${t.authenticity.verifySerial} ${auth.serial}`}
           />
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] uppercase text-foreground">
               <ScanLine className="w-3.5 h-3.5 text-bordeaux shrink-0" />
-              Scannez pour vérifier
+              {t.authenticity.scan}
             </p>
             <p className="mt-2.5 text-[13.5px] font-light leading-relaxed text-muted-foreground">
-              Ce code mène à la fiche de vérification de ce flacon. Vous pouvez
-              aussi cliquer dessus.
+              {t.authenticity.scanText}
             </p>
           </div>
         </div>
@@ -137,7 +136,7 @@ export function AuthenticityBlock({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 border border-border px-4 py-2.5 text-[11px] font-semibold tracking-[0.16em] uppercase text-foreground hover:border-bordeaux transition-colors duration-500"
             >
-              Vérifier le code de lot
+              {t.authenticity.checkBatch}
               <ExternalLink className="w-3.5 h-3.5 shrink-0" />
             </a>
           )}
@@ -148,7 +147,7 @@ export function AuthenticityBlock({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 border border-border px-4 py-2.5 text-[11px] font-semibold tracking-[0.16em] uppercase text-foreground hover:border-bordeaux transition-colors duration-500"
             >
-              Site officiel de la marque
+              {t.authenticity.officialSite}
               <ExternalLink className="w-3.5 h-3.5 shrink-0" />
             </a>
           )}
@@ -156,7 +155,7 @@ export function AuthenticityBlock({
       )}
 
       <p className="mt-6 text-[11.5px] font-light leading-relaxed text-muted-foreground/80">
-        {NON_AFFILIATION}
+        {fill(t.authenticity.nonAffiliation, { brand: BRAND })}
       </p>
     </section>
   );

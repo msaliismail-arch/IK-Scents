@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Megaphone } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
-import { DEFAULT_LINK_LABEL } from "@/lib/announcement";
+import { useLang } from "@/components/site/language-provider";
 import type { Announcement } from "@/lib/types";
 
 /**
@@ -22,6 +22,7 @@ import type { Announcement } from "@/lib/types";
  * que de laisser un titre au-dessus du vide.
  */
 export function AnnouncementsSection() {
+  const { t } = useLang();
   const [items, setItems] = useState<Announcement[]>([]);
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export function AnnouncementsSection() {
           <div className="flex items-center gap-3 mb-10 lg:mb-14">
             <Megaphone className="w-4 h-4 text-bordeaux shrink-0" />
             <span className="text-[11px] font-bold tracking-[0.4em] uppercase text-[#171717]">
-              Annonces
+              {t.announcements.title}
             </span>
             <span className="h-px flex-1 bg-champagne" />
           </div>
@@ -66,7 +67,10 @@ export function AnnouncementsSection() {
         >
           {items.map((a, i) => {
             const url = (a.url ?? "").trim();
-            const label = (a.linkLabel ?? "").trim() || DEFAULT_LINK_LABEL;
+            // Le libellé saisi par l'admin l'emporte : c'est son texte, dans
+            // la langue qu'il a choisie. Le repli, lui, suit le visiteur.
+            const label =
+              (a.linkLabel ?? "").trim() || t.announcements.linkLabel;
 
             return (
               <Reveal key={a.id} delay={i * 110}>
@@ -89,7 +93,7 @@ export function AnnouncementsSection() {
                           className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] uppercase text-bordeaux hover:gap-3.5 transition-all duration-500"
                         >
                           {label}
-                          <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+                          <ArrowRight className="w-3.5 h-3.5 shrink-0 rtl:-scale-x-100" />
                         </Link>
                       ) : (
                         <a
@@ -99,7 +103,7 @@ export function AnnouncementsSection() {
                           className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] uppercase text-bordeaux hover:gap-3.5 transition-all duration-500"
                         >
                           {label}
-                          <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+                          <ArrowRight className="w-3.5 h-3.5 shrink-0 rtl:-scale-x-100" />
                         </a>
                       )}
                     </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { resolveImg } from "@/lib/site";
 import { SLIDE_MS } from "@/lib/carousel";
+import { useLang } from "@/components/site/language-provider";
 import type { Slide } from "@/lib/types";
 
 /** Déplacement du doigt, en pixels, à partir duquel on change de visuel. */
@@ -36,6 +37,7 @@ const DRAG_TOLERANCE = 10;
  * d'espace réservé en haut de la page.
  */
 export function HeroCarousel() {
+  const { t, dir } = useLang();
   const [slides, setSlides] = useState<Slide[]>([]);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -106,8 +108,11 @@ export function HeroCarousel() {
   };
 
   const onTouchEnd = () => {
-    if (deltaX.current <= -SWIPE_THRESHOLD) goTo(index + 1);
-    else if (deltaX.current >= SWIPE_THRESHOLD) goTo(index - 1);
+    // En arabe la page se lit de droite à gauche : le même geste vers la
+    // gauche doit alors ramener en arrière, pas avancer.
+    const forward = dir === "rtl" ? 1 : -1;
+    if (deltaX.current * forward >= SWIPE_THRESHOLD) goTo(index + 1);
+    else if (deltaX.current * forward <= -SWIPE_THRESHOLD) goTo(index - 1);
     setPaused(false);
   };
 
@@ -125,7 +130,7 @@ export function HeroCarousel() {
 
   return (
     <section
-      aria-label="Visuels en avant"
+      aria-label={t.carousel.label}
       aria-roledescription="carrousel"
       className="relative bg-[#efe8dc]"
       onMouseEnter={() => setPaused(true)}
@@ -145,14 +150,19 @@ export function HeroCarousel() {
           transition reste fluide et les images voisines sont déjà en place,
           donc aucun clignotement au changement.
         */}
+        {/*
+          Le signe suit le sens de lecture : en `dir="rtl"` la rangée est déjà
+          retournée par le navigateur, un décalage négatif reviendrait donc à
+          reculer.
+        */}
         <div
           className="flex transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
-          style={{ transform: `translateX(-${index * 100}%)` }}
+          style={{
+            transform: `translateX(${dir === "rtl" ? "" : "-"}${index * 100}%)`,
+          }}
         >
           {slides.map((s, i) => {
-            const alt = s.perfumeName
-              ? `Parfum ${s.perfumeName}`
-              : "Visuel de la collection";
+            const alt = s.perfumeName || t.carousel.label;
 
             const media = (
               // eslint-disable-next-line @next/next/no-img-element
@@ -171,8 +181,8 @@ export function HeroCarousel() {
               <div
                 key={s.id}
                 role="group"
-                aria-roledescription="visuel"
-                aria-label={`${i + 1} sur ${count}`}
+                aria-roledescription={t.carousel.slide}
+                aria-label={`${i + 1} / ${count}`}
                 aria-hidden={i !== index}
                 className="w-full shrink-0 aspect-[4/5] sm:aspect-[3/2] lg:aspect-[16/7]"
               >
@@ -183,7 +193,9 @@ export function HeroCarousel() {
                     // la tabulation s'y arrête alors qu'on ne le voit pas.
                     tabIndex={i === index ? 0 : -1}
                     className="block w-full h-full"
-                    aria-label={`Voir ${s.perfumeName || "ce parfum"}`}
+                    aria-label={`${t.carousel.see} ${
+                      s.perfumeName || t.carousel.thisPerfume
+                    }`}
                   >
                     {media}
                   </Link>
@@ -197,21 +209,26 @@ export function HeroCarousel() {
 
         {count > 1 && (
           <>
+            {/*
+              `start` / `end` plutôt que `left` / `right` : « précédent » se
+              place du côté d'où vient la lecture — à gauche en français, à
+              droite en arabe. Les chevrons se retournent avec `rtl:`.
+            */}
             <button
               type="button"
               onClick={() => goTo(index - 1)}
-              aria-label="Visuel précédent"
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center bg-white/85 text-[#171717] backdrop-blur-sm transition-colors duration-300 hover:bg-white"
+              aria-label={t.carousel.previous}
+              className="absolute start-2 sm:start-4 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center bg-white/85 text-[#171717] backdrop-blur-sm transition-colors duration-300 hover:bg-white"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-5 h-5 rtl:-scale-x-100" />
             </button>
             <button
               type="button"
               onClick={() => goTo(index + 1)}
-              aria-label="Visuel suivant"
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center bg-white/85 text-[#171717] backdrop-blur-sm transition-colors duration-300 hover:bg-white"
+              aria-label={t.carousel.next}
+              className="absolute end-2 sm:end-4 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center bg-white/85 text-[#171717] backdrop-blur-sm transition-colors duration-300 hover:bg-white"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5 rtl:-scale-x-100" />
             </button>
           </>
         )}
@@ -226,7 +243,7 @@ export function HeroCarousel() {
               key={s.id}
               type="button"
               onClick={() => goTo(i)}
-              aria-label={`Aller au visuel ${i + 1}`}
+              aria-label={`${t.carousel.goTo} ${i + 1}`}
               aria-current={i === index}
               className="w-8 h-11 inline-flex items-center justify-center"
             >

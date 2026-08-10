@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, Cormorant_Garamond } from "next/font/google";
+import { Manrope, Cormorant_Garamond, Cairo } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import AuthProvider from "@/components/auth/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { LanguageProvider } from "@/components/site/language-provider";
 import { BRAND } from "@/lib/site";
 
 const manrope = Manrope({
@@ -15,6 +16,20 @@ const manrope = Manrope({
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+/**
+ * Police arabe.
+ *
+ * Ni Manrope ni Cormorant Garamond ne contiennent de caractères arabes : sans
+ * cette police, tout le texte arabe basculerait sur la police par défaut du
+ * système, différente d'un téléphone à l'autre et sans rapport avec le reste
+ * de la charte. Cairo garde le trait sobre et géométrique du site.
+ */
+const cairo = Cairo({
+  variable: "--font-arabic",
+  subsets: ["arabic"],
   weight: ["300", "400", "500", "600", "700"],
 });
 
@@ -66,7 +81,7 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body
-        className={`${manrope.variable} ${cormorant.variable} font-sans antialiased bg-background text-foreground overflow-x-hidden`}
+        className={`${manrope.variable} ${cormorant.variable} ${cairo.variable} font-sans antialiased bg-background text-foreground overflow-x-hidden`}
       >
         <ThemeProvider
           attribute="class"
@@ -74,7 +89,9 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <AuthProvider>{children}</AuthProvider>
+          <LanguageProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </LanguageProvider>
           <Toaster />
         </ThemeProvider>
       </body>

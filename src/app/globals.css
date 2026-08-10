@@ -553,6 +553,47 @@
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   ARABE
+   ═══════════════════════════════════════════════════════════════════════════
+
+   Deux corrections indispensables, appliquées dès que <html lang="ar">.
+
+   1. LA POLICE. Manrope et Cormorant Garamond ne contiennent aucun caractère
+      arabe. Sans substitution, chaque téléphone choisirait la sienne.
+
+   2. L'INTERLETTRAGE. Tout le site est composé avec de larges `letter-spacing`
+      — c'est ce qui lui donne son allure éditoriale en français. Appliqué à
+      l'arabe, c'est une faute : l'arabe est une écriture liée, et écarter les
+      lettres brise les ligatures. Le mot devient une suite de fragments,
+      pénible voire illisible. On remet donc l'espacement à zéro.
+
+      Le sélecteur est plus spécifique que les classes Tailwind `tracking-*`,
+      elles sont donc neutralisées sans `!important`.
+   ═══════════════════════════════════════════════════════════════════════════ */
+html[lang="ar"] body,
+html[lang="ar"] body * {
+  letter-spacing: normal;
+}
+
+html[lang="ar"] body {
+  font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
+}
+
+/* Les titres restent en arabe dans la même police : aucune serif arabe n'est
+   chargée, et mélanger deux familles pour trois mots n'apporterait rien. */
+html[lang="ar"] .display,
+html[lang="ar"] .font-serif,
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] h4 {
+  font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
+}
+
+/* `uppercase` n'a aucun effet sur l'arabe mais reste sur les rares mots
+   latins qui traînent — un nom de parfum, « MAD ». On le laisse. */
+
 /* ===== Barre d'onglets défilable (admin) =====
    Cinq onglets ne tiennent pas sur 360 px. Plutôt que de les empiler — ce qui
    pousse le contenu très bas — la barre défile latéralement ; la barre de

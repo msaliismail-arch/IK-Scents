@@ -21,10 +21,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { resolveImg } from "@/lib/site";
 import { DEFAULT_SETTINGS, computeDelivery } from "@/lib/delivery";
 import { resolveAvailability } from "@/lib/availability";
-import { genderLabel, priceWithDiscount } from "@/lib/pricing";
+import { priceWithDiscount } from "@/lib/pricing";
+import { useLang } from "@/components/site/language-provider";
+import { genderText, fill } from "@/lib/i18n";
 import type { Perfume, Settings, Size } from "@/lib/types";
 
 export default function CommanderPage() {
+  const { t } = useLang();
   const params = useParams();
   const id = (params?.id as string) ?? "";
 
@@ -101,7 +104,7 @@ export default function CommanderPage() {
   );
   const unitPrice = priceView.final;
   const subtotal = unitPrice * quantity;
-  const sexe = genderLabel(perfume?.gender);
+  const sexe = genderText(t, perfume?.gender);
   const delivery = computeDelivery(settings, subtotal, form.city);
   const total = subtotal + delivery.price;
 
@@ -129,13 +132,13 @@ export default function CommanderPage() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || "Une erreur est survenue. Réessayez.");
+        setError(data.error || t.order.error);
         setSubmitting(false);
         return;
       }
       setDone(true);
     } catch {
-      setError("Erreur de connexion. Réessayez.");
+      setError(t.order.networkError);
     } finally {
       setSubmitting(false);
     }
@@ -153,8 +156,8 @@ export default function CommanderPage() {
             href="/#collection"
             className="inline-flex items-center gap-2 pointer-coarse:min-h-[44px] text-muted-foreground hover:text-gold text-sm mb-6 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Retour à la collection
+            <ArrowLeft className="w-4 h-4 rtl:-scale-x-100" />
+            {t.order.back}
           </Link>
 
           {loading ? (
@@ -163,12 +166,12 @@ export default function CommanderPage() {
             </div>
           ) : !perfume ? (
             <div className="text-center py-24">
-              <p className="text-muted-foreground text-lg">Parfum introuvable.</p>
+              <p className="text-muted-foreground text-lg">{t.order.notFound}</p>
               <Link
                 href="/#collection"
                 className="inline-block mt-4 text-gold hover:underline"
               >
-                Voir la collection
+                {t.order.seeCollection}
               </Link>
             </div>
           ) : !stock.orderable ? (
@@ -178,18 +181,17 @@ export default function CommanderPage() {
               </h1>
               <p className="text-muted-foreground font-light leading-relaxed">
                 {stock.value === "bientot"
-                  ? "Ce parfum n'est pas encore en ligne. Il arrive bientôt."
-                  : "Ce parfum n'est plus en stock pour le moment."}
+                  ? t.order.soonTitle
+                  : t.order.outTitle}
               </p>
               <p className="text-muted-foreground font-light leading-relaxed mt-3">
-                Signalez-nous votre intérêt depuis la page d'accueil : nous vous
-                contacterons dès qu'il sera disponible.
+                {t.order.tellUs}
               </p>
               <Link
                 href="/#collection"
                 className="btn-gold inline-block mt-7 px-6 py-3 font-semibold tracking-wider uppercase text-sm rounded-sm"
               >
-                Voir la collection
+                {t.order.seeCollection}
               </Link>
             </div>
           ) : done ? (
@@ -197,17 +199,20 @@ export default function CommanderPage() {
               <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-gold-soft border border-gold-soft flex items-center justify-center">
                 <Check className="w-8 h-8 text-gold" />
               </div>
-              <h1 className="text-2xl font-serif text-foreground mb-2">Merci !</h1>
+              <h1 className="text-2xl font-serif text-foreground mb-2">{t.order.thanks}</h1>
               <p className="text-muted-foreground font-light leading-relaxed">
-                Votre commande de <strong>{perfume.name}</strong> (
-                {selectedSize?.label} × {quantity}) a bien été enregistrée. Nous
-                vous contacterons au {form.phone} pour confirmer la livraison.
+                {fill(t.order.confirmed, {
+                  perfume: perfume.name,
+                  size: selectedSize?.label ?? "",
+                  qty: quantity,
+                  phone: form.phone,
+                })}
               </p>
               <Link
                 href="/#collection"
                 className="btn-gold inline-block mt-6 px-6 py-3 font-semibold tracking-wider uppercase text-sm rounded-sm"
               >
-                Continuer mes achats
+                {t.order.continue}
               </Link>
             </div>
           ) : (
@@ -247,7 +252,7 @@ export default function CommanderPage() {
                 {perfume.notes && (
                   <p className="mt-4 text-sm text-muted-foreground font-light leading-relaxed">
                     <span className="block text-[10px] font-bold tracking-[0.24em] uppercase text-bordeaux mb-1.5">
-                      Notes principales
+                      {t.order.mainNotes}
                     </span>
                     {perfume.notes}
                   </p>
@@ -260,7 +265,7 @@ export default function CommanderPage() {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <h2 className="text-lg font-serif text-foreground">
-                  Passer commande
+                  {t.order.formTitle}
                 </h2>
 
                 {error && (
@@ -271,7 +276,7 @@ export default function CommanderPage() {
 
                 <div className="space-y-2">
                   <Label className="text-muted-foreground text-sm tracking-wider">
-                    Taille (ml)
+                    {t.order.sizeLabel}
                   </Label>
                   <div className="flex flex-wrap gap-2">
                     {sizes.map((s, i) => (
@@ -310,7 +315,7 @@ export default function CommanderPage() {
 
                 <div className="flex items-center justify-between">
                   <Label className="text-muted-foreground text-sm tracking-wider">
-                    Quantité
+                    {t.order.quantityLabel}
                   </Label>
                   {/* 32 px de côté, c'était plus petit qu'un doigt : on ratait
                       le bouton une fois sur deux. 44 px est le minimum retenu
@@ -344,14 +349,14 @@ export default function CommanderPage() {
                 <div className="space-y-4 border-t border-border pt-5">
                   <div className="space-y-2">
                     <Label className="text-muted-foreground text-sm tracking-wider">
-                      Nom complet *
+                      {t.order.nameLabel}
                     </Label>
                     <Input
                       value={form.customerName}
                       onChange={(e) =>
                         setForm({ ...form, customerName: e.target.value })
                       }
-                      placeholder="Votre nom"
+                      placeholder={t.order.namePlaceholder}
                       required
                     />
                   </div>
@@ -360,7 +365,7 @@ export default function CommanderPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-muted-foreground text-sm tracking-wider">
-                        Téléphone *
+                        {t.order.phoneLabel}
                       </Label>
                       <Input
                         value={form.phone}
@@ -373,7 +378,7 @@ export default function CommanderPage() {
                     </div>
                     <div className="space-y-2">
                       <Label className="text-muted-foreground text-sm tracking-wider">
-                        Ville
+                        {t.order.cityLabel}
                       </Label>
                       <Input
                         value={form.city}
@@ -384,21 +389,21 @@ export default function CommanderPage() {
                       />
                       {settings.deliveryCities.length > 0 && (
                         <p className="text-muted-foreground/70 text-[11px]">
-                          Les frais de livraison dépendent de la ville.
+                          {t.order.cityNote}
                         </p>
                       )}
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-muted-foreground text-sm tracking-wider">
-                      Adresse de livraison *
+                      {t.order.addressLabel}
                     </Label>
                     <Textarea
                       value={form.address}
                       onChange={(e) =>
                         setForm({ ...form, address: e.target.value })
                       }
-                      placeholder="Quartier, rue, n°..."
+                      placeholder={t.order.addressPlaceholder}
                       required
                       rows={2}
                       className="resize-none"
@@ -406,12 +411,12 @@ export default function CommanderPage() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-muted-foreground text-sm tracking-wider">
-                      Note (optionnel)
+                      {t.order.noteLabel}
                     </Label>
                     <Input
                       value={form.note}
                       onChange={(e) => setForm({ ...form, note: e.target.value })}
-                      placeholder="Précisions..."
+                      placeholder={t.order.notePlaceholder}
                     />
                   </div>
                 </div>
@@ -419,7 +424,8 @@ export default function CommanderPage() {
                 <div className="p-4 bg-gold-soft border border-gold-soft rounded-lg space-y-2.5">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">
-                      Sous-total ({selectedSize?.label ?? "—"} × {quantity})
+                      {t.order.subtotal} ({selectedSize?.label ?? "—"} ×{" "}
+                      {quantity})
                     </span>
                     <span className="text-foreground">
                       {subtotal > 0 ? `${subtotal} MAD` : "—"}
@@ -433,7 +439,7 @@ export default function CommanderPage() {
 
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">
-                      Livraison
+                      {t.order.delivery}
                       {delivery.reason === "city" && form.city
                         ? ` (${form.city.trim()})`
                         : ""}
@@ -443,23 +449,21 @@ export default function CommanderPage() {
                         delivery.free ? "text-green-700" : "text-foreground"
                       }
                     >
-                      {delivery.free ? "Offerte" : `${delivery.price} MAD`}
+                      {delivery.free ? t.order.free : `${delivery.price} MAD`}
                     </span>
                   </div>
 
                   {delivery.missingForFree > 0 && (
                     <p className="text-[12px] text-muted-foreground leading-relaxed">
-                      Plus que{" "}
-                      <span className="text-foreground font-medium">
-                        {delivery.missingForFree} MAD
-                      </span>{" "}
-                      pour la livraison offerte.
+                      {fill(t.order.missingForFree, {
+                        amount: delivery.missingForFree,
+                      })}
                     </p>
                   )}
 
                   <div className="flex items-center justify-between border-t border-gold-border pt-2.5">
                     <span className="text-muted-foreground text-sm">
-                      Total (paiement à la livraison)
+                      {t.order.total}
                     </span>
                     <span className="text-bordeaux font-serif text-xl font-medium">
                       {subtotal > 0 ? `${total} MAD` : "—"}
@@ -477,7 +481,7 @@ export default function CommanderPage() {
                   ) : (
                     <>
                       <ShoppingBag className="w-4 h-4 mr-2" />
-                      Confirmer la commande
+                      {t.order.submit}
                     </>
                   )}
                 </Button>

@@ -18,12 +18,12 @@ import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import { resolveAvailability } from "@/lib/availability";
 import {
   GENDERS,
-  genderLabel,
   normalizeGender,
-  // genderLabel reste utilisé ailleurs dans la page (fiche parfum)
   priceWithDiscount,
   discountEndLabel,
 } from "@/lib/pricing";
+import { useLang } from "@/components/site/language-provider";
+import { LANG_LOCALE, genderText, stockText } from "@/lib/i18n";
 import type { Perfume } from "@/lib/types";
 
 /* ══════════════════════════════════════════════
@@ -36,6 +36,8 @@ import type { Perfume } from "@/lib/types";
    en arrière-plan.
    ══════════════════════════════════════════════ */
 function Hero({ onRequest }: { onRequest: () => void }) {
+  const { t } = useLang();
+
   return (
     <section
       id="hero"
@@ -47,7 +49,7 @@ function Hero({ onRequest }: { onRequest: () => void }) {
         <div className="max-w-3xl mx-auto text-center">
           <Reveal>
             <span className="label-xs block mb-6 sm:mb-8">
-              Décants de parfums originaux
+              {t.hero.eyebrow}
             </span>
           </Reveal>
 
@@ -58,14 +60,13 @@ function Hero({ onRequest }: { onRequest: () => void }) {
           */}
           <RevealLines
             className="display text-[clamp(2.5rem,11vw,5.2rem)] mb-7 sm:mb-8"
-            lines={["Le parfum", "original,", "en décant."]}
+            lines={[...t.hero.title]}
           />
 
           <Reveal delay={180}>
             <span className="rule mx-auto mb-7 sm:mb-8" />
             <p className="text-[#4a4236] text-[16px] sm:text-[17px] font-light leading-[1.85] max-w-md mx-auto mb-9 sm:mb-11">
-              Nous achetons des flacons de parfum originaux et les proposons en
-              petits formats — le même parfum, à un prix accessible.
+              {t.hero.text}
             </p>
           </Reveal>
 
@@ -75,14 +76,14 @@ function Hero({ onRequest }: { onRequest: () => void }) {
                 href="/#collection"
                 className="bg-[#171717] text-white px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase text-center transition-colors duration-500 hover:bg-[#3a3a3a]"
               >
-                Voir les décants
+                {t.hero.cta}
               </Link>
               <button
                 type="button"
                 onClick={onRequest}
                 className="border border-[#171717] text-[#171717] px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase text-center transition-colors duration-500 hover:bg-[#171717] hover:text-white"
               >
-                Votre parfum préféré
+                {t.hero.request}
               </button>
             </div>
           </Reveal>
@@ -146,9 +147,11 @@ function PerfumeRow({
   index: number;
   onRequest: (prefill?: RequestPrefill) => void;
 }) {
+  const { lang, t } = useLang();
   const [imgError, setImgError] = useState(false);
   const stock = resolveAvailability(perfume.availability);
-  const sexe = genderLabel(perfume.gender);
+  const stockLabel = stockText(t, perfume.availability);
+  const sexe = genderText(t, perfume.gender);
   const imageUrl = resolveImg(perfume.image);
   const sizes = perfume.sizes ?? [];
   // Chaque format porte son prix catalogue et son prix remisé.
@@ -160,7 +163,10 @@ function PerfumeRow({
     ? Math.min(...priced.map((s) => s.view.final || Infinity))
     : null;
   const percent = priced[0]?.view.percent ?? 0;
-  const promoEnd = percent > 0 ? discountEndLabel(perfume.discountUntil) : "";
+  const promoEnd =
+    percent > 0
+      ? discountEndLabel(perfume.discountUntil, LANG_LOCALE[lang])
+      : "";
   const flipped = index % 2 === 1;
 
   return (
@@ -172,7 +178,7 @@ function PerfumeRow({
         <Link
           href={`/commander/${perfume.id}`}
           className="block"
-          aria-label={`Découvrir ${perfume.name}`}
+          aria-label={`${t.collection.discover} ${perfume.name}`}
         >
           <ProductFrame
             src={imageUrl}
@@ -210,7 +216,7 @@ function PerfumeRow({
                 stock.orderable ? "bg-white" : "bg-[#8a7a63]"
               }`}
             />
-            {stock.badge}
+            {stockLabel.badge}
           </span>
 
           {percent > 0 && stock.orderable && (
@@ -242,7 +248,7 @@ function PerfumeRow({
         {perfume.notes && (
           <p className="mt-4 text-[14px] text-[#4a4236] font-light leading-[1.8] max-w-lg">
             <span className="text-[10px] font-bold tracking-[0.24em] uppercase text-bordeaux block mb-1.5">
-              Notes principales
+              {t.collection.mainNotes}
             </span>
             {perfume.notes}
           </p>
@@ -250,14 +256,14 @@ function PerfumeRow({
 
         {promoEnd && (
           <p className="mt-4 text-[12.5px] font-medium text-bordeaux">
-            Offre valable jusqu’au {promoEnd}.
+            {t.collection.offerUntil} {promoEnd}.
           </p>
         )}
 
         {sizes.length > 0 && (
           <div className="mt-8">
             <span className="block text-[10px] font-bold tracking-[0.26em] uppercase text-bordeaux mb-3">
-              Formats disponibles
+              {t.collection.availableSizes}
             </span>
             <div className="flex flex-wrap gap-2">
               {priced.map((s, i) => {
@@ -297,7 +303,7 @@ function PerfumeRow({
 
         {from && Number.isFinite(from) && (
           <p className="mt-6 text-[14px] text-[#6b6255] font-light">
-            À partir de{" "}
+            {t.collection.from}{" "}
             <span className="font-serif text-[1.9rem] font-medium text-bordeaux align-middle">
               {from} MAD
             </span>
@@ -310,7 +316,7 @@ function PerfumeRow({
             className="mt-8 w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#171717] text-white px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#3a3a3a]"
           >
             <ShoppingBag className="w-4 h-4" />
-            Commander
+            {t.collection.order}
           </Link>
         ) : (
           <div className="mt-8">
@@ -331,12 +337,12 @@ function PerfumeRow({
               className="btn-bordeaux w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase"
             >
               <Bell className="w-4 h-4" />
-              {stock.cta}
+              {stockLabel.cta}
             </button>
             <p className="mt-3 text-[13px] text-[#6b6255] font-light">
               {stock.value === "bientot"
-                ? "Ce parfum arrive bientôt. Laissez-nous vos coordonnées, nous vous prévenons dès sa mise en ligne."
-                : "Ce parfum n’est plus en stock. Laissez-nous vos coordonnées, nous vous prévenons dès son retour."}
+                ? t.collection.soonText
+                : t.collection.outText}
             </p>
           </div>
         )}
@@ -349,8 +355,8 @@ function Collection({
   perfumes,
   onRequest,
   id = "collection",
-  eyebrow = "La collection",
-  title = "Nos décants",
+  eyebrow,
+  title,
   intro,
   variant = "decants",
   withGenderFilter = false,
@@ -366,7 +372,10 @@ function Collection({
   /** Barre « Tous · Homme · Femme · Unisexe ». Inutile sur les packs. */
   withGenderFilter?: boolean;
 }) {
+  const { t } = useLang();
   const packs = variant === "packs";
+  const eyebrowText = eyebrow ?? t.collection.eyebrow;
+  const titleText = title ?? t.collection.title;
 
   // "" = aucun filtre actif, donc « Tous »
   const [genderFilter, setGenderFilter] = useState("");
@@ -429,12 +438,12 @@ function Collection({
           <div className="lg:col-span-7">
             <Reveal>
               <span className="block text-[11px] font-bold tracking-[0.4em] uppercase text-[#171717] mb-6">
-                {eyebrow}
+                {eyebrowText}
               </span>
             </Reveal>
             <RevealLines
               className="font-serif font-semibold uppercase tracking-[0.01em] leading-[1] text-foreground text-[clamp(2.4rem,12vw,5.6rem)] break-words"
-              lines={[title]}
+              lines={[titleText]}
             />
           </div>
           <Reveal delay={200} className="lg:col-span-5">
@@ -444,10 +453,11 @@ function Collection({
               </p>
             ) : (
               <p className="text-[#2e2a22] text-[17px] font-normal leading-[1.8] max-w-md">
-                Un décant, c&apos;est du parfum{" "}
-                <strong className="font-semibold">100 % original</strong>{" "}
-                transvasé du flacon de marque dans un petit format. Même
-                parfum, même tenue — vous payez la quantité, pas le flacon.
+                {t.collection.intro1}
+                <strong className="font-semibold">
+                  {t.collection.introStrong}
+                </strong>
+                {t.collection.intro2}
               </p>
             )}
           </Reveal>
@@ -457,16 +467,16 @@ function Collection({
           <Reveal>
             <div
               role="group"
-              aria-label="Filtrer par genre"
+              aria-label={t.collection.filterLabel}
               className="flex flex-wrap gap-2.5 mb-14 lg:mb-20"
             >
               {[
-                { value: "", label: "Tous", count: perfumes.length },
-                // GENDERS contient des objets { value, label } — on garde le
-                // libellé officiel plutôt que d'en réinventer un ici.
+                { value: "", label: t.collection.all, count: perfumes.length },
+                // GENDERS donne l'ordre et les valeurs ; le libellé affiché
+                // vient du dictionnaire, pour suivre la langue choisie.
                 ...GENDERS.filter((g) => counts.has(g.value)).map((g) => ({
                   value: g.value as string,
-                  label: g.label as string,
+                  label: t.gender[g.value],
                   count: counts.get(g.value) ?? 0,
                 })),
               ].map((opt) => {
@@ -498,24 +508,24 @@ function Collection({
           <div className="text-center py-24 border border-dashed border-champagne">
             <Package className="w-10 h-10 text-champagne mx-auto mb-5" />
             <p className="text-muted-foreground font-light">
-              Aucun parfum publié pour le moment
+              {t.collection.empty}
             </p>
             <p className="text-muted-foreground/60 text-sm mt-1.5">
-              Ajoutez vos parfums depuis l’espace admin
+              {t.collection.emptyHint}
             </p>
           </div>
         ) : visible.length === 0 ? (
           <div className="text-center py-24 border border-dashed border-champagne">
             <Package className="w-10 h-10 text-champagne mx-auto mb-5" />
             <p className="text-muted-foreground font-light">
-              Aucun décant dans cette catégorie pour le moment
+              {t.collection.emptyCategory}
             </p>
             <button
               type="button"
               onClick={() => onRequest()}
               className="mt-5 inline-flex items-center justify-center px-4 pointer-coarse:min-h-[44px] text-[11px] font-semibold tracking-[0.18em] uppercase text-bordeaux hover:underline underline-offset-4"
             >
-              Demander votre parfum préféré
+              {t.collection.askYours}
             </button>
           </div>
         ) : (
@@ -541,6 +551,8 @@ function Collection({
    L'ART DU PARFUM, ACCESSIBLE
    ══════════════════════════════════════════════ */
 function Concept() {
+  const { t } = useLang();
+
   return (
     <section
       id="about"
@@ -556,29 +568,27 @@ function Concept() {
           {/* Texte à gauche */}
           <div className="lg:col-span-5 order-2 lg:order-1">
             <Reveal>
-              <span className="label-xs block mb-6">Le concept</span>
+              <span className="label-xs block mb-6">{t.concept.eyebrow}</span>
             </Reveal>
 
             <RevealLines
               className="display font-normal text-[clamp(2rem,9vw,3.7rem)]"
-              lines={["L’art du parfum,", "accessible."]}
+              lines={[...t.concept.title]}
             />
 
             <Reveal delay={200}>
               <span className="rule my-7" />
               <p className="text-[#4a4236] text-[16px] font-light leading-[1.85] max-w-md">
-                Chez {BRAND}, nous sélectionnons des parfums originaux et
-                authentiques pour vous permettre de découvrir vos fragrances
-                préférées dans des formats accessibles.
+                {BRAND}, {t.concept.text}
               </p>
             </Reveal>
 
             <Reveal delay={340}>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-7 sm:gap-6 border-t border-champagne pt-9 mt-10">
                 {[
-                  { v: "100%", l: "Original" },
-                  { v: "Dès 5 ml", l: "Jusqu’au flacon complet" },
-                  { v: "Livraison", l: "Partout au Maroc" },
+                  { v: t.concept.stat1, l: t.concept.stat1Label },
+                  { v: t.concept.stat2, l: t.concept.stat2Label },
+                  { v: t.concept.stat3, l: t.concept.stat3Label },
                 ].map((s) => (
                   <div key={s.l}>
                     <div className="font-serif text-[1.7rem] sm:text-[1.9rem] font-medium text-foreground leading-none">
@@ -615,6 +625,8 @@ function Concept() {
    SECTION VISUELLE — grande image immersive
    ══════════════════════════════════════════════ */
 function Signature() {
+  const { t } = useLang();
+
   return (
     <section className="relative w-full overflow-hidden">
       {/*
@@ -625,7 +637,7 @@ function Signature() {
       <div className="relative h-[70svh] min-h-[400px] lg:h-[86svh] w-full">
         <Img
           name="showcase"
-          alt={`Univers ${BRAND}`}
+          alt={`${t.signature.alt} ${BRAND}`}
           ratio="h-full"
           position="center 50%"
         />
@@ -635,15 +647,15 @@ function Signature() {
           <div className="text-center px-6">
             <RevealLines
               className="font-serif font-normal uppercase tracking-[0.02em] leading-[1.05] text-white text-[clamp(1.75rem,8.5vw,4.2rem)] drop-shadow-sm"
-              lines={["Une fragrance.", "Une présence.", "Une signature."]}
+              lines={[...t.signature.title]}
             />
             <Reveal delay={360}>
               <Link
                 href="/#collection"
                 className="mt-8 sm:mt-10 inline-flex items-center gap-3 bg-white text-[#171717] px-7 sm:px-10 py-4 sm:py-5 text-[11px] sm:text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#efe8dc]"
               >
-                Découvrir la boutique
-                <ArrowRight className="w-4 h-4" />
+                {t.signature.cta}
+                <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
               </Link>
             </Reveal>
           </div>
@@ -657,6 +669,8 @@ function Signature() {
    CONTACT
    ══════════════════════════════════════════════ */
 function Contact({ onRequest }: { onRequest: () => void }) {
+  const { t } = useLang();
+
   return (
     <section
       id="contact"
@@ -669,17 +683,18 @@ function Contact({ onRequest }: { onRequest: () => void }) {
 
       <div className="relative z-10 max-w-2xl mx-auto px-5 sm:px-6 text-center">
         <Reveal>
-          <span className="label-xs block mb-6">Contact</span>
+          <span className="label-xs block mb-6">
+            {t.contactSection.eyebrow}
+          </span>
         </Reveal>
         <RevealLines
           className="display font-normal text-[clamp(1.9rem,9vw,3.5rem)]"
-          lines={["Votre parfum", "vous attend"]}
+          lines={[...t.contactSection.title]}
         />
         <Reveal delay={200}>
           <FloralDivider className="my-9" />
           <p className="text-[#4a4236] text-[16px] font-light leading-[1.85] mb-11">
-            Parcourez la collection, choisissez votre format et commandez
-            directement sur le site. Paiement à la livraison, partout au Maroc.
+            {t.contactSection.text}
           </p>
 
           {/*
@@ -693,14 +708,14 @@ function Contact({ onRequest }: { onRequest: () => void }) {
               className="bg-[#171717] text-white px-7 sm:px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-2.5 transition-colors duration-500 hover:bg-[#3a3a3a]"
             >
               <ShoppingBag className="w-4 h-4 shrink-0" />
-              Voir la collection
+              {t.contactSection.seeCollection}
             </Link>
             <button
               type="button"
               onClick={onRequest}
               className="border border-[#171717] text-[#171717] px-7 sm:px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#171717] hover:text-white"
             >
-              Votre parfum préféré
+              {t.contactSection.request}
             </button>
             <a
               href={INSTAGRAM_URL}
@@ -709,7 +724,7 @@ function Contact({ onRequest }: { onRequest: () => void }) {
               className="border border-champagne text-[#4a4236] px-7 sm:px-8 py-[18px] text-[11px] font-semibold tracking-[0.2em] uppercase flex items-center justify-center gap-2.5 transition-colors duration-500 hover:border-[#171717] hover:text-[#171717]"
             >
               <Instagram className="w-4 h-4 shrink-0" />
-              Instagram
+              {t.contactSection.instagram}
             </a>
           </div>
         </Reveal>
@@ -722,6 +737,7 @@ function Contact({ onRequest }: { onRequest: () => void }) {
    HOME
    ══════════════════════════════════════════════ */
 export default function Home() {
+  const { t } = useLang();
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
   const [requestOpen, setRequestOpen] = useState(false);
 
@@ -777,10 +793,9 @@ export default function Home() {
           perfumes={packs}
           onRequest={openRequest}
           id="packs"
-          eyebrow="Coffrets"
-          title="Nos packs"
-          intro="Plusieurs parfums réunis, à prix réduit. Idéal pour découvrir
-                 plusieurs signatures ou pour offrir."
+          eyebrow={t.collection.packsEyebrow}
+          title={t.collection.packsTitle}
+          intro={t.collection.packsIntro}
           variant="packs"
         />
         <Concept />

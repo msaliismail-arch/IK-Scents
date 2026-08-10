@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Instagram,
@@ -15,21 +17,25 @@ import {
   WHATSAPP_NUMBER,
   WHATSAPP_URL,
 } from "@/lib/site";
-
-const NAV = [
-  { href: "/#about", label: "Le Concept" },
-  { href: "/#collection", label: "Nos Décants" },
-  { href: "/#collection", label: "Boutique" },
-  { href: "/#contact", label: "Contact" },
-];
-
-const ENGAGEMENTS = [
-  { icon: Package, label: "Parfums originaux" },
-  { icon: Droplet, label: "De 5 ml au flacon complet" },
-  { icon: Truck, label: "Livraison partout au Maroc" },
-];
+import { useLang } from "@/components/site/language-provider";
+import { LanguageToggle } from "@/components/site/language-toggle";
 
 export function Footer() {
+  const { t } = useLang();
+
+  const NAV = [
+    { href: "/#about", label: t.nav.concept },
+    { href: "/#collection", label: t.nav.decants },
+    { href: "/#collection", label: t.nav.shop },
+    { href: "/#contact", label: t.nav.contact },
+  ];
+
+  const ENGAGEMENTS = [
+    { icon: Package, label: t.footer.c1 },
+    { icon: Droplet, label: t.footer.c2 },
+    { icon: Truck, label: t.footer.c3 },
+  ];
+
   return (
     <footer className="bg-[#171717] text-[#f7f4ee]">
       <div className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-12 pt-20 pb-12">
@@ -38,7 +44,7 @@ export function Footer() {
           <div className="lg:col-span-5">
             <Brandmark size={52} variant="dark" />
             <p className="mt-7 font-serif text-xl font-light leading-snug text-[#f7f4ee]/80 max-w-xs">
-              Une signature olfactive accessible.
+              {t.footer.tagline}
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -84,7 +90,7 @@ export function Footer() {
           {/* Navigation */}
           <div className="lg:col-span-3">
             <h4 className="text-[10px] font-semibold tracking-[0.34em] uppercase text-[#d8cbb8] mb-6">
-              Navigation
+              {t.footer.navigation}
             </h4>
             {/* Au doigt, une ligne de texte de 20 px de haut est une cible
                 trop fine. Les liens deviennent des blocs de 44 px sur écran
@@ -106,7 +112,7 @@ export function Footer() {
           {/* Engagements */}
           <div className="lg:col-span-4">
             <h4 className="text-[10px] font-semibold tracking-[0.34em] uppercase text-[#d8cbb8] mb-6">
-              Nos engagements
+              {t.footer.commitments}
             </h4>
             <ul className="space-y-4 text-[14px] font-light text-[#f7f4ee]/75">
               {ENGAGEMENTS.map(({ icon: Icon, label }) => (
@@ -119,19 +125,20 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 pt-7 border-t border-[#f7f4ee]/15 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-[#f7f4ee]/40 text-[11px] tracking-[0.12em]">
-            © 2026 {BRAND}. Tous droits réservés.
+        <div className="mt-16 pt-7 border-t border-[#f7f4ee]/15 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <LanguageToggle variant="dark" className="sm:hidden" />
+          <p className="text-[#f7f4ee]/40 text-[11px] tracking-[0.12em] text-center">
+            © 2026 {BRAND}. {t.footer.rights}
           </p>
           <div className="flex items-center gap-5">
             <p className="text-[#f7f4ee]/40 text-[11px] tracking-[0.12em]">
-              Oujda, Maroc
+              {t.footer.city}
             </p>
             <Link
               href="/admin"
               className="inline-flex items-center px-2 -mr-2 pointer-coarse:min-h-[44px] text-[#f7f4ee]/30 hover:text-[#f7f4ee]/70 transition-colors text-[11px] tracking-[0.12em]"
             >
-              Espace Admin
+              {t.footer.admin}
             </Link>
           </div>
         </div>

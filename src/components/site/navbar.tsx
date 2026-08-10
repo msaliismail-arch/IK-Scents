@@ -5,18 +5,21 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Brandmark } from "@/components/site/brandmark";
 import { AnnouncementBar } from "@/components/site/announcement-bar";
+import { LanguageToggle } from "@/components/site/language-toggle";
+import { useLang } from "@/components/site/language-provider";
 import { BRAND } from "@/lib/site";
 
-const links = [
-  { href: "/#about", label: "Le Concept" },
-  { href: "/#collection", label: "Nos Décants" },
-  { href: "/#collection", label: "Boutique" },
-  { href: "/#contact", label: "Contact" },
-];
-
 export function Navbar() {
+  const { t } = useLang();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const links = [
+    { href: "/#about", label: t.nav.concept },
+    { href: "/#collection", label: t.nav.decants },
+    { href: "/#collection", label: t.nav.shop },
+    { href: "/#contact", label: t.nav.contact },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -56,7 +59,7 @@ export function Navbar() {
           {/* Logo — premier élément, à l'extrême gauche */}
           <Link
             href="/"
-            aria-label={`${BRAND} — accueil`}
+            aria-label={`${BRAND} — ${t.nav.home}`}
             className="shrink-0 mr-4 lg:mr-14 transition-opacity duration-300 hover:opacity-75"
           >
             {/*
@@ -87,17 +90,22 @@ export function Navbar() {
               ))}
             </div>
 
+            {/* Le sélecteur reste visible même sur petit écran : une personne
+                qui ne lit pas le français ne doit pas avoir à ouvrir un menu
+                pour trouver sa langue. */}
+            <LanguageToggle />
+
             <Link
               href="/#collection"
               className="hidden sm:inline-flex items-center bg-[#171717] text-white px-8 py-4 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#3a3a3a]"
             >
-              Commander
+              {t.nav.order}
             </Link>
 
             <button
-              className="lg:hidden w-11 h-11 -mr-2 flex items-center justify-center text-[#171717]"
+              className="lg:hidden w-11 h-11 -me-2 flex items-center justify-center text-[#171717]"
               onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label="Menu"
+              aria-label={t.nav.menu}
               aria-expanded={mobileOpen}
             >
               {mobileOpen ? (
@@ -129,7 +137,7 @@ export function Navbar() {
           <button
             className="w-11 h-11 flex items-center justify-center text-[#171717]"
             onClick={() => setMobileOpen(false)}
-            aria-label="Fermer le menu"
+            aria-label={t.nav.closeMenu}
           >
             <X className="w-6 h-6" />
           </button>
@@ -152,8 +160,10 @@ export function Navbar() {
             onClick={() => setMobileOpen(false)}
             className="mt-9 w-full text-center bg-[#171717] text-white px-6 py-5 text-[12px] font-bold tracking-[0.22em] uppercase"
           >
-            Commander
+            {t.nav.order}
           </Link>
+
+          <LanguageToggle className="mt-6 self-start" />
         </div>
       </div>
       </nav>

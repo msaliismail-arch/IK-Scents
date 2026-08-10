@@ -56,12 +56,16 @@ export function isDiscountActive(until: unknown): boolean {
   return end.getTime() >= Date.now();
 }
 
-/** Date de fin lisible, ou "" si la promo n'a pas d'échéance. */
-export function discountEndLabel(until: unknown): string {
+/**
+ * Date de fin lisible, ou "" si la promo n'a pas d'échéance.
+ * `locale` permet d'afficher « 20 août 2026 » ou « ٢٠ غشت ٢٠٢٦ » selon la
+ * langue choisie par le visiteur.
+ */
+export function discountEndLabel(until: unknown, locale = "fr-FR"): string {
   if (!until) return "";
   const end = new Date(String(until));
   if (Number.isNaN(end.getTime())) return "";
-  return end.toLocaleDateString("fr-FR", {
+  return end.toLocaleDateString(locale, {
     day: "numeric",
     month: "long",
     year: "numeric",

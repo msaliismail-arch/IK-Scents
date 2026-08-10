@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, Loader2, Minus, Plus, X } from "lucide-react";
-import { GENDERS, genderLabel } from "@/lib/pricing";
+import { GENDERS } from "@/lib/pricing";
 import { DEFAULT_SETTINGS, computeDelivery } from "@/lib/delivery";
 import { BRAND } from "@/lib/site";
+import { useLang } from "@/components/site/language-provider";
+import { genderText, fill } from "@/lib/i18n";
 import type { Settings } from "@/lib/types";
 
 export type RequestFormat = { label: string; price: number };
@@ -55,6 +57,7 @@ export function PerfumeRequestModal({
   onClose: () => void;
   prefill?: RequestPrefill;
 }) {
+  const { t } = useLang();
   const [form, setForm] = useState(EMPTY);
   const [quantity, setQuantity] = useState(1);
   const [submitting, setSubmitting] = useState(false);
@@ -141,13 +144,15 @@ export function PerfumeRequestModal({
   // Réinitialise après fermeture, une fois l'animation terminée
   useEffect(() => {
     if (open) return;
-    const t = setTimeout(() => {
+    // Nommé `timer` et non `t` : `t` porte désormais les textes traduits, et
+    // le masquer ici rendrait le dictionnaire inaccessible dans cet effet.
+    const timer = setTimeout(() => {
       setForm(EMPTY);
       setQuantity(1);
       setError("");
       setDone(false);
     }, 400);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [open]);
 
   const set = (key: keyof typeof EMPTY, value: string) =>
@@ -165,12 +170,12 @@ export function PerfumeRequestModal({
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || "Une erreur est survenue. Réessayez.");
+        setError(data.error || t.request.error);
         return;
       }
       setDone(true);
     } catch {
-      setError("Erreur de connexion. Réessayez.");
+      setError(t.request.networkError);
     } finally {
       setSubmitting(false);
     }
@@ -203,7 +208,7 @@ export function PerfumeRequestModal({
       <button
         className="absolute inset-0 bg-[#171717]/45 backdrop-blur-[2px]"
         onClick={onClose}
-        aria-label="Fermer"
+        aria-label={t.request.close}
         tabIndex={-1}
       />
 
@@ -215,7 +220,7 @@ export function PerfumeRequestModal({
         <button
           onClick={onClose}
           className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 w-11 h-11 flex items-center justify-center text-[#6b6255] hover:text-[#171717] transition-colors z-10"
-          aria-label="Fermer"
+          aria-label={t.request.close}
         >
           <X className="w-5 h-5" />
         </button>
@@ -226,17 +231,16 @@ export function PerfumeRequestModal({
               <Check className="w-7 h-7 text-[#8a7a63]" />
             </div>
             <h2 className="font-serif text-2xl font-light uppercase tracking-[0.04em] text-[#171717] mb-4">
-              Merci !
+              {t.request.thanks}
             </h2>
             <p className="text-[#6b6255] text-[14.5px] font-light leading-[1.85] max-w-sm mx-auto">
-              Nous avons bien reçu votre demande. Nous vous contacterons dès que
-              votre parfum préféré sera disponible.
+              {t.request.thanksText}
             </p>
             <button
               onClick={onClose}
               className="mt-9 bg-[#171717] text-white px-8 py-4 text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#3a3a3a]"
             >
-              Fermer
+              {t.request.close}
             </button>
           </div>
         ) : (
@@ -245,20 +249,23 @@ export function PerfumeRequestModal({
             className="px-6 sm:px-10 py-9 sm:py-12"
           >
             <span className="block text-[10px] font-semibold tracking-[0.34em] uppercase text-[#8a7a63] mb-4">
-              Demande de parfum
+              {t.request.eyebrow}
             </span>
             <h2
               id="perfume-request-title"
               className="font-serif text-[1.7rem] sm:text-[2.2rem] font-light uppercase tracking-[0.02em] leading-[1.1] text-[#171717] pr-10"
             >
-              Quel est votre
+              {t.request.title[0]}
               <br />
-              parfum préféré ?
+              {t.request.title[1]}
             </h2>
             <p className="mt-5 text-[#6b6255] text-[14px] font-light leading-[1.8]">
               {prefill?.name
-                ? `Nous vous prévenons dès que ${prefill.name} sera de nouveau disponible chez ${BRAND}.`
-                : `Dites-nous le parfum que vous recherchez. Nous vous prévenons dès qu’il est disponible chez ${BRAND}.`}
+                ? fill(t.request.textNamed, {
+                    name: prefill.name,
+                    brand: BRAND,
+                  })
+                : fill(t.request.textGeneric, { brand: BRAND })}
             </p>
 
             {error && (
@@ -269,19 +276,19 @@ export function PerfumeRequestModal({
 
             {/* ── Le parfum ── */}
             <div className="mt-9">
-              <span className={legendClass}>Le parfum</span>
+              <span className={legendClass}>{t.request.sectionPerfume}</span>
 
               <div className="space-y-6">
                 <div>
                   <label className={labelClass} htmlFor="req-name">
-                    Nom du parfum *
+                    {t.request.nameLabel}
                   </label>
                   <input
                     id="req-name"
                     ref={firstFieldRef}
                     value={form.name}
                     onChange={(e) => set("name", e.target.value)}
-                    placeholder="Ex : Oud Wood"
+                    placeholder={t.request.namePlaceholder}
                     required
                     readOnly={locked}
                     aria-readonly={locked}
@@ -294,10 +301,10 @@ export function PerfumeRequestModal({
                 </div>
 
                 <div>
-                  <span className={labelClass}>Pour</span>
+                  <span className={labelClass}>{t.request.forLabel}</span>
                   {locked ? (
                     <p className="px-4 py-3 border border-[#d8cbb8] bg-[#efe8dc] text-[14px] text-[#4a4236]">
-                      {genderLabel(form.gender) || "Non précisé"}
+                      {genderText(t, form.gender) || t.request.notSpecified}
                     </p>
                   ) : (
                     <div className="grid grid-cols-3 gap-2">
@@ -317,7 +324,7 @@ export function PerfumeRequestModal({
                 </div>
 
                 <div>
-                  <span className={labelClass}>Format souhaité</span>
+                  <span className={labelClass}>{t.request.formatLabel}</span>
                   <div className="grid grid-cols-2 gap-2">
                     {formats.map((f) => (
                       <button
@@ -339,13 +346,13 @@ export function PerfumeRequestModal({
                 {/* Combien d'exemplaires. Un client qui en veut trois le dit
                     tout de suite : c'est autant de flacons à prévoir. */}
                 <div>
-                  <span className={labelClass}>Quantité</span>
+                  <span className={labelClass}>{t.request.quantityLabel}</span>
                   <div className="inline-flex items-center border border-[#d8cbb8] bg-white">
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                       disabled={quantity <= 1}
-                      aria-label="Retirer un exemplaire"
+                      aria-label={t.request.removeOne}
                       className="w-12 h-12 flex items-center justify-center text-[#171717] hover:bg-[#efe8dc] disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
                     >
                       <Minus className="w-4 h-4" />
@@ -359,7 +366,7 @@ export function PerfumeRequestModal({
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => Math.min(99, q + 1))}
-                      aria-label="Ajouter un exemplaire"
+                      aria-label={t.request.addOne}
                       className="w-12 h-12 flex items-center justify-center text-[#171717] hover:bg-[#efe8dc] transition-colors"
                     >
                       <Plus className="w-4 h-4" />
@@ -371,18 +378,18 @@ export function PerfumeRequestModal({
 
             {/* ── Le client ── */}
             <div className="mt-10 pt-9 border-t border-[#d8cbb8]">
-              <span className={legendClass}>Vos coordonnées</span>
+              <span className={legendClass}>{t.request.sectionCustomer}</span>
 
               <div className="space-y-6">
                 <div>
                   <label className={labelClass} htmlFor="req-customer">
-                    Nom complet *
+                    {t.request.customerLabel}
                   </label>
                   <input
                     id="req-customer"
                     value={form.customerName}
                     onChange={(e) => set("customerName", e.target.value)}
-                    placeholder="Votre nom"
+                    placeholder={t.request.customerPlaceholder}
                     required
                     className={fieldClass}
                   />
@@ -390,7 +397,7 @@ export function PerfumeRequestModal({
 
                 <div>
                   <label className={labelClass} htmlFor="req-phone">
-                    Téléphone / WhatsApp *
+                    {t.request.phoneLabel}
                   </label>
                   <input
                     id="req-phone"
@@ -405,13 +412,13 @@ export function PerfumeRequestModal({
 
                 <div>
                   <label className={labelClass} htmlFor="req-address">
-                    Adresse
+                    {t.request.addressLabel}
                   </label>
                   <input
                     id="req-address"
                     value={form.address}
                     onChange={(e) => set("address", e.target.value)}
-                    placeholder="Quartier, rue, n°..."
+                    placeholder={t.request.addressPlaceholder}
                     className={fieldClass}
                   />
                 </div>
@@ -419,7 +426,7 @@ export function PerfumeRequestModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass} htmlFor="req-city">
-                      Ville
+                      {t.request.cityLabel}
                     </label>
                     <input
                       id="req-city"
@@ -431,7 +438,7 @@ export function PerfumeRequestModal({
                   </div>
                   <div>
                     <label className={labelClass} htmlFor="req-postal">
-                      Code postal
+                      {t.request.postalLabel}
                     </label>
                     <input
                       id="req-postal"
@@ -450,7 +457,7 @@ export function PerfumeRequestModal({
               <div className="mt-9 border border-[#d8cbb8] bg-white px-4 py-4 space-y-2 text-[13.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[#6b6255]">
-                    {selected ? selected.label : "À partir de"}
+                    {selected ? selected.label : t.request.startingFrom}
                     {quantity > 1 ? ` × ${quantity}` : ""}
                   </span>
                   <span className="font-semibold text-bordeaux">
@@ -459,32 +466,32 @@ export function PerfumeRequestModal({
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[#6b6255]">
-                    Livraison
+                    {t.request.delivery}
                     {villeException ? ` (${form.city.trim()})` : ""}
                   </span>
                   <span className="text-[#171717]">
-                    {livraison.free ? "Offerte" : `${livraison.price} MAD`}
+                    {livraison.free ? t.request.free : `${livraison.price} MAD`}
                   </span>
                 </div>
 
                 {livraison.missingForFree > 0 && (
                   <p className="text-[11.5px] text-[#6b6255] leading-relaxed">
-                    Plus que {livraison.missingForFree} MAD pour la livraison
-                    offerte.
+                    {fill(t.request.missingForFree, {
+                      amount: livraison.missingForFree,
+                    })}
                   </p>
                 )}
 
                 <div className="flex items-center justify-between border-t border-[#efe8dc] pt-2">
-                  <span className="text-[#6b6255]">Total indicatif</span>
+                  <span className="text-[#6b6255]">{t.request.estimatedTotal}</span>
                   <span className="font-serif text-lg text-bordeaux">
                     {subtotal + livraison.price} MAD
                   </span>
                 </div>
 
                 <p className="text-[11.5px] text-[#8a7a63] font-light leading-relaxed pt-1">
-                  Tarif du jour, à confirmer au moment de la disponibilité.
-                  {!form.city.trim() &&
-                    " Indiquez votre ville : la livraison peut changer."}
+                  {t.request.priceNote}
+                  {!form.city.trim() && t.request.cityNote}
                 </p>
               </div>
             )}
@@ -497,13 +504,12 @@ export function PerfumeRequestModal({
               {submitting ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                "Envoyer ma demande"
+                t.request.submit
               )}
             </button>
 
             <p className="mt-4 text-[12px] text-[#8a7a63] font-light leading-relaxed text-center">
-              Aucun engagement : nous vous contactons simplement dès que le
-              parfum est disponible.
+              {t.request.noCommitment}
             </p>
           </form>
         )}
