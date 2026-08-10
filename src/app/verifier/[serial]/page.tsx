@@ -74,7 +74,7 @@ export default function VerifierPage({
         <div className="max-w-3xl mx-auto">
           <Link
             href="/#collection"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-bordeaux text-sm mb-8 transition-colors"
+            className="inline-flex items-center gap-2 pointer-coarse:min-h-[44px] text-muted-foreground hover:text-bordeaux text-sm mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Retour à la collection

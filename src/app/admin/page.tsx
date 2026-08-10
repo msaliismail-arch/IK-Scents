@@ -626,7 +626,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <Link
               href="/"
-              className="text-sm text-muted-foreground hover:text-gold px-2 sm:px-3 py-1.5 whitespace-nowrap"
+              className="text-sm text-muted-foreground hover:text-gold px-2 sm:px-3 py-1.5 pointer-coarse:min-h-[44px] inline-flex items-center whitespace-nowrap"
             >
               Voir le site
             </Link>
@@ -655,7 +655,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         <div className="flex gap-2 border-b border-border mb-6 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => setTab("products")}
-            className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap px-4 py-2 pointer-coarse:min-h-[44px] text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "products"
                 ? "text-gold border-b-2 border-gold"
                 : "text-muted-foreground hover:text-foreground"
@@ -666,7 +666,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </button>
           <button
             onClick={() => setTab("orders")}
-            className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap px-4 py-2 pointer-coarse:min-h-[44px] text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "orders"
                 ? "text-gold border-b-2 border-gold"
                 : "text-muted-foreground hover:text-foreground"
@@ -682,7 +682,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </button>
           <button
             onClick={() => setTab("requests")}
-            className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap px-4 py-2 pointer-coarse:min-h-[44px] text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "requests"
                 ? "text-gold border-b-2 border-gold"
                 : "text-muted-foreground hover:text-foreground"
@@ -698,7 +698,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </button>
           <button
             onClick={() => setTab("announcements")}
-            className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap px-4 py-2 pointer-coarse:min-h-[44px] text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "announcements"
                 ? "text-gold border-b-2 border-gold"
                 : "text-muted-foreground hover:text-foreground"
@@ -714,7 +714,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </button>
           <button
             onClick={() => setTab("delivery")}
-            className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap px-4 py-2 pointer-coarse:min-h-[44px] text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "delivery"
                 ? "text-gold border-b-2 border-gold"
                 : "text-muted-foreground hover:text-foreground"
@@ -815,7 +815,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         onChange={(e) =>
                           updateRequestStatus(r.id, e.target.value)
                         }
-                        className="bg-background border border-border rounded px-2 py-1.5 text-sm text-foreground"
+                        className="bg-background border border-border rounded px-2 py-1.5 pointer-coarse:min-h-[40px] text-sm text-foreground"
                       >
                         {Object.entries(REQUEST_STATUS_LABELS).map(([v, l]) => (
                           <option key={v} value={v}>
@@ -1051,7 +1051,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         variant="ghost"
                         size="icon"
                         title={a.active ? "Masquer" : "Afficher"}
-                        className="w-8 h-8 text-muted-foreground hover:text-gold"
+                        className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-gold"
                         onClick={() => toggleAnnouncement(a)}
                       >
                         {a.active ? (
@@ -1064,7 +1064,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         variant="ghost"
                         size="icon"
                         title="Modifier"
-                        className="w-8 h-8 text-muted-foreground hover:text-gold"
+                        className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-gold"
                         onClick={() => editAnnouncement(a)}
                       >
                         <Pencil className="w-3.5 h-3.5" />
@@ -1073,7 +1073,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         variant="ghost"
                         size="icon"
                         title="Supprimer"
-                        className="w-8 h-8 text-muted-foreground hover:text-red-500"
+                        className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-red-500"
                         onClick={() => deleteAnnouncement(a.id)}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1727,7 +1727,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                           variant="ghost"
                           size="icon"
                           title="Voir le QR code"
-                          className="w-8 h-8 text-muted-foreground hover:text-gold"
+                          className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-gold"
                           onClick={() => setQrPerfume(perfume)}
                         >
                           <QrCodeIcon className="w-3.5 h-3.5" />
@@ -1738,7 +1738,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                           variant="ghost"
                           size="icon"
                           title="Copier l'URL de vérification"
-                          className="w-8 h-8 text-muted-foreground hover:text-gold"
+                          className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-gold"
                           onClick={() => copyVerifyUrl(perfume)}
                         >
                           {copiedId === perfume.id ? (
@@ -1754,7 +1754,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                           target="_blank"
                           rel="noopener noreferrer"
                           title="Ouvrir le site officiel"
-                          className="w-8 h-8 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-gold transition-colors"
+                          className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-gold transition-colors"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
@@ -1763,7 +1763,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         variant="ghost"
                         size="icon"
                         title={perfume.published ? "Dépublier" : "Publier"}
-                        className="w-8 h-8 text-muted-foreground hover:text-gold"
+                        className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-gold"
                         onClick={() => togglePublish(perfume)}
                       >
                         {perfume.published ? (
@@ -1776,7 +1776,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         variant="ghost"
                         size="icon"
                         title="Modifier"
-                        className="w-8 h-8 text-muted-foreground hover:text-gold"
+                        className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-gold"
                         onClick={() => handleEdit(perfume)}
                       >
                         <Pencil className="w-3.5 h-3.5" />
@@ -1785,7 +1785,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         variant="ghost"
                         size="icon"
                         title="Supprimer"
-                        className="w-8 h-8 text-muted-foreground hover:text-red-500"
+                        className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-red-500"
                         onClick={() => handleDelete(perfume.id)}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1920,7 +1920,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                           onChange={(e) =>
                             updateOrderStatus(order.id, e.target.value)
                           }
-                          className="bg-background border border-border text-foreground text-xs rounded px-2 py-1 outline-none"
+                          className="bg-background border border-border text-foreground text-xs rounded px-2 py-1 pointer-coarse:min-h-[40px] outline-none"
                         >
                           {Object.keys(STATUS_LABELS).map((k) => (
                             <option key={k} value={k}>
@@ -1931,7 +1931,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="w-8 h-8 text-muted-foreground hover:text-red-500"
+                          className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-red-500"
                           onClick={() => deleteOrder(order.id)}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -1963,7 +1963,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             <Button
               variant="ghost"
               size="icon"
-              className="absolute top-2 right-2 w-8 h-8 text-muted-foreground"
+              className="absolute top-2 right-2 w-11 h-11 text-muted-foreground"
               onClick={() => setQrPerfume(null)}
               aria-label="Fermer"
             >

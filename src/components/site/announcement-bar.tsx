@@ -103,9 +103,9 @@ export function AnnouncementBar() {
       aria-label="Annonce"
       className="fixed-safe fixed top-0 left-0 right-0 z-[60] bg-[#6e2639] text-[#f7f4ee]"
     >
-      {/* `px-11` à gauche comme à droite : le texte reste centré et ne passe
+      {/* Même marge à gauche qu'à droite : le texte reste centré et ne passe
           jamais sous la croix de fermeture, même sur un écran de 320 px. */}
-      <div className="max-w-[1500px] mx-auto px-11 sm:px-14 py-2.5 text-center">
+      <div className="max-w-[1500px] mx-auto px-12 sm:px-16 py-2.5 text-center">
         {href.startsWith("/") ? (
           <Link href={href} className="hover:underline underline-offset-4">
             {label}
@@ -126,7 +126,7 @@ export function AnnouncementBar() {
         type="button"
         onClick={close}
         aria-label="Fermer l'annonce"
-        className="absolute top-1/2 -translate-y-1/2 right-2 sm:right-4 w-8 h-8 inline-flex items-center justify-center text-[#f7f4ee]/70 hover:text-[#f7f4ee] transition-colors"
+        className="absolute top-1/2 -translate-y-1/2 right-1 sm:right-3 w-11 h-11 inline-flex items-center justify-center text-[#f7f4ee]/70 hover:text-[#f7f4ee] transition-colors"
       >
         <X className="w-4 h-4" />
       </button>

@@ -277,14 +277,14 @@ function PerfumeRow({
                   <Link
                     key={s.id ?? i}
                     href={`/commander/${perfume.id}?taille=${encodeURIComponent(s.label)}`}
-                    className="size-chip px-4 py-2.5 text-[13px] sm:px-5 sm:py-3 sm:text-[14px]"
+                    className="size-chip inline-flex items-center px-4 py-2.5 pointer-coarse:min-h-[44px] text-[13px] sm:px-5 sm:py-3 sm:text-[14px]"
                   >
                     {contenu}
                   </Link>
                 ) : (
                   <span
                     key={s.id ?? i}
-                    className="chip-bordeaux px-4 py-2.5 text-[13px] sm:px-5 sm:py-3 sm:text-[14px] opacity-45"
+                    className="chip-bordeaux inline-flex items-center px-4 py-2.5 text-[13px] sm:px-5 sm:py-3 sm:text-[14px] opacity-45"
                   >
                     {contenu}
                   </span>
@@ -476,7 +476,7 @@ function Collection({
                     type="button"
                     aria-pressed={active}
                     onClick={() => setGenderFilter(opt.value)}
-                    className={`px-5 py-2.5 text-[11px] font-semibold tracking-[0.18em] uppercase border transition-colors duration-300 ${
+                    className={`inline-flex items-center px-5 py-2.5 pointer-coarse:min-h-[44px] text-[11px] font-semibold tracking-[0.18em] uppercase border transition-colors duration-300 ${
                       active
                         ? "bg-[#171717] text-white border-[#171717]"
                         : "bg-transparent text-[#171717] border-champagne hover:border-[#171717]"
@@ -512,7 +512,7 @@ function Collection({
             <button
               type="button"
               onClick={() => onRequest()}
-              className="mt-5 text-[11px] font-semibold tracking-[0.18em] uppercase text-bordeaux hover:underline underline-offset-4"
+              className="mt-5 inline-flex items-center justify-center px-4 pointer-coarse:min-h-[44px] text-[11px] font-semibold tracking-[0.18em] uppercase text-bordeaux hover:underline underline-offset-4"
             >
               Demander votre parfum préféré
             </button>

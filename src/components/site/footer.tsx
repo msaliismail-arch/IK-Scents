@@ -58,12 +58,15 @@ export function Footer() {
             <h4 className="text-[10px] font-semibold tracking-[0.34em] uppercase text-[#d8cbb8] mb-6">
               Navigation
             </h4>
-            <ul className="space-y-3.5 text-[14px] font-light">
+            {/* Au doigt, une ligne de texte de 20 px de haut est une cible
+                trop fine. Les liens deviennent des blocs de 44 px sur écran
+                tactile ; à la souris, l'espacement d'origine est conservé. */}
+            <ul className="text-[14px] font-light">
               {NAV.map((l, i) => (
                 <li key={i}>
                   <Link
                     href={l.href}
-                    className="text-[#f7f4ee]/75 hover:text-[#f7f4ee] transition-colors duration-500"
+                    className="inline-flex items-center py-2 pointer-coarse:min-h-[44px] text-[#f7f4ee]/75 hover:text-[#f7f4ee] transition-colors duration-500"
                   >
                     {l.label}
                   </Link>
@@ -92,13 +95,13 @@ export function Footer() {
           <p className="text-[#f7f4ee]/40 text-[11px] tracking-[0.12em]">
             © 2026 {BRAND}. Tous droits réservés.
           </p>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-5">
             <p className="text-[#f7f4ee]/40 text-[11px] tracking-[0.12em]">
               Oujda, Maroc
             </p>
             <Link
               href="/admin"
-              className="text-[#f7f4ee]/30 hover:text-[#f7f4ee]/70 transition-colors text-[11px] tracking-[0.12em]"
+              className="inline-flex items-center px-2 -mr-2 pointer-coarse:min-h-[44px] text-[#f7f4ee]/30 hover:text-[#f7f4ee]/70 transition-colors text-[11px] tracking-[0.12em]"
             >
               Espace Admin
             </Link>

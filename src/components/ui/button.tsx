@@ -21,11 +21,18 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
       },
+      /**
+       * Les hauteurs `pointer-coarse:` s'appliquent aux seuls écrans tactiles.
+       * 36 px (`h-9`) et surtout 32 px (`h-8`) sont plus petits que la pulpe
+       * d'un doigt : on visait le bouton et on tombait à côté. Apple comme
+       * Google retiennent 44 px comme cible minimale.
+       * À la souris, les tailles d'origine sont conservées.
+       */
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
+        default: "h-9 pointer-coarse:h-11 px-4 py-2 has-[>svg]:px-3",
+        sm: "h-8 pointer-coarse:h-10 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+        lg: "h-10 pointer-coarse:h-12 rounded-md px-6 has-[>svg]:px-4",
+        icon: "size-9 pointer-coarse:size-11",
       },
     },
     defaultVariants: {

@@ -151,7 +151,7 @@ export default function CommanderPage() {
         <div className="max-w-4xl mx-auto">
           <Link
             href="/#collection"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-gold text-sm mb-8 transition-colors"
+            className="inline-flex items-center gap-2 pointer-coarse:min-h-[44px] text-muted-foreground hover:text-gold text-sm mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Retour à la collection
@@ -279,7 +279,7 @@ export default function CommanderPage() {
                         type="button"
                         key={i}
                         onClick={() => setSizeLabel(s.label)}
-                        className={`px-4 py-2.5 text-[13px] border transition-colors duration-300 rounded-sm ${
+                        className={`inline-flex items-center px-4 py-2.5 pointer-coarse:min-h-[44px] text-[13px] border transition-colors duration-300 rounded-sm ${
                           s.label === sizeLabel
                             ? "chip-bordeaux font-semibold"
                             : "border-border bg-card text-muted-foreground hover:border-bordeaux"
@@ -312,23 +312,31 @@ export default function CommanderPage() {
                   <Label className="text-muted-foreground text-sm tracking-wider">
                     Quantité
                   </Label>
-                  <div className="flex items-center gap-3">
+                  {/* 32 px de côté, c'était plus petit qu'un doigt : on ratait
+                      le bouton une fois sur deux. 44 px est le minimum retenu
+                      par Apple comme par Google. */}
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      className="w-8 h-8 rounded border border-border text-muted-foreground hover:border-gold-soft flex items-center justify-center"
+                      aria-label="Retirer un exemplaire"
+                      className="w-11 h-11 rounded border border-border text-muted-foreground hover:border-gold-soft flex items-center justify-center"
                     >
-                      <Minus className="w-3.5 h-3.5" />
+                      <Minus className="w-4 h-4" />
                     </button>
-                    <span className="text-foreground w-6 text-center">
+                    <span
+                      aria-live="polite"
+                      className="text-foreground w-8 text-center tabular-nums"
+                    >
                       {quantity}
                     </span>
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => q + 1)}
-                      className="w-8 h-8 rounded border border-border text-muted-foreground hover:border-gold-soft flex items-center justify-center"
+                      aria-label="Ajouter un exemplaire"
+                      className="w-11 h-11 rounded border border-border text-muted-foreground hover:border-gold-soft flex items-center justify-center"
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-4 h-4" />
                     </button>
                   </div>
                 </div>

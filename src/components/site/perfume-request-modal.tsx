@@ -186,7 +186,7 @@ export function PerfumeRequestModal({
   // `px-1` + `break-words` : « Unisexe » et les libellés de format débordaient
   // de leur bouton dans une grille de trois colonnes sur un écran de 320 px.
   const choiceClass = (active: boolean) =>
-    `px-1 py-3 text-[12px] tracking-[0.06em] leading-tight break-words border transition-colors duration-300 ${
+    `inline-flex items-center justify-center px-1 py-3 min-h-[44px] text-[12px] tracking-[0.06em] leading-tight break-words border transition-colors duration-300 ${
       active
         ? "border-[#171717] bg-[#171717] text-white font-medium"
         : "border-[#d8cbb8] bg-white text-[#171717] hover:border-[#8a7a63]"
@@ -213,7 +213,7 @@ export function PerfumeRequestModal({
       <div className="relative w-full sm:max-w-lg max-h-[92dvh] overflow-y-auto overscroll-contain bg-[#f7f4ee] border-t sm:border border-[#d8cbb8] shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center text-[#6b6255] hover:text-[#171717] transition-colors z-10"
+          className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 w-11 h-11 flex items-center justify-center text-[#6b6255] hover:text-[#171717] transition-colors z-10"
           aria-label="Fermer"
         >
           <X className="w-5 h-5" />
