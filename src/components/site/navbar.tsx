@@ -37,11 +37,18 @@ export function Navbar() {
       <AnnouncementBar />
       {/* `top` suit la hauteur réelle du bandeau : sans annonce, --announce-h
           vaut 0 et la navbar reste collée en haut comme avant. */}
+      {/*
+        Le menu mobile vit à l'intérieur de <nav> : il ne peut donc jamais
+        passer au-dessus du bandeau d'annonce (z-60) tant que <nav> reste à
+        z-50 — le bandeau s'affichait par-dessus le menu ouvert. On remonte
+        toute la barre pendant l'ouverture, ce qui règle le problème sans
+        déplacer le menu ailleurs dans le DOM.
+      */}
       <nav
         style={{ top: "var(--announce-h, 0px)" }}
-        className={`fixed left-0 right-0 z-50 bg-white border-b border-[#e6ded0] transition-shadow duration-500 ${
-          scrolled ? "shadow-[0_1px_20px_rgba(23,23,23,0.06)]" : ""
-        }`}
+        className={`fixed-safe fixed left-0 right-0 bg-white border-b border-[#e6ded0] transition-shadow duration-500 ${
+          mobileOpen ? "z-[80]" : "z-50"
+        } ${scrolled ? "shadow-[0_1px_20px_rgba(23,23,23,0.06)]" : ""}`}
       >
       <div className="max-w-[1500px] mx-auto pl-4 pr-4 sm:pl-6 sm:pr-8 lg:pl-8 lg:pr-12">
         <div className="h-[76px] lg:h-[92px] flex items-center justify-between gap-6">
@@ -103,14 +110,20 @@ export function Navbar() {
       </div>
 
       {/* Menu mobile — plein écran, éditorial */}
+      {/*
+        `h-[100dvh]` et non `inset-0` : sur Chrome Android la barre d'adresse
+        rognait le bas du panneau et le bouton « Commander » devenait
+        inatteignable. Le contenu défile désormais si l'écran est court
+        (petit téléphone en paysage, par exemple).
+      */}
       <div
-        className={`lg:hidden fixed inset-0 bg-white transition-opacity duration-500 ${
+        className={`lg:hidden fixed top-0 left-0 right-0 h-[100dvh] overflow-y-auto overscroll-contain bg-white transition-opacity duration-500 ${
           mobileOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         }`}
       >
-        <div className="h-[76px] px-4 flex items-center justify-between border-b border-[#e6ded0]">
+        <div className="h-[76px] px-4 flex items-center justify-between border-b border-[#e6ded0] sticky top-0 bg-white">
           <Brandmark size={40} showMark={false} />
           <button
             className="w-11 h-11 flex items-center justify-center text-[#171717]"
@@ -121,7 +134,7 @@ export function Navbar() {
           </button>
         </div>
 
-        <div className="px-6 pt-6 flex flex-col">
+        <div className="px-6 pt-6 pb-12 flex flex-col">
           {links.map((l, i) => (
             <Link
               key={`m-${l.label}-${i}`}

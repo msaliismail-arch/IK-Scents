@@ -70,7 +70,7 @@ export default function VerifierPage({
     <div className="min-h-screen flex flex-col bg-background relative">
       <Navbar />
 
-      <main className="flex-1 pt-28 pb-20 px-4 sm:px-6 lg:px-8 relative z-10">
+      <main className="flex-1 pt-[100px] lg:pt-[124px] pb-20 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-3xl mx-auto">
           <Link
             href="/#collection"

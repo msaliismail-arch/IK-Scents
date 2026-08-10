@@ -593,38 +593,46 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="min-h-screen bg-surface-alt relative">
       <header className="bg-background border-b border-border sticky top-0 z-40 relative">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3 min-w-0">
             <Logo size={36} />
             <Badge className="bg-gold-soft text-gold border-gold-soft hidden sm:inline-flex">
               Admin
             </Badge>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <Link
               href="/"
-              className="text-sm text-muted-foreground hover:text-gold px-3 py-1.5"
+              className="text-sm text-muted-foreground hover:text-gold px-2 sm:px-3 py-1.5 whitespace-nowrap"
             >
               Voir le site
             </Link>
+            {/* Sur téléphone, « Déconnexion » en toutes lettres poussait le
+                logo hors de l'en-tête : l'icône seule suffit, le libellé
+                reste lisible par les lecteurs d'écran. */}
             <Button
               onClick={onLogout}
               variant="ghost"
               size="sm"
-              className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+              aria-label="Déconnexion"
+              className="text-red-500 hover:text-red-600 hover:bg-red-500/10 px-2 sm:px-3"
             >
-              <LogOut className="w-4 h-4 mr-2" />
-              Déconnexion
+              <LogOut className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Déconnexion</span>
             </Button>
           </div>
         </div>
       </header>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <div className="flex gap-2 border-b border-border mb-6">
+        {/* Cinq onglets font environ 620 px : sur un téléphone la moitié
+            sortait de l'écran sans aucun moyen d'y accéder. La barre défile
+            désormais latéralement — `-mx-4` pour que le premier et le dernier
+            onglet touchent les bords, `px-4` pour garder l'alignement. */}
+        <div className="flex gap-2 border-b border-border mb-6 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => setTab("products")}
-            className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "products"
                 ? "text-gold border-b-2 border-gold"
                 : "text-muted-foreground hover:text-foreground"
@@ -635,7 +643,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </button>
           <button
             onClick={() => setTab("orders")}
-            className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "orders"
                 ? "text-gold border-b-2 border-gold"
                 : "text-muted-foreground hover:text-foreground"
@@ -651,7 +659,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </button>
           <button
             onClick={() => setTab("requests")}
-            className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "requests"
                 ? "text-gold border-b-2 border-gold"
                 : "text-muted-foreground hover:text-foreground"
@@ -667,7 +675,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </button>
           <button
             onClick={() => setTab("announcements")}
-            className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "announcements"
                 ? "text-gold border-b-2 border-gold"
                 : "text-muted-foreground hover:text-foreground"
@@ -683,7 +691,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </button>
           <button
             onClick={() => setTab("delivery")}
-            className={`px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "delivery"
                 ? "text-gold border-b-2 border-gold"
                 : "text-muted-foreground hover:text-foreground"

@@ -183,8 +183,10 @@ export function PerfumeRequestModal({
     "block text-[10px] font-semibold tracking-[0.24em] uppercase text-[#6b6255] mb-2.5";
   const legendClass =
     "block text-[10px] font-bold tracking-[0.28em] uppercase text-bordeaux mb-5";
+  // `px-1` + `break-words` : « Unisexe » et les libellés de format débordaient
+  // de leur bouton dans une grille de trois colonnes sur un écran de 320 px.
   const choiceClass = (active: boolean) =>
-    `py-3 text-[12px] tracking-[0.06em] border transition-colors duration-300 ${
+    `px-1 py-3 text-[12px] tracking-[0.06em] leading-tight break-words border transition-colors duration-300 ${
       active
         ? "border-[#171717] bg-[#171717] text-white font-medium"
         : "border-[#d8cbb8] bg-white text-[#171717] hover:border-[#8a7a63]"
@@ -204,7 +206,11 @@ export function PerfumeRequestModal({
         tabIndex={-1}
       />
 
-      <div className="relative w-full sm:max-w-lg max-h-[92vh] overflow-y-auto bg-[#f7f4ee] border-t sm:border border-[#d8cbb8] shadow-2xl">
+      {/* `dvh` : avec `vh`, la barre d'adresse mobile faisait dépasser le bas
+          de la feuille et le bouton d'envoi restait hors d'atteinte.
+          `overscroll-contain` empêche la page de dérouler derrière une fois
+          le formulaire arrivé en butée. */}
+      <div className="relative w-full sm:max-w-lg max-h-[92dvh] overflow-y-auto overscroll-contain bg-[#f7f4ee] border-t sm:border border-[#d8cbb8] shadow-2xl">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center text-[#6b6255] hover:text-[#171717] transition-colors z-10"

@@ -8,7 +8,6 @@ Tant qu'une image manque, le site affiche un cadre pointillé avec le nom du fic
 
 | Fichier | Section du site |
 |---|---|
-| `hero-bottle` | 02 — Hero (grande image d'accueil, format portrait) |
 | `step-1` / `step-2` / `step-3` | 03 — L'expérience personnalisée (3 étapes) |
 | `collection-bg` | 05 — Storytelling pleine largeur |
 | `concept` | 06 — L'art du parfum, accessible |
@@ -37,10 +36,14 @@ n'est nécessaire.
 
 ---
 
-## 1. `hero-bottle.jpg` — grande photo d'accueil
-**Format :** vertical/portrait, min. 1200 × 1500 px
-**Prompt Gemini :**
-> Photorealistic luxury product photograph, vertical. A clear glass perfume bottle with a matte black cap and a thin gold ring, filled with pale amber liquid, with a small white label in elegant serif capitals reading "ASSIL" and beneath it "EAU DE PARFUM". Standing on a soft cream linen surface against a warm beige plaster wall. Soft natural window light from the left, gentle long shadow. Minimalist editorial aesthetic, cream and beige palette, very sharp, high resolution. Vertical 4:5.
+## 1. ~~`hero-bottle`~~ — retirée du site
+
+Le hero n'affiche plus de photo : titre, texte et boutons occupaient tout
+l'écran d'un téléphone avant même que l'image ne soit chargée. Il est
+désormais purement typographique.
+
+Le fichier `public/hero-bottle.png` peut être supprimé — plus rien ne le
+lit.
 
 ---
 

@@ -101,9 +101,11 @@ export function AnnouncementBar() {
       ref={barRef}
       role="region"
       aria-label="Annonce"
-      className="fixed top-0 left-0 right-0 z-[60] bg-[#6e2639] text-[#f7f4ee]"
+      className="fixed-safe fixed top-0 left-0 right-0 z-[60] bg-[#6e2639] text-[#f7f4ee]"
     >
-      <div className="max-w-[1500px] mx-auto px-10 sm:px-12 py-2.5 text-center">
+      {/* `px-11` à gauche comme à droite : le texte reste centré et ne passe
+          jamais sous la croix de fermeture, même sur un écran de 320 px. */}
+      <div className="max-w-[1500px] mx-auto px-11 sm:px-14 py-2.5 text-center">
         {href.startsWith("/") ? (
           <Link href={href} className="hover:underline underline-offset-4">
             {label}

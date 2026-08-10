@@ -148,7 +148,6 @@ Toutes les photos nécessaires sont **déjà dans `public/`** :
 
 | Fichier | Où il apparaît |
 |---|---|
-| `hero-bottle.png` | Hero |
 | `step-1.png` / `step-2.png` / `step-3.png` | L'expérience personnalisée |
 | `collection-bg.png` | Storytelling pleine largeur |
 | `concept.png` | L'art du parfum |
@@ -161,8 +160,8 @@ place. Rien n'est cassé.
 ### Pour remplacer une photo par une meilleure
 
 1. Mets ton nouveau fichier dans le dossier `public/`
-2. Donne-lui **exactement le même nom** (ex. `hero-bottle.jpg` remplace
-   `hero-bottle.png`, l'extension peut changer)
+2. Donne-lui **exactement le même nom** (ex. `concept.jpg` remplace
+   `concept.png`, l'extension peut changer)
 3. Rafraîchis la page
 
 Aucune ligne de code à toucher.

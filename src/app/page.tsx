@@ -26,75 +26,65 @@ import {
 import type { Perfume } from "@/lib/types";
 
 /* ══════════════════════════════════════════════
-   HERO — [ grande image ASSIL ]  [ texte + CTA ]
+   HERO — bloc éditorial centré, sans photo
+
+   La photo de flacon a été retirée : sur téléphone elle occupait tout le
+   premier écran et repoussait le titre et les boutons sous la ligne de
+   flottaison. Un hero purement typographique se lit d'un coup d'œil quelle
+   que soit la taille de l'écran, et la marque reste tenue par les brindilles
+   en arrière-plan.
    ══════════════════════════════════════════════ */
 function Hero({ onRequest }: { onRequest: () => void }) {
   return (
     <section
       id="hero"
-      className="relative bg-background overflow-hidden pt-[100px] lg:pt-[124px]"
+      className="relative bg-background overflow-hidden pt-[104px] lg:pt-[132px]"
     >
       <SideFlorals spots={["tl", "tr", "br", "mr", "bl"]} opacity="opacity-40" />
 
-      <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 pb-16 lg:pb-24">
-        <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+      <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 pb-16 sm:pb-24 lg:pb-32">
+        <div className="max-w-3xl mx-auto text-center">
+          <Reveal>
+            <span className="label-xs block mb-6 sm:mb-8">
+              Décants de parfums originaux
+            </span>
+          </Reveal>
+
           {/*
-            Image — pièce maîtresse. Même cadre 9:16 que les fiches produit :
-            une photo prise au téléphone remplit le cadre exactement, sans
-            aucun recadrage. La largeur est bornée, sinon 9:16 sur six colonnes
-            donnerait une image de plus de 1000 px de haut.
+            Taille en `clamp` plutôt qu'en paliers : entre 320 px et 400 px de
+            large — la zone où vivent la plupart des téléphones — le titre
+            grandit en continu au lieu de sauter d'un cran et de déborder.
           */}
-          <div className="lg:col-span-5 order-1">
-            <Parallax strength={22}>
-              <Img
-                name="hero-bottle"
-                alt={`Flacon de parfum ${BRAND}`}
-                ratio="aspect-[9/16]"
-                className="mx-auto max-w-[300px] sm:max-w-[380px] lg:max-w-[440px] lg:mx-0"
-                priority
-              />
-            </Parallax>
-          </div>
+          <RevealLines
+            className="display text-[clamp(2.5rem,11vw,5.2rem)] mb-7 sm:mb-8"
+            lines={["Le parfum", "original,", "en décant."]}
+          />
 
-          {/* Texte */}
-          <div className="lg:col-span-6 lg:col-start-7 order-2">
-            <Reveal>
-              <span className="label-xs block mb-7">
-                Décants de parfums originaux
-              </span>
-            </Reveal>
+          <Reveal delay={180}>
+            <span className="rule mx-auto mb-7 sm:mb-8" />
+            <p className="text-[#4a4236] text-[16px] sm:text-[17px] font-light leading-[1.85] max-w-md mx-auto mb-9 sm:mb-11">
+              Nous achetons des flacons de parfum originaux et les proposons en
+              petits formats — le même parfum, à un prix accessible.
+            </p>
+          </Reveal>
 
-            <RevealLines
-              className="display text-[3rem] sm:text-[4.2rem] lg:text-[4.6rem] xl:text-[5.2rem] mb-8"
-              lines={["Le parfum", "original,", "en décant."]}
-            />
-
-            <Reveal delay={180}>
-              <span className="rule mb-8" />
-              <p className="text-[#4a4236] text-[16px] sm:text-[17px] font-light leading-[1.85] max-w-md mb-10">
-                Nous achetons des flacons de parfum originaux et les proposons
-                en petits formats — le même parfum, à un prix accessible.
-              </p>
-            </Reveal>
-
-            <Reveal delay={300}>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Link
-                  href="/#collection"
-                  className="bg-[#171717] text-white px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase text-center transition-colors duration-500 hover:bg-[#3a3a3a]"
-                >
-                  Voir les décants
-                </Link>
-                <button
-                  type="button"
-                  onClick={onRequest}
-                  className="border border-[#171717] text-[#171717] px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase text-center transition-colors duration-500 hover:bg-[#171717] hover:text-white"
-                >
-                  Votre parfum préféré
-                </button>
-              </div>
-            </Reveal>
-          </div>
+          <Reveal delay={300}>
+            <div className="flex flex-col sm:flex-row gap-3 sm:justify-center">
+              <Link
+                href="/#collection"
+                className="bg-[#171717] text-white px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase text-center transition-colors duration-500 hover:bg-[#3a3a3a]"
+              >
+                Voir les décants
+              </Link>
+              <button
+                type="button"
+                onClick={onRequest}
+                className="border border-[#171717] text-[#171717] px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase text-center transition-colors duration-500 hover:bg-[#171717] hover:text-white"
+              >
+                Votre parfum préféré
+              </button>
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>
@@ -201,7 +191,7 @@ function PerfumeRow({
           {String(index + 1).padStart(2, "0")}
         </span>
 
-        <h3 className="font-serif font-semibold uppercase tracking-[0.015em] leading-[1.05] text-foreground text-[1.9rem] sm:text-[2.6rem] lg:text-[3.3rem] break-words">
+        <h3 className="font-serif font-semibold uppercase tracking-[0.015em] leading-[1.05] text-foreground text-[clamp(1.65rem,7vw,3.3rem)] break-words hyphens-auto">
           <Link href={`/commander/${perfume.id}`}>{perfume.name}</Link>
         </h3>
 
@@ -442,7 +432,7 @@ function Collection({
               </span>
             </Reveal>
             <RevealLines
-              className="font-serif font-semibold uppercase tracking-[0.01em] leading-[1] text-foreground text-[3.2rem] sm:text-[4.6rem] lg:text-[5.6rem]"
+              className="font-serif font-semibold uppercase tracking-[0.01em] leading-[1] text-foreground text-[clamp(2.4rem,12vw,5.6rem)] break-words"
               lines={[title]}
             />
           </div>
@@ -569,7 +559,7 @@ function Concept() {
             </Reveal>
 
             <RevealLines
-              className="display font-normal text-[2.4rem] sm:text-[3.2rem] lg:text-[3.7rem]"
+              className="display font-normal text-[clamp(2rem,9vw,3.7rem)]"
               lines={["L’art du parfum,", "accessible."]}
             />
 
@@ -626,7 +616,12 @@ function Concept() {
 function Signature() {
   return (
     <section className="relative w-full overflow-hidden">
-      <div className="relative h-[72vh] min-h-[440px] lg:h-[86vh] w-full">
+      {/*
+        `svh` et non `vh` : sur iOS et Android la barre d'adresse fait varier
+        `vh`, ce qui décalait le bloc de texte au moindre scroll. `svh` se
+        cale sur la petite hauteur — la section ne bouge plus.
+      */}
+      <div className="relative h-[70svh] min-h-[400px] lg:h-[86svh] w-full">
         <Img
           name="showcase"
           alt={`Univers ${BRAND}`}
@@ -638,13 +633,13 @@ function Signature() {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center px-6">
             <RevealLines
-              className="font-serif font-normal uppercase tracking-[0.02em] leading-[1.05] text-white text-[2.1rem] sm:text-[3.3rem] lg:text-[4.2rem] drop-shadow-sm"
+              className="font-serif font-normal uppercase tracking-[0.02em] leading-[1.05] text-white text-[clamp(1.75rem,8.5vw,4.2rem)] drop-shadow-sm"
               lines={["Une fragrance.", "Une présence.", "Une signature."]}
             />
             <Reveal delay={360}>
               <Link
                 href="/#collection"
-                className="mt-10 inline-flex items-center gap-3 bg-white text-[#171717] px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#efe8dc]"
+                className="mt-8 sm:mt-10 inline-flex items-center gap-3 bg-white text-[#171717] px-7 sm:px-10 py-4 sm:py-5 text-[11px] sm:text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#efe8dc]"
               >
                 Découvrir la boutique
                 <ArrowRight className="w-4 h-4" />
@@ -671,12 +666,12 @@ function Contact({ onRequest }: { onRequest: () => void }) {
         opacity="opacity-40"
       />
 
-      <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
+      <div className="relative z-10 max-w-2xl mx-auto px-5 sm:px-6 text-center">
         <Reveal>
           <span className="label-xs block mb-6">Contact</span>
         </Reveal>
         <RevealLines
-          className="display font-normal text-[2.3rem] sm:text-[3.1rem] lg:text-[3.5rem]"
+          className="display font-normal text-[clamp(1.9rem,9vw,3.5rem)]"
           lines={["Votre parfum", "vous attend"]}
         />
         <Reveal delay={200}>
@@ -686,18 +681,23 @@ function Contact({ onRequest }: { onRequest: () => void }) {
             directement sur le site. Paiement à la livraison, partout au Maroc.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          {/*
+            Trois boutons côte à côte ne tiennent pas sur une tablette : sans
+            `flex-wrap` le troisième débordait ou écrasait les deux autres.
+            Empilés sur téléphone, ils passent à la ligne au besoin ensuite.
+          */}
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
             <Link
               href="/#collection"
-              className="bg-[#171717] text-white px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-2.5 transition-colors duration-500 hover:bg-[#3a3a3a]"
+              className="bg-[#171717] text-white px-7 sm:px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-2.5 transition-colors duration-500 hover:bg-[#3a3a3a]"
             >
-              <ShoppingBag className="w-4 h-4" />
+              <ShoppingBag className="w-4 h-4 shrink-0" />
               Voir la collection
             </Link>
             <button
               type="button"
               onClick={onRequest}
-              className="border border-[#171717] text-[#171717] px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#171717] hover:text-white"
+              className="border border-[#171717] text-[#171717] px-7 sm:px-8 py-[18px] text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#171717] hover:text-white"
             >
               Votre parfum préféré
             </button>
@@ -705,9 +705,9 @@ function Contact({ onRequest }: { onRequest: () => void }) {
               href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="border border-champagne text-[#4a4236] px-8 py-[18px] text-[11px] font-semibold tracking-[0.2em] uppercase flex items-center justify-center gap-2.5 transition-colors duration-500 hover:border-[#171717] hover:text-[#171717]"
+              className="border border-champagne text-[#4a4236] px-7 sm:px-8 py-[18px] text-[11px] font-semibold tracking-[0.2em] uppercase flex items-center justify-center gap-2.5 transition-colors duration-500 hover:border-[#171717] hover:text-[#171717]"
             >
-              <Instagram className="w-4 h-4" />
+              <Instagram className="w-4 h-4 shrink-0" />
               Instagram
             </a>
           </div>

@@ -144,7 +144,10 @@ export default function CommanderPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
       <Navbar />
-      <main className="flex-1 pt-28 pb-20 px-4 sm:px-6 lg:px-8 relative z-10">
+      {/* La navbar fixe mesure 76 px sur téléphone et 92 px à partir de
+          `lg` : `pt-28` laissait 20 px de respiration sur grand écran et
+          collait le titre. */}
+      <main className="flex-1 pt-[100px] lg:pt-[124px] pb-20 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-4xl mx-auto">
           <Link
             href="/#collection"
@@ -210,7 +213,7 @@ export default function CommanderPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div>
-                <div className="aspect-[3/4] max-w-sm rounded-lg overflow-hidden bg-muted border border-border">
+                <div className="aspect-[3/4] max-w-[280px] sm:max-w-sm mx-auto md:mx-0 rounded-lg overflow-hidden bg-muted border border-border">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={resolveImg(perfume.image)}
@@ -344,7 +347,9 @@ export default function CommanderPage() {
                       required
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* Deux colonnes sur 360 px donnaient des champs de 150 px :
+                      un numéro de téléphone n'y tenait pas. */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-muted-foreground text-sm tracking-wider">
                         Téléphone *

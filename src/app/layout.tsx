@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -39,6 +39,23 @@ export const metadata: Metadata = {
       "Parfums 100% originaux, authenticité garantie. Livraison partout au Maroc.",
     type: "website",
   },
+};
+
+/**
+ * Rendu mobile.
+ *
+ * `viewportFit: "cover"` étend la page sous l'encoche des iPhone ; combiné aux
+ * marges `safe-area` de globals.css, le bandeau d'annonce et le pied de page
+ * ne se retrouvent plus coincés derrière l'encoche ou la barre gestuelle.
+ *
+ * Le zoom n'est jamais bloqué (`maximumScale` laissé libre) : le désactiver
+ * rendrait le site inutilisable pour un visiteur malvoyant.
+ */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#f7f4ee",
 };
 
 export default function RootLayout({
