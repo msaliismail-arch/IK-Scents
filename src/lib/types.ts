@@ -124,6 +124,20 @@ export interface Announcement {
   updatedAt?: string;
 }
 
+/**
+ * Visuel du carrousel, tout en haut de la page d'accueil.
+ * `perfumeName` est joint par l'API : il sert de texte alternatif à l'image.
+ */
+export interface Slide {
+  id: string;
+  image: string;
+  /** Parfum vers lequel mène le clic. null = visuel non cliquable. */
+  perfumeId?: string | null;
+  perfumeName?: string;
+  active: boolean;
+  position?: number;
+}
+
 export interface AdminUser {
   id: string;
   email: string;

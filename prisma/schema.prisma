@@ -59,6 +59,8 @@ model Perfume {
   isPack      Boolean  @default(false)
   published   Boolean  @default(false)
   sizes       Size[]
+  /// Visuels du carrousel qui pointent vers ce parfum.
+  slides      Slide[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -163,6 +165,38 @@ model Announcement {
   updatedAt DateTime @updatedAt
 
   @@index([active, position])
+}
+
+/// Visuel du carrousel affiché tout en haut de la page d'accueil.
+///
+/// Volontairement minimal : une image et le parfum vers lequel elle mène.
+/// Aucun titre ni texte à saisir — le carrousel montre des photos, il ne
+/// raconte pas ; les mots vivent dans les annonces, juste en dessous. Le texte
+/// alternatif est repris du nom du parfum lié, ce qui évite un champ de plus à
+/// remplir tout en gardant l'image lisible pour un lecteur d'écran.
+model Slide {
+  id String @id @default(cuid())
+
+  /// Chemin de l'image, tel que renvoyé par /api/upload.
+  image String
+
+  /// Parfum vers lequel mène le clic. `null` = visuel non cliquable.
+  /// `onDelete: SetNull` : supprimer un parfum ne fait pas disparaître le
+  /// visuel du carrousel, il cesse simplement d'être cliquable.
+  perfumeId String?
+  perfume   Perfume? @relation(fields: [perfumeId], references: [id], onDelete: SetNull)
+
+  /// Retirer un visuel de la rotation sans le supprimer.
+  active Boolean @default(true)
+
+  /// Ordre de passage. La plus petite valeur s'affiche en premier.
+  position Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, position])
+  @@index([perfumeId])
 }
 
 /// Réglages du site — une seule ligne, id fixe "main".

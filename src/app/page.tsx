@@ -7,6 +7,7 @@ import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { Img } from "@/components/site/media";
 import { AnnouncementsSection } from "@/components/site/announcements-section";
+import { HeroCarousel } from "@/components/site/hero-carousel";
 import { SideFlorals, FloralDivider } from "@/components/site/botanical";
 import { Reveal, RevealLines, Parallax } from "@/components/site/reveal";
 import {
@@ -38,11 +39,11 @@ function Hero({ onRequest }: { onRequest: () => void }) {
   return (
     <section
       id="hero"
-      className="relative bg-background overflow-hidden pt-[104px] lg:pt-[132px]"
+      className="relative bg-background overflow-hidden"
     >
       <SideFlorals spots={["tl", "tr", "br", "mr", "bl"]} opacity="opacity-40" />
 
-      <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 pb-16 sm:pb-24 lg:pb-32">
+      <div className="relative z-10 max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 pt-14 sm:pt-20 lg:pt-24 pb-16 sm:pb-24 lg:pb-32">
         <div className="max-w-3xl mx-auto text-center">
           <Reveal>
             <span className="label-xs block mb-6 sm:mb-8">
@@ -755,7 +756,14 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
       <Navbar />
-      <main className="flex-1">
+      {/*
+        Le décalage sous la navbar fixe est porté par <main>, pas par la
+        première section. Le carrousel n'existe que s'il contient des visuels :
+        s'il portait lui-même ce décalage, une page sans visuel verrait son
+        titre passer sous la navbar.
+      */}
+      <main className="flex-1 pt-[76px] lg:pt-[92px]">
+        <HeroCarousel />
         <Hero onRequest={() => openRequest()} />
         {/* Entre le hero et la collection : le visiteur vient de voir la
             marque, il décide s'il descend. C'est là qu'une annonce agit. */}

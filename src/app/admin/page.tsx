@@ -26,6 +26,9 @@ import {
   ExternalLink,
   X,
   Megaphone,
+  Images,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +41,7 @@ import { QrCode } from "@/components/site/qr-code";
 import { verifyUrl } from "@/lib/authenticity";
 import { resolveImg } from "@/lib/site";
 import { DEFAULT_SETTINGS } from "@/lib/delivery";
+import { SLIDE_SECONDS } from "@/lib/carousel";
 import {
   AVAILABILITY_OPTIONS,
   DEFAULT_AVAILABILITY,
@@ -50,6 +54,7 @@ import type {
   DeliveryCity,
   PerfumeRequest,
   Announcement,
+  Slide,
 } from "@/lib/types";
 
 type SizeRow = { label: string; price: string };
@@ -209,7 +214,12 @@ function LoginView({ notAdmin = false }: { notAdmin?: boolean }) {
 // ---------- DASHBOARD ----------
 function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [tab, setTab] = useState<
-    "products" | "orders" | "requests" | "announcements" | "delivery"
+    | "products"
+    | "orders"
+    | "requests"
+    | "announcements"
+    | "carousel"
+    | "delivery"
   >("products");
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -341,6 +351,103 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     fetchAnnouncements();
   };
 
+  // --- Carrousel d'accueil ---
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [slidesLoading, setSlidesLoading] = useState(false);
+  const [slideUploading, setSlideUploading] = useState(false);
+  const [slideError, setSlideError] = useState("");
+
+  const fetchSlides = async () => {
+    setSlidesLoading(true);
+    try {
+      const res = await adminFetch("/api/slides?all=true");
+      const data = await res.json();
+      setSlides(Array.isArray(data) ? data : []);
+    } finally {
+      setSlidesLoading(false);
+    }
+  };
+
+  /**
+   * Ajout d'un visuel : la photo part vers /api/upload, puis l'adresse
+   * renvoyée devient un visuel. On n'attend aucune autre saisie — le parfum
+   * lié se choisit ensuite dans la liste, visuel sous les yeux.
+   */
+  const uploadSlide = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+
+    setSlideUploading(true);
+    setSlideError("");
+    try {
+      // Plusieurs photos d'un coup : les envois s'enchaînent, ce qui garde
+      // l'ordre choisi dans le sélecteur de fichiers.
+      for (const file of files) {
+        const fd = new FormData();
+        fd.append("image", file);
+        const up = await adminFetch("/api/upload", { method: "POST", body: fd });
+        const data = await up.json();
+        if (!data.url) {
+          setSlideError(data.error || "Envoi de l'image impossible.");
+          break;
+        }
+        const res = await adminFetch("/api/slides", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: data.url }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          setSlideError(err.error || "Ajout impossible.");
+          break;
+        }
+      }
+      await fetchSlides();
+    } finally {
+      setSlideUploading(false);
+      // Permet de re-sélectionner le même fichier juste après.
+      e.target.value = "";
+    }
+  };
+
+  const updateSlide = async (id: string, patch: Record<string, unknown>) => {
+    await adminFetch(`/api/slides/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch),
+    });
+    fetchSlides();
+  };
+
+  const deleteSlide = async (id: string) => {
+    if (!confirm("Supprimer ce visuel du carrousel ?")) return;
+    await adminFetch(`/api/slides/${id}`, { method: "DELETE" });
+    fetchSlides();
+  };
+
+  /**
+   * Déplacement d'un visuel : on échange sa position avec celle de son voisin.
+   * Deux écritures suffisent — inutile de renuméroter toute la liste.
+   */
+  const moveSlide = async (i: number, direction: -1 | 1) => {
+    const a = slides[i];
+    const b = slides[i + direction];
+    if (!a || !b) return;
+    await Promise.all([
+      adminFetch(`/api/slides/${a.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ position: b.position ?? i + direction }),
+      }),
+      adminFetch(`/api/slides/${b.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ position: a.position ?? i }),
+      }),
+    ]);
+    fetchSlides();
+  };
+
   const fetchPerfumes = async () => {
     setLoading(true);
     try {
@@ -392,6 +499,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     fetchRequests();
     fetchSettings();
     fetchAnnouncements();
+    fetchSlides();
   }, []);
 
   const updateRequestStatus = async (id: string, status: string) => {
@@ -713,6 +821,22 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             )}
           </button>
           <button
+            onClick={() => setTab("carousel")}
+            className={`shrink-0 whitespace-nowrap px-4 py-2 pointer-coarse:min-h-[44px] text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+              tab === "carousel"
+                ? "text-gold border-b-2 border-gold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Images className="w-4 h-4" />
+            Carrousel
+            {slides.filter((s) => s.active).length > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-[#b8935a] text-white font-semibold">
+                {slides.filter((s) => s.active).length}
+              </span>
+            )}
+          </button>
+          <button
             onClick={() => setTab("delivery")}
             className={`shrink-0 whitespace-nowrap px-4 py-2 pointer-coarse:min-h-[44px] text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "delivery"
@@ -832,6 +956,173 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         <Trash2 className="w-4 h-4 mr-1.5" />
                         Supprimer
                       </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "carousel" && (
+          <div>
+            <div className="mb-6 bg-card border border-border rounded-lg p-5">
+              <h3 className="text-foreground font-medium mb-1.5">
+                Visuels de la page d’accueil
+              </h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Ces photos défilent tout en haut du site, au-dessus du titre.
+                Chacune reste {SLIDE_SECONDS} secondes à l’écran ; le visiteur
+                peut aussi les faire défiler au doigt. Reliez une photo à un
+                parfum pour qu’un clic ouvre directement sa fiche.
+              </p>
+              <p className="text-muted-foreground/70 text-[13px] mt-2 leading-relaxed">
+                Sans visuel actif, le carrousel disparaît complètement — la page
+                commence alors par le titre, comme avant.
+              </p>
+
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <label className="btn-gold inline-flex items-center gap-2 px-4 py-2.5 pointer-coarse:min-h-[44px] rounded-md text-sm font-semibold cursor-pointer">
+                  <Upload className="w-4 h-4" />
+                  {slideUploading ? "Envoi..." : "Ajouter des photos"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={uploadSlide}
+                    disabled={slideUploading}
+                    className="hidden"
+                  />
+                </label>
+                {slideUploading && (
+                  <Loader2 className="w-4 h-4 text-gold animate-spin" />
+                )}
+              </div>
+
+              {slideError && (
+                <div className="mt-3 p-3 rounded border border-red-400/40 bg-red-500/10 text-red-500 text-sm">
+                  {slideError}
+                </div>
+              )}
+            </div>
+
+            {slidesLoading ? (
+              <div className="flex justify-center py-10">
+                <Loader2 className="w-8 h-8 text-gold animate-spin" />
+              </div>
+            ) : slides.length === 0 ? (
+              <div className="text-center py-10">
+                <Images className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground">
+                  Aucun visuel pour le moment
+                </p>
+                <p className="text-muted-foreground/60 text-sm mt-1.5">
+                  Ajoutez vos photos avec le bouton ci-dessus
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {slides.map((s, i) => (
+                  <div
+                    key={s.id}
+                    className={`p-3 bg-card border border-border rounded-lg flex items-start gap-3 ${
+                      s.active ? "" : "opacity-60"
+                    }`}
+                  >
+                    <div className="w-20 h-20 shrink-0 bg-[#171717] rounded overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={resolveImg(s.image)}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-muted-foreground text-xs">
+                          Position {i + 1}
+                        </span>
+                        {!s.active && (
+                          <span className="px-2 py-0.5 text-[10px] tracking-wider uppercase border border-border rounded-sm text-muted-foreground">
+                            Masqué
+                          </span>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-muted-foreground text-xs mb-1">
+                          Au clic, ouvrir
+                        </label>
+                        <select
+                          value={s.perfumeId ?? ""}
+                          onChange={(e) =>
+                            updateSlide(s.id, { perfumeId: e.target.value })
+                          }
+                          className="w-full max-w-xs bg-background border border-border rounded px-2 py-1.5 pointer-coarse:min-h-[40px] text-sm text-foreground"
+                        >
+                          <option value="">
+                            Rien — visuel non cliquable
+                          </option>
+                          {perfumes.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name}
+                              {p.published ? "" : " (brouillon)"}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          disabled={i === 0}
+                          onClick={() => moveSlide(i, -1)}
+                          aria-label="Monter ce visuel"
+                          className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-gold disabled:opacity-25"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          disabled={i === slides.length - 1}
+                          onClick={() => moveSlide(i, 1)}
+                          aria-label="Descendre ce visuel"
+                          className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-gold disabled:opacity-25"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            updateSlide(s.id, { active: !s.active })
+                          }
+                          aria-label={s.active ? "Masquer" : "Afficher"}
+                          className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-gold"
+                        >
+                          {s.active ? (
+                            <Eye className="w-3.5 h-3.5" />
+                          ) : (
+                            <EyeOff className="w-3.5 h-3.5" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => deleteSlide(s.id)}
+                          aria-label="Supprimer ce visuel"
+                          className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-red-500"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}
