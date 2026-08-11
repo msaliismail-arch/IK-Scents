@@ -1268,6 +1268,10 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <legend className="px-2 text-sm text-bordeaux font-medium">
                     Version arabe (facultative)
                   </legend>
+                  <p className="text-muted-foreground/70 text-xs -mt-1">
+                    Laissée vide, c&apos;est le texte français qui s&apos;affiche
+                    aux visiteurs arabophones.
+                  </p>
 
                   <div className="space-y-2">
                     <Label className="text-muted-foreground text-sm">
@@ -1823,7 +1827,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   </legend>
                   <p className="text-muted-foreground/70 text-xs -mt-1">
                     Rempli, ce texte s&apos;affiche quand le visiteur choisit
-                    l&apos;arabe. Vide, c&apos;est le texte français qui reste.
+                    l&apos;arabe. Vide, c&apos;est le texte français qui reste —
+                    aucun champ ne restera blanc sur le site.
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
