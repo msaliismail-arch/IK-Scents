@@ -44,16 +44,20 @@ model Perfume {
   family      String   @default("")
   /// Notes principales, ex. "Bergamote · Rose · Ambre".
   notes       String   @default("")
+
+  /// ─── Version arabe ──────────────────────────────────────────────────────
+  /// Champs facultatifs. Laissés vides, le site affiche le texte français même
+  /// en arabe : mieux vaut une description en français qu'un blanc. Le nom du
+  /// parfum reste souvent identique — « Sauvage » s'écrit « Sauvage » — d'où un
+  /// champ séparé plutôt qu'une traduction imposée.
+  nameAr        String @default("")
+  descriptionAr String @default("")
+  familyAr      String @default("")
+  notesAr       String @default("")
   /// "disponible" | "bientot" | "rupture" — pilote l'affichage et le bouton Commander.
   availability String  @default("disponible")
   /// "homme" | "femme" | "unisexe" | "" (non précisé)
   gender      String   @default("")
-  /// Remise en pourcentage, ex. "20". "0" = pas de remise.
-  discount    String   @default("0")
-  /// Fin de la promotion. Passée cette date, le prix revient seul au tarif
-  /// normal — aucune intervention manuelle n'est nécessaire.
-  /// Vide = remise sans date de fin.
-  discountUntil DateTime?
   /// true = coffret / lot. S'affiche dans la section « Nos packs » au lieu de
   /// « Nos essences ». Tout le reste (prix, formats, stock) fonctionne pareil.
   isPack      Boolean  @default(false)
@@ -99,7 +103,18 @@ model PerfumeRequest {
 model Size {
   id        String  @id @default(cuid())
   label     String
+  /// Prix catalogue, en MAD.
   price     String
+  /// Prix promotionnel, en MAD. Vide = aucune promotion sur ce format.
+  ///
+  /// Le prix remisé est saisi tel quel, pas calculé depuis un pourcentage :
+  /// « 240 » se lit d'un coup d'œil, « −20 % sur 300 » demande un calcul, et
+  /// un pourcentage appliqué à plusieurs formats donne des chiffres bâtards
+  /// (287, 191,20…) qu'on ne veut pas afficher en boutique.
+  ///
+  /// Il vit sur le format et non sur le parfum : un 5 ml et un 50 ml ne se
+  /// remisent pas du même montant.
+  promoPrice String @default("")
   position  Int     @default(0)
   perfumeId String
   perfume   Perfume @relation(fields: [perfumeId], references: [id], onDelete: Cascade)
@@ -143,7 +158,7 @@ model Order {
 model Announcement {
   id String @id @default(cuid())
 
-  /// Titre court, ex. « Nouvelle arrivée » ou « −20 % jusqu'au 20 août »
+  /// Titre court, ex. « Nouvelle arrivée »
   title String
   /// Détail facultatif, sous le titre. Le bandeau n'affiche que le titre.
   body  String @default("")
@@ -152,6 +167,11 @@ model Announcement {
   url       String @default("")
   /// Texte du bouton quand un lien est renseigné.
   linkLabel String @default("")
+
+  /// Version arabe. Vide = le texte français s'affiche dans les deux langues.
+  titleAr     String @default("")
+  bodyAr      String @default("")
+  linkLabelAr String @default("")
 
   /// Permet de retirer une annonce sans la perdre — utile pour une promotion
   /// saisonnière qu'on réactivera l'an prochain.

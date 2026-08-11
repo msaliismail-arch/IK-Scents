@@ -43,6 +43,9 @@ export type AnnouncementInput = {
   body: string;
   url: string;
   linkLabel: string;
+  titleAr: string;
+  bodyAr: string;
+  linkLabelAr: string;
   active: boolean;
   position: number;
 };
@@ -53,6 +56,9 @@ export function normalizeAnnouncement(body: {
   body?: unknown;
   url?: unknown;
   linkLabel?: unknown;
+  titleAr?: unknown;
+  bodyAr?: unknown;
+  linkLabelAr?: unknown;
   active?: unknown;
   position?: unknown;
 }): AnnouncementInput {
@@ -65,10 +71,12 @@ export function normalizeAnnouncement(body: {
     url,
     // Un libellé de bouton sans lien n'a rien à ouvrir : on le laisse tomber.
     linkLabel: url ? clean(body.linkLabel, LINK_LABEL_MAX) : "",
+    // Les champs arabes suivent exactement les mêmes limites : une annonce
+    // trop longue déborde du bandeau quelle que soit sa langue.
+    titleAr: clean(body.titleAr, TITLE_MAX),
+    bodyAr: clean(body.bodyAr, BODY_MAX),
+    linkLabelAr: url ? clean(body.linkLabelAr, LINK_LABEL_MAX) : "",
     active: body.active === undefined ? true : Boolean(body.active),
     position: Number.isFinite(pos) ? Math.max(0, Math.min(pos, 999)) : 0,
   };
 }
-
-/** Libellé de bouton par défaut quand l'admin n'en a pas saisi. */
-export const DEFAULT_LINK_LABEL = "En savoir plus";

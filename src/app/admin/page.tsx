@@ -57,7 +57,7 @@ import type {
   Slide,
 } from "@/lib/types";
 
-type SizeRow = { label: string; price: string };
+type SizeRow = { label: string; price: string; promoPrice: string };
 
 /**
  * `fetch` de l'espace admin.
@@ -242,13 +242,17 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     notes: "",
     availability: DEFAULT_AVAILABILITY as string,
     gender: "",
-    discount: "",
-    discountUntil: "",
+    nameAr: "",
+    descriptionAr: "",
+    familyAr: "",
+    notesAr: "",
     isPack: false,
     published: true,
   };
   const [formData, setFormData] = useState(emptyForm);
-  const [sizes, setSizes] = useState<SizeRow[]>([{ label: "", price: "" }]);
+  const [sizes, setSizes] = useState<SizeRow[]>([
+    { label: "", price: "", promoPrice: "" },
+  ]);
   /** Message renvoyé par l'API (série en double, URL invalide…). */
   const [formError, setFormError] = useState("");
   /** Parfum dont on affiche le QR en grand depuis le tableau. */
@@ -270,6 +274,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     body: "",
     url: "",
     linkLabel: "",
+    titleAr: "",
+    bodyAr: "",
+    linkLabelAr: "",
     active: true,
     position: 0,
   };
@@ -328,6 +335,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       body: a.body ?? "",
       url: a.url ?? "",
       linkLabel: a.linkLabel ?? "",
+      titleAr: a.titleAr ?? "",
+      bodyAr: a.bodyAr ?? "",
+      linkLabelAr: a.linkLabelAr ?? "",
       active: a.active,
       position: a.position ?? 0,
     });
@@ -569,7 +579,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   const resetForm = () => {
     setFormData(emptyForm);
-    setSizes([{ label: "", price: "" }]);
+    setSizes([{ label: "", price: "", promoPrice: "" }]);
     setEditingId(null);
     setFormError("");
   };
@@ -593,7 +603,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     setSizes((prev) =>
       prev.map((s, idx) => (idx === i ? { ...s, [key]: value } : s))
     );
-  const addSize = () => setSizes((prev) => [...prev, { label: "", price: "" }]);
+  const addSize = () =>
+    setSizes((prev) => [...prev, { label: "", price: "", promoPrice: "" }]);
   const removeSize = (i: number) =>
     setSizes((prev) =>
       prev.length === 1 ? prev : prev.filter((_, idx) => idx !== i)
@@ -670,18 +681,21 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       notes: perfume.notes ?? "",
       availability: perfume.availability ?? DEFAULT_AVAILABILITY,
       gender: perfume.gender ?? "",
-      discount:
-        perfume.discount && perfume.discount !== "0" ? perfume.discount : "",
-      discountUntil: perfume.discountUntil
-        ? String(perfume.discountUntil).slice(0, 10)
-        : "",
+      nameAr: perfume.nameAr ?? "",
+      descriptionAr: perfume.descriptionAr ?? "",
+      familyAr: perfume.familyAr ?? "",
+      notesAr: perfume.notesAr ?? "",
       isPack: Boolean(perfume.isPack),
       published: perfume.published,
     });
     setSizes(
       perfume.sizes && perfume.sizes.length > 0
-        ? perfume.sizes.map((s) => ({ label: s.label, price: s.price }))
-        : [{ label: "", price: "" }]
+        ? perfume.sizes.map((s) => ({
+            label: s.label,
+            price: s.price,
+            promoPrice: s.promoPrice ?? "",
+          }))
+        : [{ label: "", price: "", promoPrice: "" }]
     );
     setEditingId(perfume.id);
     setShowForm(true);
@@ -1247,6 +1261,62 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   </div>
                 </div>
 
+                {/* L'annonce s'affiche partout : bandeau du haut et section
+                    d'accueil. Sans version arabe, c'est le français qui est
+                    montré aux deux publics. */}
+                <fieldset className="space-y-4 border border-border rounded-lg p-4">
+                  <legend className="px-2 text-sm text-bordeaux font-medium">
+                    Version arabe (facultative)
+                  </legend>
+
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Titre en arabe
+                    </Label>
+                    <Input
+                      dir="rtl"
+                      value={annForm.titleAr}
+                      onChange={(e) =>
+                        setAnnForm({ ...annForm, titleAr: e.target.value })
+                      }
+                      placeholder="عنوان الإعلان"
+                      maxLength={120}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Détail en arabe
+                    </Label>
+                    <Textarea
+                      dir="rtl"
+                      value={annForm.bodyAr}
+                      onChange={(e) =>
+                        setAnnForm({ ...annForm, bodyAr: e.target.value })
+                      }
+                      rows={2}
+                      maxLength={400}
+                      placeholder="تفاصيل إضافية"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Texte du bouton en arabe
+                    </Label>
+                    <Input
+                      dir="rtl"
+                      value={annForm.linkLabelAr}
+                      onChange={(e) =>
+                        setAnnForm({ ...annForm, linkLabelAr: e.target.value })
+                      }
+                      placeholder="اعرف المزيد"
+                      maxLength={40}
+                      disabled={!annForm.url.trim()}
+                    />
+                  </div>
+                </fieldset>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                   <div className="space-y-2">
                     <Label className="text-muted-foreground text-sm">
@@ -1741,6 +1811,83 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   </div>
                 </div>
 
+                {/*
+                  Version arabe, regroupée en fin de fiche et entièrement
+                  facultative. Un champ laissé vide n'est pas un trou : le site
+                  affiche alors le texte français, y compris aux visiteurs qui
+                  lisent en arabe. Mieux vaut du français qu'un blanc.
+                */}
+                <fieldset className="space-y-4 border border-border rounded-lg p-4">
+                  <legend className="px-2 text-sm text-bordeaux font-medium">
+                    Version arabe (facultative)
+                  </legend>
+                  <p className="text-muted-foreground/70 text-xs -mt-1">
+                    Rempli, ce texte s&apos;affiche quand le visiteur choisit
+                    l&apos;arabe. Vide, c&apos;est le texte français qui reste.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-sm">
+                        Nom en arabe
+                      </Label>
+                      <Input
+                        dir="rtl"
+                        value={formData.nameAr}
+                        onChange={(e) =>
+                          setFormData({ ...formData, nameAr: e.target.value })
+                        }
+                        placeholder="غالباً نفس الاسم"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-sm">
+                        Famille olfactive en arabe
+                      </Label>
+                      <Input
+                        dir="rtl"
+                        value={formData.familyAr}
+                        onChange={(e) =>
+                          setFormData({ ...formData, familyAr: e.target.value })
+                        }
+                        placeholder="مثال: خشبي شرقي"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Description en arabe
+                    </Label>
+                    <Textarea
+                      dir="rtl"
+                      value={formData.descriptionAr}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          descriptionAr: e.target.value,
+                        })
+                      }
+                      rows={3}
+                      placeholder="وصف العطر بالعربية"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Notes en arabe
+                    </Label>
+                    <Input
+                      dir="rtl"
+                      value={formData.notesAr}
+                      onChange={(e) =>
+                        setFormData({ ...formData, notesAr: e.target.value })
+                      }
+                      placeholder="مثال: برغموت · ورد · عنبر"
+                    />
+                  </div>
+                </fieldset>
+
                 <div className="space-y-2">
                   <Label className="text-muted-foreground text-sm">
                     Disponibilité
@@ -1804,51 +1951,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     </p>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground text-sm">
-                      Réduction (%)
-                    </Label>
-                    <Input
-                      value={formData.discount}
-                      onChange={(e) =>
-                        setFormData({ ...formData, discount: e.target.value })
-                      }
-                      placeholder="Ex : 20 — laissez vide pour aucune"
-                      inputMode="numeric"
-                    />
-                    <p className="text-muted-foreground/70 text-xs">
-                      Le prix barré et le prix remisé s&apos;affichent
-                      automatiquement sur tous les formats. Maximum 90 %.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-muted-foreground text-sm">
-                    Fin de la promotion
-                  </Label>
-                  <Input
-                    type="date"
-                    value={formData.discountUntil}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        discountUntil: e.target.value,
-                      })
-                    }
-                    className="max-w-xs"
-                  />
-                  <p className="text-muted-foreground/70 text-xs">
-                    Passée cette date, le prix revient <strong>tout seul</strong>{" "}
-                    au tarif normal — rien à refaire à la main. Laissez vide pour
-                    une remise sans échéance.
-                  </p>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-muted-foreground text-sm">
-                      Tailles &amp; prix (ml)
+                      Formats, prix et promotions
                     </Label>
                     <Button
                       type="button"
@@ -1861,20 +1969,39 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       Ajouter une taille
                     </Button>
                   </div>
+                  <p className="text-muted-foreground/70 text-xs">
+                    Le prix promo se saisit <strong>directement en dirhams</strong>,
+                    pas en pourcentage : sur la boutique, le client voit
+                    l&apos;ancien prix barré et le nouveau à côté. Laissez la
+                    case vide pour un format sans promotion.
+                  </p>
                   <div className="space-y-2">
                     {sizes.map((s, i) => (
-                      <div key={i} className="flex gap-2 items-center">
+                      <div
+                        key={i}
+                        className="flex flex-wrap sm:flex-nowrap gap-2 items-center"
+                      >
                         <Input
                           value={s.label}
                           onChange={(e) => updateSize(i, "label", e.target.value)}
                           placeholder="Ex: 5ml"
-                          className="flex-1"
+                          className="flex-1 min-w-[110px]"
                         />
                         <Input
                           value={s.price}
                           onChange={(e) => updateSize(i, "price", e.target.value)}
-                          placeholder="Prix MAD (ex: 120)"
-                          className="flex-1"
+                          placeholder="Prix MAD"
+                          inputMode="numeric"
+                          className="flex-1 min-w-[110px]"
+                        />
+                        <Input
+                          value={s.promoPrice}
+                          onChange={(e) =>
+                            updateSize(i, "promoPrice", e.target.value)
+                          }
+                          placeholder="Promo MAD"
+                          inputMode="numeric"
+                          className="flex-1 min-w-[110px] border-bordeaux/40"
                         />
                         <Button
                           type="button"

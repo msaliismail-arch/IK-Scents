@@ -8,7 +8,7 @@ import {
 import type { Settings } from "@/lib/types";
 import { requireAdmin } from "@/lib/guard";
 import { resolveAvailability } from "@/lib/availability";
-import { priceWithDiscount } from "@/lib/pricing";
+import { priceOf } from "@/lib/pricing";
 import { notifyNewOrder } from "@/lib/notify";
 
 /**
@@ -91,12 +91,10 @@ export async function POST(request: NextRequest) {
         select: {
           availability: true,
           published: true,
-          discount: true,
-          discountUntil: true,
           brand: true,
           serialNumber: true,
           officialUrl: true,
-          sizes: { select: { label: true, price: true } },
+          sizes: { select: { label: true, price: true, promoPrice: true } },
         },
       });
 
@@ -126,11 +124,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      unitPrice = priceWithDiscount(
-        size.price,
-        ref.discount,
-        ref.discountUntil
-      ).final;
+      unitPrice = priceOf(size).final;
 
       authSnapshot = {
         brand: ref.brand ?? "",

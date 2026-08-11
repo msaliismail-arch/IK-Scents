@@ -5,25 +5,9 @@ import {
   DEFAULT_AVAILABILITY,
   resolveAvailability,
 } from "@/lib/availability";
-import {
-  normalizeGender,
-  normalizeDiscount,
-  normalizeDiscountUntil,
-} from "@/lib/pricing";
+import { normalizeGender } from "@/lib/pricing";
 import { checkAuthenticity } from "@/lib/perfume-validation";
-
-type SizeInput = { label?: string; price?: string };
-
-function cleanSizes(sizes: unknown): { label: string; price: string; position: number }[] {
-  if (!Array.isArray(sizes)) return [];
-  return sizes
-    .map((s: SizeInput, i: number) => ({
-      label: (s?.label ?? "").toString().trim(),
-      price: (s?.price ?? "").toString().trim(),
-      position: i,
-    }))
-    .filter((s) => s.label !== "" && s.price !== "");
-}
+import { cleanSizes } from "@/lib/sizes";
 
 // GET /api/perfumes - List perfumes (published only unless ?all=true)
 export async function GET(request: NextRequest) {
@@ -71,9 +55,11 @@ export async function POST(request: NextRequest) {
       notes,
       availability,
       gender,
-      discount,
-      discountUntil,
       isPack,
+      nameAr,
+      descriptionAr,
+      familyAr,
+      notesAr,
     } = body;
     const sizes = cleanSizes(body.sizes);
 
@@ -100,8 +86,10 @@ export async function POST(request: NextRequest) {
           ? resolveAvailability(availability).value
           : DEFAULT_AVAILABILITY,
         gender: normalizeGender(gender),
-        discount: String(normalizeDiscount(discount)),
-        discountUntil: normalizeDiscountUntil(discountUntil),
+        nameAr: String(nameAr ?? "").trim(),
+        descriptionAr: String(descriptionAr ?? "").trim(),
+        familyAr: String(familyAr ?? "").trim(),
+        notesAr: String(notesAr ?? "").trim(),
         isPack: Boolean(isPack),
         published: published ?? false,
         sizes: { create: sizes },

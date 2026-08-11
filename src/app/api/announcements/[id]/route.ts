@@ -21,7 +21,9 @@ export async function PUT(
       body.active !== undefined &&
       body.title === undefined &&
       body.body === undefined &&
-      body.url === undefined
+      body.url === undefined &&
+      body.titleAr === undefined &&
+      body.bodyAr === undefined
     ) {
       const toggled = await db.announcement.update({
         where: { id },

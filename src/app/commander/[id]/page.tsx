@@ -21,13 +21,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { resolveImg } from "@/lib/site";
 import { DEFAULT_SETTINGS, computeDelivery } from "@/lib/delivery";
 import { resolveAvailability } from "@/lib/availability";
-import { priceWithDiscount } from "@/lib/pricing";
+import { priceOf } from "@/lib/pricing";
 import { useLang } from "@/components/site/language-provider";
-import { genderText, fill } from "@/lib/i18n";
+import { genderText, fill, pick } from "@/lib/i18n";
 import type { Perfume, Settings, Size } from "@/lib/types";
 
 export default function CommanderPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const params = useParams();
   const id = (params?.id as string) ?? "";
 
@@ -97,14 +97,16 @@ export default function CommanderPage() {
   const sizes: Size[] = perfume?.sizes ?? [];
   const selectedSize = sizes.find((s) => s.label === sizeLabel) ?? sizes[0];
   // Même calcul que sur la page d'accueil et que côté serveur.
-  const priceView = priceWithDiscount(
-    selectedSize?.price,
-    perfume?.discount,
-    perfume?.discountUntil
-  );
+  const priceView = priceOf(selectedSize ?? {});
   const unitPrice = priceView.final;
   const subtotal = unitPrice * quantity;
   const sexe = genderText(t, perfume?.gender);
+
+  // Contenu rédigé par l'admin : version arabe si elle existe, français sinon.
+  const name = pick(lang, perfume?.name, perfume?.nameAr);
+  const description = pick(lang, perfume?.description, perfume?.descriptionAr);
+  const notes = pick(lang, perfume?.notes, perfume?.notesAr);
+  const family = pick(lang, perfume?.family, perfume?.familyAr);
   const delivery = computeDelivery(settings, subtotal, form.city);
   const total = subtotal + delivery.price;
 
@@ -177,7 +179,7 @@ export default function CommanderPage() {
           ) : !stock.orderable ? (
             <div className="max-w-md mx-auto text-center py-16">
               <h1 className="text-2xl font-serif text-foreground mb-3">
-                {perfume.name}
+                {name}
               </h1>
               <p className="text-muted-foreground font-light leading-relaxed">
                 {stock.value === "bientot"
@@ -202,7 +204,7 @@ export default function CommanderPage() {
               <h1 className="text-2xl font-serif text-foreground mb-2">{t.order.thanks}</h1>
               <p className="text-muted-foreground font-light leading-relaxed">
                 {fill(t.order.confirmed, {
-                  perfume: perfume.name,
+                  perfume: name,
                   size: selectedSize?.label ?? "",
                   qty: quantity,
                   phone: form.phone,
@@ -222,12 +224,12 @@ export default function CommanderPage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={resolveImg(perfume.image)}
-                    alt={perfume.name}
+                    alt={name}
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <h1 className="text-2xl font-serif text-foreground mt-5">
-                  {perfume.name}
+                  {name}
                 </h1>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   {sexe && (
@@ -235,26 +237,21 @@ export default function CommanderPage() {
                       {sexe}
                     </span>
                   )}
-                  {perfume.family && (
+                  {family && (
                     <span className="chip-bordeaux px-2.5 py-1 text-[11px] font-semibold tracking-wider uppercase rounded-sm">
-                      {perfume.family}
-                    </span>
-                  )}
-                  {priceView.hasDiscount && (
-                    <span className="chip-bordeaux px-2.5 py-1 text-[11px] font-bold tracking-wider uppercase rounded-sm">
-                      −{priceView.percent}%
+                      {family}
                     </span>
                   )}
                 </div>
                 <p className="text-muted-foreground font-light mt-3 leading-relaxed">
-                  {perfume.description}
+                  {description}
                 </p>
-                {perfume.notes && (
+                {notes && (
                   <p className="mt-4 text-sm text-muted-foreground font-light leading-relaxed">
                     <span className="block text-[10px] font-bold tracking-[0.24em] uppercase text-bordeaux mb-1.5">
                       {t.order.mainNotes}
                     </span>
-                    {perfume.notes}
+                    {notes}
                   </p>
                 )}
 
@@ -292,11 +289,7 @@ export default function CommanderPage() {
                       >
                         {s.label} ·{" "}
                         {(() => {
-                          const v = priceWithDiscount(
-                            s.price,
-                            perfume?.discount,
-                            perfume?.discountUntil
-                          );
+                          const v = priceOf(s);
                           return v.hasDiscount ? (
                             <>
                               <span className="line-through opacity-60 mr-1">

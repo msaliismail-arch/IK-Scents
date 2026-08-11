@@ -27,59 +27,25 @@ export function normalizeGender(value: unknown) {
 }
 
 /**
- * Remise en pourcentage, bornée entre 0 et 90.
- * Au-delà de 90 % il s'agit presque toujours d'une faute de frappe — et une
- * erreur de saisie ne doit pas se transformer en vente à perte.
+ * Lit un montant saisi à la main.
+ * Accepte la virgule décimale et les espaces ; renvoie 0 si rien d'utilisable.
  */
-export function normalizeDiscount(value: unknown) {
-  const raw = String(value ?? "").trim().replace(",", ".");
-  const n = Number.parseFloat(raw.replace(/[^\d.]/g, ""));
-  if (!Number.isFinite(n) || n <= 0) return 0;
-  return Math.min(90, Math.round(n));
-}
-
-/** Arrondi au dirham : on n'affiche jamais de centimes sur un prix en MAD. */
-const round = (n: number) => Math.round(n);
-
-/**
- * La promotion est-elle encore valable ?
- * Sans date de fin, elle court indéfiniment. Avec une date passée, le prix
- * revient au tarif normal tout seul — c'est ce qui évite d'oublier une
- * liquidation ouverte pendant des mois.
- */
-export function isDiscountActive(until: unknown): boolean {
-  if (!until) return true;
-  const end = new Date(String(until));
-  if (Number.isNaN(end.getTime())) return true;
-  // La date choisie est incluse : la promo court jusqu'à la fin de ce jour.
-  end.setHours(23, 59, 59, 999);
-  return end.getTime() >= Date.now();
+export function toAmount(value: unknown): number {
+  const raw = String(value ?? "")
+    .trim()
+    .replace(",", ".")
+    .replace(/[^\d.]/g, "");
+  const n = Number.parseFloat(raw);
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : 0;
 }
 
 /**
- * Date de fin lisible, ou "" si la promo n'a pas d'échéance.
- * `locale` permet d'afficher « 20 août 2026 » ou « ٢٠ غشت ٢٠٢٦ » selon la
- * langue choisie par le visiteur.
+ * Prix normalisé, prêt à être enregistré. "" si la saisie ne donne rien —
+ * c'est ce qui distingue « pas de promotion » de « promotion à 0 MAD ».
  */
-export function discountEndLabel(until: unknown, locale = "fr-FR"): string {
-  if (!until) return "";
-  const end = new Date(String(until));
-  if (Number.isNaN(end.getTime())) return "";
-  return end.toLocaleDateString(locale, {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-/** Convertit une saisie "AAAA-MM-JJ" en Date, ou null si vide/invalide. */
-export function normalizeDiscountUntil(value: unknown): Date | null {
-  const raw = String(value ?? "").trim();
-  if (!raw) return null;
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return null;
-  d.setHours(23, 59, 59, 999);
-  return d;
+export function normalizePromoPrice(value: unknown): string {
+  const n = toAmount(value);
+  return n > 0 ? String(n) : "";
 }
 
 export type PriceView = {
@@ -87,27 +53,26 @@ export type PriceView = {
   original: number;
   /** prix réellement payé */
   final: number;
-  percent: number;
   hasDiscount: boolean;
 };
 
-export function priceWithDiscount(
-  price: string | number | null | undefined,
-  discount: unknown,
-  discountUntil?: unknown
-): PriceView {
-  const raw = Number.parseFloat(String(price ?? "").replace(",", "."));
-  const original = Number.isFinite(raw) ? raw : 0;
-  const percent = normalizeDiscount(discount);
+/**
+ * Prix affiché et prix payé pour un format donné.
+ *
+ * Un prix promotionnel supérieur ou égal au prix catalogue est ignoré : ce
+ * n'est pas une promotion, c'est une faute de frappe, et l'afficher barré
+ * ferait passer une hausse pour une remise.
+ */
+export function priceOf(size: {
+  price?: string | number | null;
+  promoPrice?: string | null;
+}): PriceView {
+  const original = toAmount(size?.price);
+  const promo = toAmount(size?.promoPrice);
 
-  if (percent <= 0 || original <= 0 || !isDiscountActive(discountUntil)) {
-    return { original, final: original, percent: 0, hasDiscount: false };
+  if (promo <= 0 || original <= 0 || promo >= original) {
+    return { original, final: original, hasDiscount: false };
   }
 
-  return {
-    original,
-    final: round(original * (1 - percent / 100)),
-    percent,
-    hasDiscount: true,
-  };
+  return { original, final: promo, hasDiscount: true };
 }

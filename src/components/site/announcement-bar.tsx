@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
+import { useLang } from "@/components/site/language-provider";
+import { pick } from "@/lib/i18n";
 import type { Announcement } from "@/lib/types";
 
 /** Clé de mémorisation de l'annonce déjà fermée par le visiteur. */
@@ -28,6 +30,7 @@ const DISMISS_KEY = "assil-annonce-fermee";
  * site.
  */
 export function AnnouncementBar() {
+  const { lang, t } = useLang();
   const [first, setFirst] = useState<Announcement | null>(null);
   const [dismissed, setDismissed] = useState(true); // fermé jusqu'à preuve du contraire
   const barRef = useRef<HTMLDivElement | null>(null);
@@ -54,7 +57,7 @@ export function AnnouncementBar() {
     };
   }, []);
 
-  const text = (first?.title ?? "").trim();
+  const text = pick(lang, first?.title, first?.titleAr);
   const visible = text !== "" && !dismissed;
 
   // Publie la hauteur du bandeau pour que rien ne passe dessous
@@ -125,7 +128,7 @@ export function AnnouncementBar() {
       <button
         type="button"
         onClick={close}
-        aria-label="Fermer l'annonce"
+        aria-label={t.common.close}
         className="absolute top-1/2 -translate-y-1/2 right-1 sm:right-3 w-11 h-11 inline-flex items-center justify-center text-[#f7f4ee]/70 hover:text-[#f7f4ee] transition-colors"
       >
         <X className="w-4 h-4" />

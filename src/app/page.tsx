@@ -16,14 +16,9 @@ import {
 } from "@/components/site/perfume-request-modal";
 import { BRAND, INSTAGRAM_URL, resolveImg } from "@/lib/site";
 import { resolveAvailability } from "@/lib/availability";
-import {
-  GENDERS,
-  normalizeGender,
-  priceWithDiscount,
-  discountEndLabel,
-} from "@/lib/pricing";
+import { GENDERS, normalizeGender, priceOf } from "@/lib/pricing";
 import { useLang } from "@/components/site/language-provider";
-import { LANG_LOCALE, genderText, stockText } from "@/lib/i18n";
+import { genderText, pick, stockText } from "@/lib/i18n";
 import type { Perfume } from "@/lib/types";
 
 /* ══════════════════════════════════════════════
@@ -154,20 +149,18 @@ function PerfumeRow({
   const sexe = genderText(t, perfume.gender);
   const imageUrl = resolveImg(perfume.image);
   const sizes = perfume.sizes ?? [];
-  // Chaque format porte son prix catalogue et son prix remisé.
-  const priced = sizes.map((s) => ({
-    ...s,
-    view: priceWithDiscount(s.price, perfume.discount, perfume.discountUntil),
-  }));
+  // Chaque format porte son prix catalogue et, s'il existe, son prix promo.
+  const priced = sizes.map((s) => ({ ...s, view: priceOf(s) }));
   const from = priced.length
     ? Math.min(...priced.map((s) => s.view.final || Infinity))
     : null;
-  const percent = priced[0]?.view.percent ?? 0;
-  const promoEnd =
-    percent > 0
-      ? discountEndLabel(perfume.discountUntil, LANG_LOCALE[lang])
-      : "";
   const flipped = index % 2 === 1;
+
+  // Contenu rédigé par l'admin : version arabe si elle existe, français sinon.
+  const name = pick(lang, perfume.name, perfume.nameAr);
+  const description = pick(lang, perfume.description, perfume.descriptionAr);
+  const notes = pick(lang, perfume.notes, perfume.notesAr);
+  const family = pick(lang, perfume.family, perfume.familyAr);
 
   return (
     <article className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center">
@@ -178,11 +171,11 @@ function PerfumeRow({
         <Link
           href={`/commander/${perfume.id}`}
           className="block"
-          aria-label={`${t.collection.discover} ${perfume.name}`}
+          aria-label={`${t.collection.discover} ${name}`}
         >
           <ProductFrame
             src={imageUrl}
-            alt={perfume.name}
+            alt={name}
             failed={imgError}
             onError={() => setImgError(true)}
           />
@@ -199,7 +192,7 @@ function PerfumeRow({
         </span>
 
         <h3 className="font-serif font-semibold uppercase tracking-[0.015em] leading-[1.05] text-foreground text-[clamp(1.65rem,7vw,3.3rem)] break-words hyphens-auto">
-          <Link href={`/commander/${perfume.id}`}>{perfume.name}</Link>
+          <Link href={`/commander/${perfume.id}`}>{name}</Link>
         </h3>
 
         <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3">
@@ -219,21 +212,15 @@ function PerfumeRow({
             {stockLabel.badge}
           </span>
 
-          {percent > 0 && stock.orderable && (
-            <span className="chip-bordeaux inline-flex items-center px-3 py-1.5 text-[9.5px] sm:px-3.5 sm:text-[10px] font-bold tracking-[0.2em] uppercase">
-              −{percent}%
-            </span>
-          )}
-
           {sexe && (
             <span className="chip-champagne inline-flex items-center px-3 py-1.5 text-[9.5px] sm:px-3.5 sm:text-[10px] font-semibold tracking-[0.2em] uppercase">
               {sexe}
             </span>
           )}
 
-          {perfume.family && (
+          {family && (
             <span className="chip-bordeaux inline-flex items-center px-3 py-1.5 text-[9.5px] sm:px-3.5 sm:text-[10px] font-bold tracking-[0.2em] uppercase">
-              {perfume.family}
+              {family}
             </span>
           )}
 
@@ -242,21 +229,15 @@ function PerfumeRow({
         <span className="rule my-6" />
 
         <p className="text-[#4a4236] text-[15.5px] font-light leading-[1.85] max-w-lg">
-          {perfume.description}
+          {description}
         </p>
 
-        {perfume.notes && (
+        {notes && (
           <p className="mt-4 text-[14px] text-[#4a4236] font-light leading-[1.8] max-w-lg">
             <span className="text-[10px] font-bold tracking-[0.24em] uppercase text-bordeaux block mb-1.5">
               {t.collection.mainNotes}
             </span>
-            {perfume.notes}
-          </p>
-        )}
-
-        {promoEnd && (
-          <p className="mt-4 text-[12.5px] font-medium text-bordeaux">
-            {t.collection.offerUntil} {promoEnd}.
+            {notes}
           </p>
         )}
 
@@ -324,7 +305,7 @@ function PerfumeRow({
               type="button"
               onClick={() =>
                 onRequest({
-                  name: perfume.name,
+                  name,
                   gender: perfume.gender,
                   formats: priced
                     .filter((x) => x.label)

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Megaphone } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
 import { useLang } from "@/components/site/language-provider";
+import { pick } from "@/lib/i18n";
 import type { Announcement } from "@/lib/types";
 
 /**
@@ -22,7 +23,7 @@ import type { Announcement } from "@/lib/types";
  * que de laisser un titre au-dessus du vide.
  */
 export function AnnouncementsSection() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [items, setItems] = useState<Announcement[]>([]);
 
   useEffect(() => {
@@ -67,21 +68,24 @@ export function AnnouncementsSection() {
         >
           {items.map((a, i) => {
             const url = (a.url ?? "").trim();
-            // Le libellé saisi par l'admin l'emporte : c'est son texte, dans
-            // la langue qu'il a choisie. Le repli, lui, suit le visiteur.
+            // Le libellé saisi par l'admin l'emporte, dans la langue lue ;
+            // à défaut, un libellé par défaut traduit.
             const label =
-              (a.linkLabel ?? "").trim() || t.announcements.linkLabel;
+              pick(lang, a.linkLabel, a.linkLabelAr) ||
+              t.announcements.linkLabel;
+            const title = pick(lang, a.title, a.titleAr);
+            const bodyText = pick(lang, a.body, a.bodyAr);
 
             return (
               <Reveal key={a.id} delay={i * 110}>
                 <article className="h-full bg-card border border-champagne p-6 sm:p-7 flex flex-col transition-colors duration-500 hover:border-[#171717]">
                   <h3 className="font-serif text-xl sm:text-2xl font-light leading-snug text-foreground">
-                    {a.title}
+                    {title}
                   </h3>
 
-                  {a.body && (
+                  {bodyText && (
                     <p className="mt-3.5 text-[14.5px] font-light leading-[1.8] text-muted-foreground flex-1">
-                      {a.body}
+                      {bodyText}
                     </p>
                   )}
 

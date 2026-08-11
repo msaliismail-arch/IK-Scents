@@ -112,7 +112,6 @@ const fr = {
     askYours: "Demander votre parfum préféré",
     mainNotes: "Notes principales",
     availableSizes: "Formats disponibles",
-    offerUntil: "Offre valable jusqu'au",
     from: "À partir de",
     order: "Commander",
     soonText:
@@ -354,7 +353,6 @@ const ar: typeof fr = {
     askYours: "اطلب عطرك المفضل",
     mainNotes: "المكونات الأساسية",
     availableSizes: "الكميات المتوفرة",
-    offerUntil: "العرض صالح إلى غاية",
     from: "ابتداءً من",
     order: "اطلب الآن",
     soonText:
@@ -542,6 +540,24 @@ export function genderText(t: Dict, value: string | null | undefined) {
     return t.gender[key];
   }
   return "";
+}
+
+/**
+ * Choisit la version arabe si elle existe, sinon le français.
+ *
+ * Un champ arabe vide n'est pas une erreur : remplir chaque parfum deux fois
+ * prend du temps, et une description en français vaut infiniment mieux qu'un
+ * espace blanc. Le repli est donc silencieux et systématique.
+ */
+export function pick(
+  lang: Lang,
+  fr: string | null | undefined,
+  ar: string | null | undefined
+): string {
+  const base = (fr ?? "").trim();
+  if (lang !== "ar") return base;
+  const arabic = (ar ?? "").trim();
+  return arabic || base;
 }
 
 /** Code de locale pour les dates et les nombres. */

@@ -2,6 +2,8 @@ export interface Size {
   id?: string;
   label: string;
   price: string;
+  /** Prix promotionnel en MAD. "" = pas de promotion sur ce format. */
+  promoPrice?: string;
   position?: number;
 }
 
@@ -29,10 +31,11 @@ export interface Perfume {
   availability?: string;
   /** "homme" | "femme" | "unisexe" | "" */
   gender?: string;
-  /** Remise en pourcentage, ex. "20". "0" = aucune. */
-  discount?: string;
-  /** Fin de promotion (ISO). Passée cette date le prix revient seul. */
-  discountUntil?: string | null;
+  /** Version arabe. Vide = le texte français est affiché dans les deux langues. */
+  nameAr?: string;
+  descriptionAr?: string;
+  familyAr?: string;
+  notesAr?: string;
   /** true = coffret / lot, affiché dans « Nos packs » */
   isPack?: boolean;
   published: boolean;
@@ -118,6 +121,10 @@ export interface Announcement {
   url?: string;
   /** Texte du bouton. Vide avec une URL renseignée = libellé par défaut. */
   linkLabel?: string;
+  /** Version arabe. Vide = le texte français est affiché dans les deux langues. */
+  titleAr?: string;
+  bodyAr?: string;
+  linkLabelAr?: string;
   active: boolean;
   position?: number;
   createdAt?: string;

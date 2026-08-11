@@ -2,25 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guard";
 import { resolveAvailability } from "@/lib/availability";
-import {
-  normalizeGender,
-  normalizeDiscount,
-  normalizeDiscountUntil,
-} from "@/lib/pricing";
+import { normalizeGender } from "@/lib/pricing";
 import { checkAuthenticity } from "@/lib/perfume-validation";
-
-type SizeInput = { label?: string; price?: string };
-
-function cleanSizes(sizes: unknown): { label: string; price: string; position: number }[] {
-  if (!Array.isArray(sizes)) return [];
-  return sizes
-    .map((s: SizeInput, i: number) => ({
-      label: (s?.label ?? "").toString().trim(),
-      price: (s?.price ?? "").toString().trim(),
-      position: i,
-    }))
-    .filter((s) => s.label !== "" && s.price !== "");
-}
+// Même mise en forme des formats qu'à la création : deux copies finiraient
+// par diverger, et un prix promo accepté ici mais refusé là serait invisible.
+import { cleanSizes } from "@/lib/sizes";
 
 // GET /api/perfumes/[id]
 export async function GET(
@@ -69,9 +55,11 @@ export async function PUT(
       notes,
       availability,
       gender,
-      discount,
-      discountUntil,
       isPack,
+      nameAr,
+      descriptionAr,
+      familyAr,
+      notesAr,
     } = body;
     const hasSizes = Array.isArray(body.sizes);
     const sizes = cleanSizes(body.sizes);
@@ -110,12 +98,12 @@ export async function PUT(
           availability: resolveAvailability(availability).value,
         }),
         ...(gender !== undefined && { gender: normalizeGender(gender) }),
-        ...(discount !== undefined && {
-          discount: String(normalizeDiscount(discount)),
+        ...(nameAr !== undefined && { nameAr: String(nameAr).trim() }),
+        ...(descriptionAr !== undefined && {
+          descriptionAr: String(descriptionAr).trim(),
         }),
-        ...(discountUntil !== undefined && {
-          discountUntil: normalizeDiscountUntil(discountUntil),
-        }),
+        ...(familyAr !== undefined && { familyAr: String(familyAr).trim() }),
+        ...(notesAr !== undefined && { notesAr: String(notesAr).trim() }),
         ...(isPack !== undefined && { isPack: Boolean(isPack) }),
         ...(published !== undefined && { published }),
         ...(hasSizes && {
