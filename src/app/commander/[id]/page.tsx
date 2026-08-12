@@ -3,28 +3,18 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import {
-  ShoppingBag,
-  Check,
-  Minus,
-  Plus,
-  ArrowLeft,
-  Loader2,
-} from "lucide-react";
+import { Minus, Plus, ArrowLeft, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { AuthenticityBlock } from "@/components/site/authenticity-block";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { AddToCart } from "@/components/site/add-to-cart";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { resolveImg } from "@/lib/site";
-import { DEFAULT_SETTINGS, computeDelivery } from "@/lib/delivery";
 import { resolveAvailability } from "@/lib/availability";
 import { priceOf } from "@/lib/pricing";
 import { useLang } from "@/components/site/language-provider";
-import { genderText, fill, pick } from "@/lib/i18n";
-import type { Perfume, Settings, Size } from "@/lib/types";
+import { genderText, pick } from "@/lib/i18n";
+import type { Perfume, Size } from "@/lib/types";
 
 export default function CommanderPage() {
   const { t, lang } = useLang();
@@ -32,20 +22,9 @@ export default function CommanderPage() {
   const id = (params?.id as string) ?? "";
 
   const [perfume, setPerfume] = useState<Perfume | null>(null);
-  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [sizeLabel, setSizeLabel] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [form, setForm] = useState({
-    customerName: "",
-    phone: "",
-    address: "",
-    city: "",
-    note: "",
-  });
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [done, setDone] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -79,20 +58,6 @@ export default function CommanderPage() {
     };
   }, [id]);
 
-  // Réglages de livraison (prix par défaut, exceptions par ville, seuil gratuit)
-  useEffect(() => {
-    let active = true;
-    fetch("/api/settings")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (active && data) setSettings({ ...DEFAULT_SETTINGS, ...data });
-      })
-      .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, []);
-
   const stock = resolveAvailability(perfume?.availability);
   const sizes: Size[] = perfume?.sizes ?? [];
   const selectedSize = sizes.find((s) => s.label === sizeLabel) ?? sizes[0];
@@ -107,44 +72,6 @@ export default function CommanderPage() {
   const description = pick(lang, perfume?.description, perfume?.descriptionAr);
   const notes = pick(lang, perfume?.notes, perfume?.notesAr);
   const family = pick(lang, perfume?.family, perfume?.familyAr);
-  const delivery = computeDelivery(settings, subtotal, form.city);
-  const total = subtotal + delivery.price;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!perfume || !selectedSize) return;
-    setError("");
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerName: form.customerName,
-          phone: form.phone,
-          address: form.address,
-          city: form.city,
-          note: form.note,
-          perfumeId: perfume.id,
-          perfumeName: perfume.name,
-          sizeLabel: selectedSize.label,
-          price: selectedSize.price,
-          quantity,
-        }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error || t.order.error);
-        setSubmitting(false);
-        return;
-      }
-      setDone(true);
-    } catch {
-      setError(t.order.networkError);
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
@@ -196,27 +123,6 @@ export default function CommanderPage() {
                 {t.order.seeCollection}
               </Link>
             </div>
-          ) : done ? (
-            <div className="max-w-md mx-auto text-center py-16">
-              <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-gold-soft border border-gold-soft flex items-center justify-center">
-                <Check className="w-8 h-8 text-gold" />
-              </div>
-              <h1 className="text-2xl font-serif text-foreground mb-2">{t.order.thanks}</h1>
-              <p className="text-muted-foreground font-light leading-relaxed">
-                {fill(t.order.confirmed, {
-                  perfume: name,
-                  size: selectedSize?.label ?? "",
-                  qty: quantity,
-                  phone: form.phone,
-                })}
-              </p>
-              <Link
-                href="/#collection"
-                className="btn-gold inline-block mt-6 px-6 py-3 font-semibold tracking-wider uppercase text-sm rounded-sm"
-              >
-                {t.order.continue}
-              </Link>
-            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div>
@@ -260,64 +166,57 @@ export default function CommanderPage() {
                 <AuthenticityBlock perfume={perfume} />
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              {/*
+                Le passage en caisse a quitté cette page : il vit désormais sur
+                /panier, où le client voit l'ensemble de sa commande. Ici il ne
+                fait qu'une chose — choisir un format et l'ajouter.
+              */}
+              <div className="space-y-5">
                 <h2 className="text-lg font-serif text-foreground">
-                  {t.order.formTitle}
+                  {t.order.sizeLabel}
                 </h2>
 
-                {error && (
-                  <div className="p-3 rounded border border-red-400/40 bg-red-500/10 text-red-500 text-sm text-center">
-                    {error}
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <Label className="text-muted-foreground text-sm tracking-wider">
-                    {t.order.sizeLabel}
-                  </Label>
-                  <div className="flex flex-wrap gap-2">
-                    {sizes.map((s, i) => (
+                <div className="flex flex-wrap gap-2">
+                  {sizes.map((s, i) => {
+                    const v = priceOf(s);
+                    const active = s.label === sizeLabel;
+                    return (
                       <button
                         type="button"
                         key={i}
                         onClick={() => setSizeLabel(s.label)}
+                        aria-pressed={active}
                         className={`inline-flex items-center px-4 py-2.5 pointer-coarse:min-h-[44px] text-[13px] border transition-colors duration-300 rounded-sm ${
-                          s.label === sizeLabel
+                          active
                             ? "chip-bordeaux font-semibold"
                             : "border-border bg-card text-muted-foreground hover:border-bordeaux"
                         }`}
                       >
                         {s.label} ·{" "}
-                        {(() => {
-                          const v = priceOf(s);
-                          return v.hasDiscount ? (
-                            <>
-                              <span className="line-through opacity-60 mr-1">
-                                {v.original}
-                              </span>
-                              {v.final} MAD
-                            </>
-                          ) : (
-                            <>{v.final} MAD</>
-                          );
-                        })()}
+                        {v.hasDiscount ? (
+                          <>
+                            <span className="line-through opacity-60 mx-1">
+                              {v.original}
+                            </span>
+                            {v.final} MAD
+                          </>
+                        ) : (
+                          <>{v.final} MAD</>
+                        )}
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between border-t border-border pt-5">
                   <Label className="text-muted-foreground text-sm tracking-wider">
                     {t.order.quantityLabel}
                   </Label>
-                  {/* 32 px de côté, c'était plus petit qu'un doigt : on ratait
-                      le bouton une fois sur deux. 44 px est le minimum retenu
-                      par Apple comme par Google. */}
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      aria-label="Retirer un exemplaire"
+                      aria-label={t.cart.decrease}
                       className="w-11 h-11 rounded border border-border text-muted-foreground hover:border-gold-soft flex items-center justify-center"
                     >
                       <Minus className="w-4 h-4" />
@@ -330,8 +229,8 @@ export default function CommanderPage() {
                     </span>
                     <button
                       type="button"
-                      onClick={() => setQuantity((q) => q + 1)}
-                      aria-label="Ajouter un exemplaire"
+                      onClick={() => setQuantity((q) => Math.min(99, q + 1))}
+                      aria-label={t.cart.increase}
                       className="w-11 h-11 rounded border border-border text-muted-foreground hover:border-gold-soft flex items-center justify-center"
                     >
                       <Plus className="w-4 h-4" />
@@ -339,146 +238,36 @@ export default function CommanderPage() {
                   </div>
                 </div>
 
-                <div className="space-y-4 border-t border-border pt-5">
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground text-sm tracking-wider">
-                      {t.order.nameLabel}
-                    </Label>
-                    <Input
-                      value={form.customerName}
-                      onChange={(e) =>
-                        setForm({ ...form, customerName: e.target.value })
-                      }
-                      placeholder={t.order.namePlaceholder}
-                      required
-                    />
-                  </div>
-                  {/* Deux colonnes sur 360 px donnaient des champs de 150 px :
-                      un numéro de téléphone n'y tenait pas. */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-sm tracking-wider">
-                        {t.order.phoneLabel}
-                      </Label>
-                      <Input
-                        value={form.phone}
-                        onChange={(e) =>
-                          setForm({ ...form, phone: e.target.value })
-                        }
-                        placeholder="06 00 00 00 00"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-sm tracking-wider">
-                        {t.order.cityLabel}
-                      </Label>
-                      <Input
-                        value={form.city}
-                        onChange={(e) =>
-                          setForm({ ...form, city: e.target.value })
-                        }
-                        placeholder="Oujda"
-                      />
-                      {settings.deliveryCities.length > 0 && (
-                        <p className="text-muted-foreground/70 text-[11px]">
-                          {t.order.cityNote}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground text-sm tracking-wider">
-                      {t.order.addressLabel}
-                    </Label>
-                    <Textarea
-                      value={form.address}
-                      onChange={(e) =>
-                        setForm({ ...form, address: e.target.value })
-                      }
-                      placeholder={t.order.addressPlaceholder}
-                      required
-                      rows={2}
-                      className="resize-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground text-sm tracking-wider">
-                      {t.order.noteLabel}
-                    </Label>
-                    <Input
-                      value={form.note}
-                      onChange={(e) => setForm({ ...form, note: e.target.value })}
-                      placeholder={t.order.notePlaceholder}
-                    />
-                  </div>
+                <div className="p-4 bg-gold-soft border border-gold-border rounded-lg flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">
+                    {t.cart.subtotal}
+                  </span>
+                  <span className="text-bordeaux font-serif text-xl font-medium tabular-nums">
+                    {subtotal} MAD
+                  </span>
                 </div>
 
-                <div className="p-4 bg-gold-soft border border-gold-soft rounded-lg space-y-2.5">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {t.order.subtotal} ({selectedSize?.label ?? "—"} ×{" "}
-                      {quantity})
-                    </span>
-                    <span className="text-foreground">
-                      {subtotal > 0 ? `${subtotal} MAD` : "—"}
-                      {priceView.hasDiscount && subtotal > 0 && (
-                        <span className="text-muted-foreground/70 line-through ml-2">
-                          {priceView.original * quantity} MAD
-                        </span>
-                      )}
-                    </span>
-                  </div>
+                <AddToCart
+                  className="w-full"
+                  disabled={!selectedSize}
+                  line={{
+                    perfumeId: perfume.id,
+                    perfumeName: perfume.name,
+                    perfumeNameAr: perfume.nameAr,
+                    image: perfume.image,
+                    sizeLabel: selectedSize?.label ?? "",
+                    price: unitPrice,
+                    quantity,
+                  }}
+                />
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {t.order.delivery}
-                      {delivery.reason === "city" && form.city
-                        ? ` (${form.city.trim()})`
-                        : ""}
-                    </span>
-                    <span
-                      className={
-                        delivery.free ? "text-green-700" : "text-foreground"
-                      }
-                    >
-                      {delivery.free ? t.order.free : `${delivery.price} MAD`}
-                    </span>
-                  </div>
-
-                  {delivery.missingForFree > 0 && (
-                    <p className="text-[12px] text-muted-foreground leading-relaxed">
-                      {fill(t.order.missingForFree, {
-                        amount: delivery.missingForFree,
-                      })}
-                    </p>
-                  )}
-
-                  <div className="flex items-center justify-between border-t border-gold-border pt-2.5">
-                    <span className="text-muted-foreground text-sm">
-                      {t.order.total}
-                    </span>
-                    <span className="text-bordeaux font-serif text-xl font-medium">
-                      {subtotal > 0 ? `${total} MAD` : "—"}
-                    </span>
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={submitting || !selectedSize}
-                  className="btn-gold w-full font-semibold tracking-wider uppercase hover:shadow-lg hover:shadow-[#c9a96e]/30 transition-all duration-300 py-5"
+                <Link
+                  href="/panier"
+                  className="block text-center text-[11px] font-semibold tracking-[0.18em] uppercase text-bordeaux hover:underline underline-offset-4 pointer-coarse:min-h-[44px] inline-flex items-center justify-center w-full"
                 >
-                  {submitting ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <>
-                      <ShoppingBag className="w-4 h-4 mr-2" />
-                      {t.order.submit}
-                    </>
-                  )}
-                </Button>
-              </form>
+                  {t.cart.open}
+                </Link>
+              </div>
             </div>
           )}
         </div>

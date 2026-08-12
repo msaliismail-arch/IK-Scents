@@ -69,27 +69,47 @@ export interface PerfumeRequest {
   updatedAt: string;
 }
 
+/** Une ligne de commande : un parfum, un format, une quantité. */
+export interface OrderItem {
+  id?: string;
+  perfumeId?: string | null;
+  perfumeName: string;
+  sizeLabel: string;
+  /** Prix unitaire facturé, promotion déjà appliquée. */
+  price: string;
+  quantity: number;
+  /** Copie figée des infos d'authenticité au moment de la commande. */
+  brand?: string;
+  serialNumber?: string;
+  officialUrl?: string;
+}
+
 export interface Order {
   id: string;
   customerName: string;
   phone: string;
   address: string;
   city?: string | null;
-  perfumeId?: string | null;
-  perfumeName: string;
-  sizeLabel: string;
-  price: string;
-  /** Copie figée des infos d'authenticité au moment de la commande. */
-  brand?: string;
-  serialNumber?: string;
-  officialUrl?: string;
-  quantity: number;
-  /** Frais de livraison appliqués à cette commande, en MAD */
+  items: OrderItem[];
+  /** Frais de livraison de la commande entière, en MAD. */
   deliveryPrice?: string;
   note?: string | null;
   status: string;
   createdAt: string;
   updatedAt: string;
+}
+
+/** Une ligne du panier, côté navigateur. */
+export interface CartLine {
+  perfumeId: string;
+  perfumeName: string;
+  /** Nom arabe, pour afficher le panier dans la langue courante. */
+  perfumeNameAr?: string;
+  image: string;
+  sizeLabel: string;
+  /** Prix unitaire affiché au client, promotion déjà appliquée. */
+  price: number;
+  quantity: number;
 }
 
 /** Exception de prix de livraison pour une ville précise. */

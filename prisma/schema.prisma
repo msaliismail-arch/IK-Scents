@@ -122,24 +122,22 @@ model Size {
   @@index([perfumeId])
 }
 
+/// Commande passée depuis le panier.
+///
+/// Une commande = un client, une adresse, une livraison, et une ou plusieurs
+/// lignes (`OrderItem`). Les frais de livraison vivent ici et non sur les
+/// lignes : le colis est unique, il ne se facture qu'une fois quel que soit le
+/// nombre de parfums dedans.
 model Order {
   id            String   @id @default(cuid())
   customerName  String
   phone         String
   address       String
   city          String?
-  perfumeId     String?
-  perfumeName   String
-  sizeLabel     String
-  price         String
-  /// Copie figée des informations d'authenticité au moment de la commande.
-  /// Le parfum peut être modifié ou supprimé plus tard : la commande doit
-  /// garder la trace exacte du flacon d'où venait le décant livré.
-  /// Aucun numéro n'est généré ici — c'est une copie, jamais une création.
-  brand         String   @default("")
-  serialNumber  String   @default("")
-  officialUrl   String   @default("")
-  quantity      Int      @default(1)
+
+  /// Les lignes de la commande.
+  items         OrderItem[]
+
   deliveryPrice String   @default("0")
   note          String?
   status        String   @default("new")
@@ -147,6 +145,34 @@ model Order {
   updatedAt     DateTime @updatedAt
 
   @@index([status])
+}
+
+/// Une ligne de commande : un parfum, un format, une quantité.
+///
+/// Tout y est recopié plutôt que référencé. Un parfum peut être renommé,
+/// voir son prix changer ou être supprimé du catalogue ; une commande passée
+/// doit continuer d'afficher ce que le client a réellement acheté et payé.
+/// `perfumeId` n'est gardé que pour retrouver la fiche quand elle existe
+/// encore — jamais pour en relire le prix.
+model OrderItem {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  perfumeId   String?
+  perfumeName String
+  sizeLabel   String
+  /// Prix unitaire réellement facturé, promotion déjà appliquée.
+  price       String
+  quantity    Int    @default(1)
+
+  /// Copie figée des informations d'authenticité au moment de la commande :
+  /// la trace exacte du flacon d'où venait ce décant.
+  brand        String @default("")
+  serialNumber String @default("")
+  officialUrl  String @default("")
+
+  @@index([orderId])
 }
 
 /// Annonce publiée par l'admin.

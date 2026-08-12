@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 import { Brandmark } from "@/components/site/brandmark";
 import { AnnouncementBar } from "@/components/site/announcement-bar";
 import { LanguageToggle } from "@/components/site/language-toggle";
+import { CartButton } from "@/components/site/cart-button";
 import { useLang } from "@/components/site/language-provider";
 import { BRAND } from "@/lib/site";
 
@@ -17,7 +18,7 @@ export function Navbar() {
   const links = [
     { href: "/#about", label: t.nav.concept },
     { href: "/#collection", label: t.nav.decants },
-    { href: "/#collection", label: t.nav.shop },
+    { href: "/panier", label: t.cart.title },
     { href: "/#contact", label: t.nav.contact },
   ];
 
@@ -94,6 +95,11 @@ export function Navbar() {
                 qui ne lit pas le français ne doit pas avoir à ouvrir un menu
                 pour trouver sa langue. */}
             <LanguageToggle />
+
+            {/* Le panier reste visible sur tous les écrans : c'est le seul
+                chemin vers la commande, il ne doit jamais être enfoui dans
+                un menu. */}
+            <CartButton />
 
             <Link
               href="/#collection"

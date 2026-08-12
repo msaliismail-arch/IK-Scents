@@ -8,6 +8,7 @@ import { Footer } from "@/components/site/footer";
 import { Img } from "@/components/site/media";
 import { AnnouncementsSection } from "@/components/site/announcements-section";
 import { HeroCarousel } from "@/components/site/hero-carousel";
+import { AddToCart } from "@/components/site/add-to-cart";
 import { SideFlorals, FloralDivider } from "@/components/site/botanical";
 import { Reveal, RevealLines, Parallax } from "@/components/site/reveal";
 import {
@@ -156,6 +157,13 @@ function PerfumeRow({
     : null;
   const flipped = index % 2 === 1;
 
+  // Format sélectionné. Le premier est proposé d'emblée : un bouton
+  // « Ajouter au panier » désactivé tant qu'on n'a rien choisi donnerait
+  // l'impression d'un produit indisponible.
+  const [chosenSize, setChosenSize] = useState(sizes[0]?.label ?? "");
+  const selected =
+    priced.find((s) => s.label === chosenSize) ?? priced[0] ?? null;
+
   // Contenu rédigé par l'admin : version arabe si elle existe, français sinon.
   const name = pick(lang, perfume.name, perfume.nameAr);
   const description = pick(lang, perfume.description, perfume.descriptionAr);
@@ -261,14 +269,24 @@ function PerfumeRow({
                   </>
                 );
 
+                // Le format se choisit ici même : le visiteur sélectionne sa
+                // contenance puis ajoute au panier, sans changer de page.
+                const active = s.label === chosenSize;
+
                 return stock.orderable ? (
-                  <Link
+                  <button
                     key={s.id ?? i}
-                    href={`/commander/${perfume.id}?taille=${encodeURIComponent(s.label)}`}
-                    className="size-chip inline-flex items-center px-4 py-2.5 pointer-coarse:min-h-[44px] text-[13px] sm:px-5 sm:py-3 sm:text-[14px]"
+                    type="button"
+                    onClick={() => setChosenSize(s.label)}
+                    aria-pressed={active}
+                    className={`inline-flex items-center px-4 py-2.5 pointer-coarse:min-h-[44px] text-[13px] sm:px-5 sm:py-3 sm:text-[14px] border transition-colors duration-300 ${
+                      active
+                        ? "size-chip border-transparent"
+                        : "border-champagne bg-white text-[#4a4236] hover:border-bordeaux"
+                    }`}
                   >
                     {contenu}
-                  </Link>
+                  </button>
                 ) : (
                   <span
                     key={s.id ?? i}
@@ -292,13 +310,27 @@ function PerfumeRow({
         )}
 
         {stock.orderable ? (
-          <Link
-            href={`/commander/${perfume.id}`}
-            className="mt-8 w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#171717] text-white px-10 py-5 text-[12px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 hover:bg-[#3a3a3a]"
-          >
-            <ShoppingBag className="w-4 h-4" />
-            {t.collection.order}
-          </Link>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <AddToCart
+              className="w-full sm:w-auto"
+              disabled={!selected}
+              line={{
+                perfumeId: perfume.id,
+                perfumeName: perfume.name,
+                perfumeNameAr: perfume.nameAr,
+                image: perfume.image,
+                sizeLabel: selected?.label ?? "",
+                price: selected?.view.final ?? 0,
+                quantity: 1,
+              }}
+            />
+            <Link
+              href="/panier"
+              className="text-[11px] font-semibold tracking-[0.18em] uppercase text-bordeaux hover:underline underline-offset-4 inline-flex items-center pointer-coarse:min-h-[44px]"
+            >
+              {t.cart.open}
+            </Link>
+          </div>
         ) : (
           <div className="mt-8">
             <button

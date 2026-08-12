@@ -2254,19 +2254,32 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                             {order.phone}
                           </a>
                         </div>
-                        <p className="text-muted-foreground text-xs mt-1">
-                          {order.perfumeName} — {order.sizeLabel} ×{" "}
-                          {order.quantity}
-                          {order.price ? ` · ${order.price} MAD/u` : ""}
-                        </p>
-                        <p className="text-muted-foreground/80 text-xs mt-0.5">
+                        {/* Les lignes de la commande. Une commande peut
+                            contenir plusieurs parfums : chacun apparaît avec
+                            son format, sa quantité et son prix unitaire. */}
+                        <div className="mt-1.5 space-y-0.5">
+                          {(order.items ?? []).map((it, k) => (
+                            <p
+                              key={it.id ?? k}
+                              className="text-muted-foreground text-xs"
+                            >
+                              • {it.perfumeName} — {it.sizeLabel} × {it.quantity}
+                              {it.price ? ` · ${it.price} MAD/u` : ""}
+                            </p>
+                          ))}
+                        </div>
+                        <p className="text-muted-foreground/80 text-xs mt-1">
                           {order.address}
                           {order.city ? `, ${order.city}` : ""}
                         </p>
                         {(() => {
-                          const unit =
-                            Number.parseFloat(order.price ?? "0") || 0;
-                          const sub = unit * (order.quantity || 1);
+                          const sub = (order.items ?? []).reduce(
+                            (n, it) =>
+                              n +
+                              (Number.parseFloat(it.price ?? "0") || 0) *
+                                (it.quantity || 1),
+                            0
+                          );
                           const ship =
                             Number.parseFloat(order.deliveryPrice ?? "0") || 0;
                           if (sub <= 0) return null;
@@ -2289,53 +2302,60 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                           {new Date(order.createdAt).toLocaleString("fr-FR")}
                         </p>
 
-                        {/* Fiche d'authenticité, une fois la commande
-                            confirmée. Le numéro affiché est celui copié à la
-                            commande — aucun numéro n'est créé ici. */}
-                        {order.status === "confirmed" && order.serialNumber && (
-                          <div className="mt-3 pt-3 border-t border-border flex items-start gap-4">
-                            <QrCode
-                              value={verifyUrl(
-                                order.serialNumber,
-                                typeof window !== "undefined"
-                                  ? window.location.origin
-                                  : ""
-                              )}
-                              size={96}
-                              title="QR de vérification de la commande"
-                            />
-                            <div className="min-w-0 text-xs space-y-1">
-                              <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-bordeaux">
-                                Flacon source
-                              </p>
-                              {order.brand && (
-                                <p className="text-muted-foreground">
-                                  Marque : {order.brand}
-                                </p>
-                              )}
-                              <p className="text-muted-foreground">
-                                Parfum : {order.perfumeName}
-                              </p>
-                              <p className="text-muted-foreground">
-                                Format : {order.sizeLabel}
-                              </p>
-                              <p className="text-foreground font-mono break-all">
-                                N° {order.serialNumber}
-                              </p>
-                              {order.officialUrl && (
-                                <a
-                                  href={order.officialUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 text-gold hover:underline"
-                                >
-                                  Site officiel
-                                  <ExternalLink className="w-3 h-3" />
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        )}
+                        {/* Fiches d'authenticité, une fois la commande
+                            confirmée — une par ligne qui porte un numéro.
+                            Les numéros sont copiés à la commande, jamais créés
+                            ici. */}
+                        {order.status === "confirmed" &&
+                          (order.items ?? [])
+                            .filter((it) => it.serialNumber)
+                            .map((it, k) => (
+                              <div
+                                key={it.id ?? `auth-${k}`}
+                                className="mt-3 pt-3 border-t border-border flex items-start gap-4"
+                              >
+                                <QrCode
+                                  value={verifyUrl(
+                                    it.serialNumber ?? "",
+                                    typeof window !== "undefined"
+                                      ? window.location.origin
+                                      : ""
+                                  )}
+                                  size={96}
+                                  title="QR de vérification de l'article"
+                                />
+                                <div className="min-w-0 text-xs space-y-1">
+                                  <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-bordeaux">
+                                    Flacon source
+                                  </p>
+                                  {it.brand && (
+                                    <p className="text-muted-foreground">
+                                      Marque : {it.brand}
+                                    </p>
+                                  )}
+                                  <p className="text-muted-foreground">
+                                    Parfum : {it.perfumeName}
+                                  </p>
+                                  <p className="text-muted-foreground">
+                                    Format : {it.sizeLabel}
+                                  </p>
+                                  <p className="text-foreground font-mono break-all">
+                                    N° {it.serialNumber}
+                                  </p>
+                                  {it.officialUrl && (
+                                    <a
+                                      href={it.officialUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1.5 text-gold hover:underline"
+                                    >
+                                      Site officiel
+                                      <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
                       </div>
                       <div className="flex flex-col items-end gap-2 shrink-0">
                         <select

@@ -82,29 +82,41 @@ type OrderAlert = {
   phone: string;
   address: string;
   city?: string | null;
-  perfumeName: string;
-  sizeLabel: string;
-  quantity: number;
-  unitPrice: number;
   deliveryPrice: number;
   note?: string | null;
+  items: {
+    perfumeName: string;
+    sizeLabel: string;
+    quantity: number;
+    unitPrice: number;
+  }[];
 };
 
 /**
  * Alerte « nouvelle commande ».
  *
- * Le total est calculé ici à partir des montants déjà validés côté serveur :
- * c'est le chiffre que le gérant veut lire en premier, et le recalculer de
- * tête sur un téléphone n'a aucun intérêt.
+ * Une commande peut contenir plusieurs parfums : chaque ligne est détaillée,
+ * puis le total est calculé ici à partir des montants déjà validés côté
+ * serveur. C'est le chiffre que le gérant veut lire en premier, et le
+ * recalculer de tête sur un téléphone n'a aucun intérêt.
  */
 export async function notifyNewOrder(order: OrderAlert): Promise<void> {
-  const subtotal = order.unitPrice * order.quantity;
+  const subtotal = order.items.reduce(
+    (sum, i) => sum + i.unitPrice * i.quantity,
+    0
+  );
   const total = subtotal + order.deliveryPrice;
 
   const lines = [
     "🛍️ <b>Nouvelle commande</b>",
     "",
-    `<b>${esc(order.perfumeName)}</b> — ${esc(order.sizeLabel)} × ${order.quantity}`,
+    ...order.items.map(
+      (i) =>
+        `• <b>${esc(i.perfumeName)}</b> — ${esc(i.sizeLabel)} × ${i.quantity} · ${
+          i.unitPrice * i.quantity
+        } MAD`
+    ),
+    "",
     `Sous-total ${subtotal} MAD · Livraison ${
       order.deliveryPrice > 0 ? `${order.deliveryPrice} MAD` : "offerte"
     }`,

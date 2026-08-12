@@ -29,7 +29,7 @@ async function loadSettings(): Promise<Settings> {
   }
 }
 
-// GET /api/orders - List all orders (admin)
+// GET /api/orders - Liste des commandes (admin)
 export async function GET() {
   const denied = await requireAdmin();
   if (denied) return denied;
@@ -37,6 +37,7 @@ export async function GET() {
   try {
     const orders = await db.order.findMany({
       orderBy: { createdAt: "desc" },
+      include: { items: true },
     });
     return NextResponse.json(orders);
   } catch (error) {
@@ -48,47 +49,85 @@ export async function GET() {
   }
 }
 
-// POST /api/orders - Create an order (public order form)
+type IncomingLine = {
+  perfumeId?: string;
+  sizeLabel?: string;
+  quantity?: unknown;
+};
+
+/**
+ * POST /api/orders — enregistre une commande, d'une ou plusieurs lignes.
+ *
+ * ─── Ce que le navigateur n'a pas le droit de décider ──────────────────────
+ *
+ * Rien de ce qui touche à l'argent. Le prix de chaque ligne est relu en base,
+ * promotion comprise ; la disponibilité est revérifiée ; les frais de
+ * livraison sont recalculés depuis les réglages admin. Le panier envoyé ne
+ * sert qu'à dire QUOI et COMBIEN — jamais À QUEL PRIX. Sans cette règle,
+ * n'importe qui commanderait un flacon à 1 MAD en modifiant la requête.
+ *
+ * ─── Une commande, une livraison ───────────────────────────────────────────
+ *
+ * Les frais sont calculés sur le sous-total de tout le panier, une seule fois.
+ * C'est le sens même d'un panier : un seul colis, une seule livraison.
+ */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
-      customerName,
-      phone,
-      address,
-      city,
-      perfumeId,
-      perfumeName,
-      sizeLabel,
-      price,
-      quantity,
-      note,
-    } = body;
+    const { customerName, phone, address, city, note } = body;
 
-    if (!customerName || !phone || !address || !perfumeName || !sizeLabel) {
+    if (!customerName || !phone || !address) {
       return NextResponse.json(
-        { error: "Nom, téléphone, adresse et produit sont requis" },
+        { error: "Nom, téléphone et adresse sont requis" },
         { status: 400 }
       );
     }
 
-    const qty = Number.parseInt(quantity, 10);
-    const safeQty = Number.isFinite(qty) && qty > 0 ? qty : 1;
+    const lines: IncomingLine[] = Array.isArray(body.items) ? body.items : [];
+    if (lines.length === 0) {
+      return NextResponse.json({ error: "Votre panier est vide." }, { status: 400 });
+    }
 
-    // Le prix facturé vient TOUJOURS de la base, jamais du navigateur : sinon
-    // n'importe qui pourrait commander à 1 MAD. La remise est appliquée ici,
-    // donc le client paie exactement ce que le site lui a affiché.
-    let unitPrice = Number.parseFloat(String(price ?? "").replace(",", "."));
-    if (!Number.isFinite(unitPrice) || unitPrice < 0) unitPrice = 0;
+    // Garde-fou : un panier de 50 lignes distinctes n'existe pas dans une
+    // boutique de décants, c'est une requête forgée.
+    if (lines.length > 30) {
+      return NextResponse.json(
+        { error: "Trop d'articles dans le panier." },
+        { status: 400 }
+      );
+    }
 
-    // Informations d'authenticité recopiées depuis le parfum. Rien n'est
-    // généré ici : si le flacon n'a pas de numéro, la commande n'en aura pas.
-    let authSnapshot = { brand: "", serialNumber: "", officialUrl: "" };
+    const items: {
+      perfumeId: string | null;
+      perfumeName: string;
+      sizeLabel: string;
+      price: string;
+      quantity: number;
+      brand: string;
+      serialNumber: string;
+      officialUrl: string;
+    }[] = [];
 
-    if (perfumeId) {
+    let subtotal = 0;
+
+    for (const line of lines) {
+      const perfumeId = String(line?.perfumeId ?? "").trim();
+      const wantedSize = String(line?.sizeLabel ?? "").trim();
+
+      const qty = Number.parseInt(String(line?.quantity ?? "1"), 10);
+      const quantity = Number.isFinite(qty) && qty > 0 ? Math.min(qty, 99) : 1;
+
+      if (!perfumeId || !wantedSize) {
+        return NextResponse.json(
+          { error: "Un article du panier est incomplet." },
+          { status: 400 }
+        );
+      }
+
       const ref = await db.perfume.findUnique({
-        where: { id: String(perfumeId) },
+        where: { id: perfumeId },
         select: {
+          name: true,
           availability: true,
           published: true,
           brand: true,
@@ -100,40 +139,43 @@ export async function POST(request: NextRequest) {
 
       if (!ref) {
         return NextResponse.json(
-          { error: "Parfum introuvable." },
+          { error: "Un parfum de votre panier n'existe plus." },
           { status: 404 }
         );
       }
 
       if (!ref.published || !resolveAvailability(ref.availability).orderable) {
         return NextResponse.json(
-          { error: "Ce parfum n'est pas disponible à la commande." },
+          { error: `« ${ref.name} » n'est plus disponible à la commande.` },
           { status: 409 }
         );
       }
 
-      const wanted = String(sizeLabel).trim().toLowerCase();
       const size = ref.sizes.find(
-        (s) => s.label.trim().toLowerCase() === wanted
+        (s) => s.label.trim().toLowerCase() === wantedSize.toLowerCase()
       );
 
       if (!size) {
         return NextResponse.json(
-          { error: "Ce format n'est pas proposé pour ce parfum." },
+          { error: `Le format choisi pour « ${ref.name} » n'existe plus.` },
           { status: 400 }
         );
       }
 
-      unitPrice = priceOf(size).final;
+      const unitPrice = priceOf(size).final;
+      subtotal += unitPrice * quantity;
 
-      authSnapshot = {
+      items.push({
+        perfumeId,
+        perfumeName: ref.name,
+        sizeLabel: size.label,
+        price: String(unitPrice),
+        quantity,
         brand: ref.brand ?? "",
         serialNumber: ref.serialNumber ?? "",
         officialUrl: ref.officialUrl ?? "",
-      };
+      });
     }
-
-    const subtotal = unitPrice * safeQty;
 
     const settings = await loadSettings();
     const delivery = computeDelivery(
@@ -148,16 +190,12 @@ export async function POST(request: NextRequest) {
         phone: String(phone).trim(),
         address: String(address).trim(),
         city: city ? String(city).trim() : null,
-        perfumeId: perfumeId ?? null,
-        perfumeName: String(perfumeName).trim(),
-        sizeLabel: String(sizeLabel).trim(),
-        price: String(unitPrice),
-        ...authSnapshot,
-        quantity: safeQty,
         deliveryPrice: String(delivery.price),
         note: note ? String(note).trim() : null,
         status: "new",
+        items: { create: items },
       },
+      include: { items: true },
     });
 
     // Alerte au gérant. `await` volontaire : sur une plateforme sans serveur,
@@ -170,12 +208,14 @@ export async function POST(request: NextRequest) {
       phone: order.phone,
       address: order.address,
       city: order.city,
-      perfumeName: order.perfumeName,
-      sizeLabel: order.sizeLabel,
-      quantity: order.quantity,
-      unitPrice,
-      deliveryPrice: delivery.price,
       note: order.note,
+      deliveryPrice: delivery.price,
+      items: items.map((i) => ({
+        perfumeName: i.perfumeName,
+        sizeLabel: i.sizeLabel,
+        quantity: i.quantity,
+        unitPrice: Number(i.price),
+      })),
     });
 
     return NextResponse.json(order, { status: 201 });

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import AuthProvider from "@/components/auth/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/components/site/language-provider";
+import { CartProvider } from "@/components/site/cart-provider";
 import { BRAND } from "@/lib/site";
 
 const manrope = Manrope({
@@ -90,7 +91,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <LanguageProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <CartProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </CartProvider>
           </LanguageProvider>
           <Toaster />
         </ThemeProvider>
