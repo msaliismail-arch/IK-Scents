@@ -139,6 +139,14 @@ model Order {
   items         OrderItem[]
 
   deliveryPrice String   @default("0")
+
+  /// Offre appliquée au moment de la commande, recopiée telle quelle.
+  /// L'offre peut être modifiée ou supprimée plus tard : la commande doit
+  /// garder la trace de ce qui a réellement été accordé.
+  offerLabel    String   @default("")
+  /// Remise apportée par l'offre, en MAD. "0" = aucune.
+  offerDiscount String   @default("0")
+
   note          String?
   status        String   @default("new")
   createdAt     DateTime @default(now())
@@ -243,6 +251,64 @@ model Slide {
 
   @@index([active, position])
   @@index([perfumeId])
+}
+
+/// Offre promotionnelle appliquée automatiquement au panier.
+///
+/// ─── La forme d'une offre ─────────────────────────────────────────────────
+///
+/// Toujours la même : UNE condition, UNE récompense.
+///
+///   « si le panier contient au moins 2 formats 10 ml → livraison offerte »
+///     └──────────── condition ────────────┘  └── récompense ──┘
+///
+/// Ce cadre volontairement étroit permet d'écrire des règles sans code, et
+/// surtout de les VÉRIFIER : une offre qui se lit en une phrase est une offre
+/// dont on peut prédire l'effet sur la marge.
+///
+/// ─── Une seule offre s'applique ───────────────────────────────────────────
+///
+/// Quand plusieurs offres sont éligibles, celle qui fait gagner le plus au
+/// client l'emporte, et elle seule. Les offres ne se cumulent pas : deux
+/// remises qui s'empilent produisent des ventes à perte qu'on ne voit qu'à la
+/// fin du mois.
+model Offer {
+  id String @id @default(cuid())
+
+  /// Nom montré au client quand l'offre s'applique, ex. « Livraison offerte ».
+  label   String
+  /// Version arabe. Vide = le français s'affiche dans les deux langues.
+  labelAr String @default("")
+
+  /// Ce qui déclenche l'offre :
+  ///   "minSubtotal"  — le sous-total atteint `conditionValue` MAD
+  ///   "minQuantity"  — le panier contient `conditionValue` articles au total
+  ///   "minSize"      — il contient `conditionValue` articles du format `conditionSize`
+  conditionType String @default("minSubtotal")
+  /// Le seuil à atteindre. Nombre stocké en texte, comme les prix.
+  conditionValue String @default("0")
+  /// Format visé, ex. "10 ml". Utilisé uniquement par "minSize".
+  conditionSize String @default("")
+
+  /// Ce que le client gagne :
+  ///   "freeDelivery" — livraison offerte
+  ///   "percentOff"   — `rewardValue` % de remise sur le sous-total
+  ///   "amountOff"    — `rewardValue` MAD de remise sur le sous-total
+  rewardType String @default("freeDelivery")
+  /// Valeur de la remise. Ignorée pour "freeDelivery".
+  rewardValue String @default("0")
+
+  /// Permet de suspendre une offre sans la perdre.
+  active Boolean @default(true)
+
+  /// Ordre d'affichage dans l'admin. N'influence pas le choix de l'offre
+  /// appliquée : c'est toujours la plus avantageuse qui gagne.
+  position Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active])
 }
 
 /// Réglages du site — une seule ligne, id fixe "main".

@@ -83,6 +83,9 @@ type OrderAlert = {
   address: string;
   city?: string | null;
   deliveryPrice: number;
+  /** Offre appliquée, vide si aucune. */
+  offerLabel?: string;
+  offerDiscount?: number;
   note?: string | null;
   items: {
     perfumeName: string;
@@ -105,7 +108,8 @@ export async function notifyNewOrder(order: OrderAlert): Promise<void> {
     (sum, i) => sum + i.unitPrice * i.quantity,
     0
   );
-  const total = subtotal + order.deliveryPrice;
+  const discount = order.offerDiscount ?? 0;
+  const total = Math.max(0, subtotal - discount) + order.deliveryPrice;
 
   const lines = [
     "🛍️ <b>Nouvelle commande</b>",
@@ -120,6 +124,15 @@ export async function notifyNewOrder(order: OrderAlert): Promise<void> {
     `Sous-total ${subtotal} MAD · Livraison ${
       order.deliveryPrice > 0 ? `${order.deliveryPrice} MAD` : "offerte"
     }`,
+    // L'offre est annoncée explicitement : sans elle, un total plus bas que la
+    // somme des lignes ressemble à une erreur de calcul.
+    ...(order.offerLabel
+      ? [
+          `🎁 ${esc(order.offerLabel)}${
+            discount > 0 ? ` · −${discount} MAD` : ""
+          }`,
+        ]
+      : []),
     `<b>Total ${total} MAD</b> (paiement à la livraison)`,
     "",
     `👤 ${esc(order.customerName)}`,

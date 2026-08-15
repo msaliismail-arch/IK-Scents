@@ -93,6 +93,10 @@ export interface Order {
   items: OrderItem[];
   /** Frais de livraison de la commande entière, en MAD. */
   deliveryPrice?: string;
+  /** Offre appliquée au moment de la commande. "" = aucune. */
+  offerLabel?: string;
+  /** Remise apportée par l'offre, en MAD. */
+  offerDiscount?: string;
   note?: string | null;
   status: string;
   createdAt: string;

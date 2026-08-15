@@ -29,6 +29,7 @@ import {
   Images,
   ArrowUp,
   ArrowDown,
+  Gift,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +43,8 @@ import { verifyUrl } from "@/lib/authenticity";
 import { resolveImg } from "@/lib/site";
 import { DEFAULT_SETTINGS } from "@/lib/delivery";
 import { SLIDE_SECONDS } from "@/lib/carousel";
+import { CONDITION_TYPES, REWARD_TYPES, type Offer } from "@/lib/offers";
+import { describeOffer, parseOffer } from "@/lib/offer-parser";
 import {
   AVAILABILITY_OPTIONS,
   DEFAULT_AVAILABILITY,
@@ -219,6 +222,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     | "requests"
     | "announcements"
     | "carousel"
+    | "offers"
     | "delivery"
   >("products");
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
@@ -458,6 +462,127 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     fetchSlides();
   };
 
+  // --- Offres ---
+  const emptyOffer = {
+    label: "",
+    labelAr: "",
+    conditionType: "minSubtotal",
+    conditionValue: "",
+    conditionSize: "",
+    rewardType: "freeDelivery",
+    rewardValue: "",
+    active: true,
+    position: 0,
+  };
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [offersLoading, setOffersLoading] = useState(false);
+  const [offerForm, setOfferForm] = useState(emptyOffer);
+  const [offerEditingId, setOfferEditingId] = useState<string | null>(null);
+  const [offerShowForm, setOfferShowForm] = useState(false);
+  const [offerError, setOfferError] = useState("");
+  /** Phrase libre saisie par l'admin, et ce que la lecture n'a pas su trancher. */
+  const [offerText, setOfferText] = useState("");
+  const [offerWarnings, setOfferWarnings] = useState<string[]>([]);
+
+  /**
+   * Traduit la phrase en règle et remplit le formulaire.
+   * Rien n'est enregistré ici : l'admin voit le résultat, le corrige si
+   * besoin, puis enregistre lui-même.
+   */
+  const applyOfferText = () => {
+    const parsed = parseOffer(offerText);
+    setOfferForm((prev) => ({
+      ...prev,
+      // Le nom reste celui déjà saisi s'il existe : la phrase décrit la règle,
+      // pas forcément le libellé montré au client.
+      label: prev.label,
+      conditionType: parsed.conditionType,
+      conditionValue: parsed.conditionValue,
+      conditionSize: parsed.conditionSize,
+      rewardType: parsed.rewardType,
+      rewardValue: parsed.rewardValue,
+    }));
+    setOfferWarnings(parsed.warnings);
+  };
+
+  const fetchOffers = async () => {
+    setOffersLoading(true);
+    try {
+      const res = await adminFetch("/api/offers?all=true");
+      const data = await res.json();
+      setOffers(Array.isArray(data) ? data : []);
+    } finally {
+      setOffersLoading(false);
+    }
+  };
+
+  const resetOfferForm = () => {
+    setOfferForm(emptyOffer);
+    setOfferEditingId(null);
+    setOfferError("");
+    setOfferText("");
+    setOfferWarnings([]);
+  };
+
+  const saveOffer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOfferError("");
+    const res = offerEditingId
+      ? await adminFetch(`/api/offers/${offerEditingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(offerForm),
+        })
+      : await adminFetch("/api/offers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(offerForm),
+        });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setOfferError(data.error || "Enregistrement impossible.");
+      return;
+    }
+    resetOfferForm();
+    setOfferShowForm(false);
+    fetchOffers();
+  };
+
+  const editOffer = (o: Offer) => {
+    setOfferForm({
+      label: o.label,
+      labelAr: o.labelAr ?? "",
+      conditionType: o.conditionType,
+      conditionValue: o.conditionValue,
+      conditionSize: o.conditionSize ?? "",
+      rewardType: o.rewardType,
+      rewardValue: o.rewardValue,
+      active: o.active,
+      position: o.position ?? 0,
+    });
+    setOfferEditingId(o.id ?? null);
+    setOfferShowForm(true);
+    setOfferError("");
+    setOfferText("");
+    setOfferWarnings([]);
+  };
+
+  const toggleOffer = async (o: Offer) => {
+    await adminFetch(`/api/offers/${o.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ active: !o.active }),
+    });
+    fetchOffers();
+  };
+
+  const deleteOffer = async (id: string) => {
+    if (!confirm("Supprimer cette offre ?")) return;
+    await adminFetch(`/api/offers/${id}`, { method: "DELETE" });
+    fetchOffers();
+  };
+
   const fetchPerfumes = async () => {
     setLoading(true);
     try {
@@ -510,6 +635,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     fetchSettings();
     fetchAnnouncements();
     fetchSlides();
+    fetchOffers();
   }, []);
 
   const updateRequestStatus = async (id: string, status: string) => {
@@ -851,6 +977,22 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             )}
           </button>
           <button
+            onClick={() => setTab("offers")}
+            className={`shrink-0 whitespace-nowrap px-4 py-2 pointer-coarse:min-h-[44px] text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
+              tab === "offers"
+                ? "text-gold border-b-2 border-gold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Gift className="w-4 h-4" />
+            Offres
+            {offers.filter((o) => o.active).length > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-[#b8935a] text-white font-semibold">
+                {offers.filter((o) => o.active).length}
+              </span>
+            )}
+          </button>
+          <button
             onClick={() => setTab("delivery")}
             className={`shrink-0 whitespace-nowrap px-4 py-2 pointer-coarse:min-h-[44px] text-sm tracking-wider uppercase transition-colors flex items-center gap-2 ${
               tab === "delivery"
@@ -973,6 +1115,354 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "offers" && (
+          <div>
+            <div className="mb-6 bg-card border border-border rounded-lg p-5">
+              <h3 className="text-foreground font-medium mb-1.5">
+                Offres automatiques
+              </h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Une offre s&apos;écrit toujours pareil : <strong>une
+                condition</strong> et <strong>une récompense</strong>. Elle
+                s&apos;applique toute seule au panier dès que la condition est
+                remplie — le client la voit avant de commander.
+              </p>
+              <p className="text-muted-foreground/70 text-[13px] mt-2 leading-relaxed">
+                Exemple : « au moins 2 articles du format 10 ml » →
+                « livraison offerte ».
+              </p>
+              <p className="text-muted-foreground/70 text-[13px] mt-2 leading-relaxed">
+                <strong>Les offres ne se cumulent jamais.</strong> Si plusieurs
+                s&apos;appliquent, seule la plus avantageuse pour le client est
+                retenue — c&apos;est ce qui protège votre marge.
+              </p>
+
+              <Button
+                onClick={() => {
+                  resetOfferForm();
+                  setOfferShowForm(true);
+                }}
+                className="btn-gold mt-4 font-semibold"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Nouvelle offre
+              </Button>
+            </div>
+
+            {offerShowForm && (
+              <form
+                onSubmit={saveOffer}
+                className="mb-6 bg-card border border-border rounded-lg p-5 space-y-4"
+              >
+                {offerError && (
+                  <div className="p-3 rounded border border-red-400/40 bg-red-500/10 text-red-500 text-sm">
+                    {offerError}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Nom de l&apos;offre *
+                    </Label>
+                    <Input
+                      value={offerForm.label}
+                      onChange={(e) =>
+                        setOfferForm({ ...offerForm, label: e.target.value })
+                      }
+                      placeholder="Ex : Livraison offerte"
+                      maxLength={80}
+                      required
+                    />
+                    <p className="text-muted-foreground/70 text-xs">
+                      Ce nom est montré au client dans son panier.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">
+                      Nom en arabe
+                    </Label>
+                    <Input
+                      dir="rtl"
+                      value={offerForm.labelAr}
+                      onChange={(e) =>
+                        setOfferForm({ ...offerForm, labelAr: e.target.value })
+                      }
+                      placeholder="توصيل مجاني"
+                      maxLength={80}
+                    />
+                  </div>
+                </div>
+
+                {/*
+                  Écriture libre. Le texte est traduit en règle, et la règle
+                  obtenue est affichée juste en dessous : l'admin relit une
+                  phrase, pas des menus. Les champs restent modifiables — c'est
+                  eux qui font foi, la phrase n'est qu'un raccourci de saisie.
+                */}
+                <div className="space-y-2 bg-gold-soft border border-gold-border rounded-lg p-4">
+                  <Label className="text-foreground text-sm font-medium">
+                    Écrivez votre offre
+                  </Label>
+                  <Textarea
+                    value={offerText}
+                    onChange={(e) => setOfferText(e.target.value)}
+                    rows={2}
+                    placeholder="Ex : si le panier atteint 300 dh alors livraison offerte"
+                    className="resize-none bg-background"
+                  />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      onClick={applyOfferText}
+                      disabled={!offerText.trim()}
+                      className="btn-gold font-semibold"
+                      size="sm"
+                    >
+                      Comprendre la phrase
+                    </Button>
+                    <span className="text-muted-foreground/70 text-xs">
+                      Français, arabe ou darija.
+                    </span>
+                  </div>
+
+                  {offerWarnings.length > 0 && (
+                    <ul className="text-[12px] text-amber-700 space-y-1 pt-1">
+                      {offerWarnings.map((w, i) => (
+                        <li key={i}>⚠ {w}</li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {/* La règle relue en toutes lettres. C'est le garde-fou :
+                      une phrase fausse se repère immédiatement. */}
+                  <p className="text-[13px] text-foreground bg-background border border-border rounded px-3 py-2 mt-1">
+                    <strong>Le site appliquera :</strong>{" "}
+                    {describeOffer(offerForm)}
+                  </p>
+                </div>
+
+                <fieldset className="space-y-3 border border-border rounded-lg p-4">
+                  <legend className="px-2 text-sm text-bordeaux font-medium">
+                    Si...
+                  </legend>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <select
+                      value={offerForm.conditionType}
+                      onChange={(e) =>
+                        setOfferForm({
+                          ...offerForm,
+                          conditionType: e.target.value,
+                        })
+                      }
+                      className="bg-background border border-border rounded px-2 py-2 pointer-coarse:min-h-[44px] text-sm text-foreground"
+                    >
+                      {CONDITION_TYPES.map((c) => (
+                        <option key={c.value} value={c.value}>
+                          {c.label}
+                        </option>
+                      ))}
+                    </select>
+                    <Input
+                      value={offerForm.conditionValue}
+                      onChange={(e) =>
+                        setOfferForm({
+                          ...offerForm,
+                          conditionValue: e.target.value,
+                        })
+                      }
+                      placeholder="Ex : 2"
+                      inputMode="numeric"
+                      required
+                    />
+                  </div>
+
+                  {offerForm.conditionType === "minSize" && (
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-sm">
+                        Format concerné *
+                      </Label>
+                      <Input
+                        value={offerForm.conditionSize}
+                        onChange={(e) =>
+                          setOfferForm({
+                            ...offerForm,
+                            conditionSize: e.target.value,
+                          })
+                        }
+                        placeholder="Ex : 10 ml"
+                        required
+                      />
+                      <p className="text-muted-foreground/70 text-xs">
+                        Écrivez-le comme dans vos parfums. Les espaces et la
+                        casse n&apos;ont pas d&apos;importance : « 10ml » et
+                        « 10 ML » sont reconnus pareil.
+                      </p>
+                    </div>
+                  )}
+                </fieldset>
+
+                <fieldset className="space-y-3 border border-border rounded-lg p-4">
+                  <legend className="px-2 text-sm text-bordeaux font-medium">
+                    Alors...
+                  </legend>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <select
+                      value={offerForm.rewardType}
+                      onChange={(e) =>
+                        setOfferForm({
+                          ...offerForm,
+                          rewardType: e.target.value,
+                        })
+                      }
+                      className="bg-background border border-border rounded px-2 py-2 pointer-coarse:min-h-[44px] text-sm text-foreground"
+                    >
+                      {REWARD_TYPES.map((r) => (
+                        <option key={r.value} value={r.value}>
+                          {r.label}
+                        </option>
+                      ))}
+                    </select>
+                    {offerForm.rewardType !== "freeDelivery" && (
+                      <Input
+                        value={offerForm.rewardValue}
+                        onChange={(e) =>
+                          setOfferForm({
+                            ...offerForm,
+                            rewardValue: e.target.value,
+                          })
+                        }
+                        placeholder={
+                          offerForm.rewardType === "percentOff"
+                            ? "Ex : 15"
+                            : "Ex : 50"
+                        }
+                        inputMode="numeric"
+                        required
+                      />
+                    )}
+                  </div>
+                </fieldset>
+
+                <div className="flex items-center gap-3">
+                  <Switch
+                    checked={offerForm.active}
+                    onCheckedChange={(checked) =>
+                      setOfferForm({ ...offerForm, active: checked })
+                    }
+                    className="data-[state=checked]:bg-[#6e2639]"
+                  />
+                  <Label className="text-muted-foreground text-sm">
+                    {offerForm.active ? "Offre active" : "Offre suspendue"}
+                  </Label>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button type="submit" className="btn-gold font-semibold">
+                    {offerEditingId ? "Enregistrer" : "Créer l'offre"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      resetOfferForm();
+                      setOfferShowForm(false);
+                    }}
+                  >
+                    Annuler
+                  </Button>
+                </div>
+              </form>
+            )}
+
+            {offersLoading ? (
+              <div className="flex justify-center py-10">
+                <Loader2 className="w-8 h-8 text-gold animate-spin" />
+              </div>
+            ) : offers.length === 0 ? (
+              <div className="text-center py-10">
+                <Gift className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground">Aucune offre</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {offers.map((o) => {
+                  const cond = CONDITION_TYPES.find(
+                    (c) => c.value === o.conditionType
+                  );
+                  const rew = REWARD_TYPES.find((r) => r.value === o.rewardType);
+                  return (
+                    <div
+                      key={o.id}
+                      className={`p-4 bg-card border border-border rounded-lg flex items-start justify-between gap-3 ${
+                        o.active ? "" : "opacity-60"
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="text-foreground text-sm font-medium">
+                            {o.label}
+                          </h4>
+                          {!o.active && (
+                            <span className="px-2 py-0.5 text-[10px] tracking-wider uppercase border border-border rounded-sm text-muted-foreground">
+                              Suspendue
+                            </span>
+                          )}
+                        </div>
+                        {/* La règle relue en une phrase : c'est ce qui permet
+                            de repérer une offre trop généreuse d'un coup d'œil. */}
+                        <p className="text-muted-foreground text-xs mt-1.5">
+                          Si {cond?.label.toLowerCase()} {o.conditionValue}
+                          {o.conditionType === "minSize" && o.conditionSize
+                            ? ` (${o.conditionSize})`
+                            : ""}{" "}
+                          → {rew?.label.toLowerCase()}
+                          {o.rewardType !== "freeDelivery"
+                            ? ` de ${o.rewardValue}`
+                            : ""}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => toggleOffer(o)}
+                          aria-label={o.active ? "Suspendre" : "Activer"}
+                          className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-gold"
+                        >
+                          {o.active ? (
+                            <Eye className="w-3.5 h-3.5" />
+                          ) : (
+                            <EyeOff className="w-3.5 h-3.5" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => editOffer(o)}
+                          aria-label="Modifier"
+                          className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-gold"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => deleteOffer(o.id ?? "")}
+                          aria-label="Supprimer"
+                          className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 text-muted-foreground hover:text-red-500"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

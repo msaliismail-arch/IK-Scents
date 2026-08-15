@@ -10,6 +10,7 @@ import { requireAdmin } from "@/lib/guard";
 import { resolveAvailability } from "@/lib/availability";
 import { priceOf } from "@/lib/pricing";
 import { notifyNewOrder } from "@/lib/notify";
+import { cartTotals, type Offer } from "@/lib/offers";
 
 /**
  * Les frais de livraison sont TOUJOURS recalculés côté serveur à partir des
@@ -184,13 +185,34 @@ export async function POST(request: NextRequest) {
       city ? String(city) : ""
     );
 
+    // Les offres sont relues en base et réappliquées ici. Le panier a beau
+    // afficher une remise, seule celle-ci est facturée : c'est la même
+    // fonction des deux côtés, donc les deux chiffres coïncident — sauf si le
+    // client a trafiqué sa requête, auquel cas c'est le serveur qui tranche.
+    const activeOffers = (await db.offer.findMany({
+      where: { active: true },
+      orderBy: { position: "asc" },
+    })) as Offer[];
+
+    const totals = cartTotals(
+      activeOffers,
+      items.map((i) => ({
+        sizeLabel: i.sizeLabel,
+        price: Number(i.price),
+        quantity: i.quantity,
+      })),
+      delivery
+    );
+
     const order = await db.order.create({
       data: {
         customerName: String(customerName).trim(),
         phone: String(phone).trim(),
         address: String(address).trim(),
         city: city ? String(city).trim() : null,
-        deliveryPrice: String(delivery.price),
+        deliveryPrice: String(totals.delivery),
+        offerLabel: totals.offer?.label ?? "",
+        offerDiscount: String(totals.discount),
         note: note ? String(note).trim() : null,
         status: "new",
         items: { create: items },
@@ -209,7 +231,9 @@ export async function POST(request: NextRequest) {
       address: order.address,
       city: order.city,
       note: order.note,
-      deliveryPrice: delivery.price,
+      deliveryPrice: totals.delivery,
+      offerLabel: totals.offer?.label ?? "",
+      offerDiscount: totals.discount,
       items: items.map((i) => ({
         perfumeName: i.perfumeName,
         sizeLabel: i.sizeLabel,

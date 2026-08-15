@@ -22,6 +22,7 @@ import { useLang } from "@/components/site/language-provider";
 import { fill, pick } from "@/lib/i18n";
 import { resolveImg } from "@/lib/site";
 import { DEFAULT_SETTINGS, computeDelivery } from "@/lib/delivery";
+import { cartTotals, type Offer } from "@/lib/offers";
 import type { Settings } from "@/lib/types";
 
 /**
@@ -47,6 +48,7 @@ export default function PanierPage() {
   const { lines, subtotal, setQuantity, remove, clear, loading } = useCart();
 
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  const [offers, setOffers] = useState<Offer[]>([]);
   const [form, setForm] = useState({
     customerName: "",
     phone: "",
@@ -60,19 +62,32 @@ export default function PanierPage() {
 
   useEffect(() => {
     let active = true;
+
     fetch("/api/settings")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (active && data) setSettings({ ...DEFAULT_SETTINGS, ...data });
       })
       .catch(() => {});
+
+    // Les offres actives, pour montrer au client ce qu'il gagne avant même de
+    // commander. Le serveur les réappliquera de son côté : ici c'est de
+    // l'information, pas une décision.
+    fetch("/api/offers")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((list) => {
+        if (active && Array.isArray(list)) setOffers(list);
+      })
+      .catch(() => {});
+
     return () => {
       active = false;
     };
   }, []);
 
   const delivery = computeDelivery(settings, subtotal, form.city);
-  const total = subtotal + delivery.price;
+  const totals = cartTotals(offers, lines, delivery);
+  const total = totals.total;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -263,6 +278,21 @@ export default function PanierPage() {
                     </span>
                   </div>
 
+                  {/* L'offre retenue, nommée. Un total plus bas que la somme
+                      des lignes sans explication ressemble à un bug. */}
+                  {totals.offer && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-bordeaux font-medium">
+                        🎁 {pick(lang, totals.offer.label, totals.offer.labelAr)}
+                      </span>
+                      {totals.discount > 0 && (
+                        <span className="text-bordeaux font-medium tabular-nums">
+                          −{totals.discount} MAD
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">
                       {t.cart.delivery}
@@ -272,10 +302,14 @@ export default function PanierPage() {
                     </span>
                     <span
                       className={
-                        delivery.free ? "text-green-700" : "text-foreground"
+                        totals.delivery <= 0
+                          ? "text-green-700"
+                          : "text-foreground"
                       }
                     >
-                      {delivery.free ? t.cart.free : `${delivery.price} MAD`}
+                      {totals.delivery <= 0
+                        ? t.cart.free
+                        : `${totals.delivery} MAD`}
                     </span>
                   </div>
 
