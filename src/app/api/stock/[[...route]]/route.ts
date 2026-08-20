@@ -18,7 +18,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { toAmount } from "@/lib/pricing";
+import { priceOf, toAmount } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
 
@@ -56,6 +56,39 @@ export async function GET(
 
   const { route } = await params;
   const section = route?.[0] ?? "";
+
+  /* ── Le catalogue du site, pour que le logiciel de stock le rattrape ──
+     Quand un parfum est ajouté sur le site, il n'existe pas encore côté
+     stock. Le logiciel lit cette route et crée une fiche à compléter :
+     le gérant n'a plus qu'à saisir le prix d'achat et la quantité. */
+  if (section === "perfumes") {
+    const perfumes = await db.perfume.findMany({
+      where: { published: true },
+      orderBy: { name: "asc" },
+      include: { sizes: { orderBy: { position: "asc" } } },
+      take: 500,
+    });
+
+    return json({
+      perfumes: perfumes.map((p) => ({
+        id: p.id,
+        name: p.name,
+        brand: p.brand,
+        family: p.family,
+        notes: p.notes,
+        gender: p.gender,
+        isPack: p.isPack,
+        availability: p.availability,
+        serialNumber: p.serialNumber ?? "",
+        createdAt: p.createdAt.toISOString(),
+        /* Les formats vendus, avec le prix réellement payé par le client. */
+        sizes: p.sizes.map((s) => {
+          const view = priceOf(s);
+          return { label: s.label, price: view.final, listPrice: view.original };
+        }),
+      })),
+    });
+  }
 
   if (section !== "orders") return json({ error: "Introuvable" }, 404);
 
